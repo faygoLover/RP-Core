@@ -1,0 +1,80 @@
+package faygolover.rpcore.api;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * Точка встречи модов семейства RP. Каждый мод требует только RP Core; друг о друге моды узнают отсюда.
+ * <ul>
+ *   <li>Навыки и черты: источник регистрирует {@link TraitProvider}, остальные спрашивают {@link #skill}, {@link #hasTrait}.</li>
+ *   <li>Модули: каждый мод семейства отмечается в {@link #registerModule}, чтобы {@code /rpcore} показал, что установлено.</li>
+ * </ul>
+ * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
+ */
+public final class RpCoreAPI {
+    private RpCoreAPI() {}
+
+    private static final List<TraitProvider> PROVIDERS = new CopyOnWriteArrayList<>();
+    private static final Map<String, String> MODULES = Collections.synchronizedMap(new LinkedHashMap<>());
+
+    // ------------------------------------------------------------------ модули
+
+    /** Отметить мод семейства: id и что он даёт (для /rpcore). */
+    public static void registerModule(String modId, String description) {
+        MODULES.put(modId, description);
+    }
+
+    public static Map<String, String> modules() {
+        synchronized (MODULES) {
+            return Map.copyOf(MODULES);
+        }
+    }
+
+    // ------------------------------------------------------------------ навыки и черты
+
+    public static void registerProvider(TraitProvider provider) {
+        PROVIDERS.add(provider);
+    }
+
+    /** Есть ли у навыка уровни (кто-то его ведёт). Без такого мода навык «на максимуме» — решает читающий мод. */
+    public static boolean isSkillManaged(ResourceLocation skill) {
+        for (TraitProvider p : PROVIDERS) if (p.managesSkill(skill)) return true;
+        return false;
+    }
+
+    /** Уровень навыка 0–10 или пусто, если навык никто не ведёт. */
+    public static OptionalInt skill(Player player, ResourceLocation skill) {
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill)) return OptionalInt.of(Math.max(0, Math.min(10, p.skill(player, skill))));
+        }
+        return OptionalInt.empty();
+    }
+
+    /** Выставить уровень навыка; false — никто не ведёт этот навык. */
+    public static boolean setSkill(Player player, ResourceLocation skill, int level) {
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill) && p.setSkill(player, skill, level)) return true;
+        }
+        return false;
+    }
+
+    public static boolean hasTrait(Player player, ResourceLocation trait) {
+        for (TraitProvider p : PROVIDERS) if (p.hasTrait(player, trait)) return true;
+        return false;
+    }
+
+    /** Список источников (для /rpcore). */
+    public static List<String> providerNames() {
+        List<String> out = new ArrayList<>();
+        for (TraitProvider p : PROVIDERS) out.add(p.getClass().getName());
+        return out;
+    }
+}

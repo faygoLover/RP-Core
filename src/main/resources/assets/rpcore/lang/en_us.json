@@ -1,0 +1,14 @@
+{
+  "rpcore.hud.editor.title": "HUD editor",
+  "rpcore.hud.editor.hint": "Drag with the mouse, wheel — size, right click — hide or show",
+  "rpcore.hud.editor.reset": "Reset",
+  "rpcore.hud.editor.done": "Done",
+  "rpcore.hud.editor.select": "Select an element",
+  "rpcore.hud.editor.anchor": "Anchor: %s",
+  "rpcore.hud.editor.empty": "No mod added HUD elements",
+  "rpcore.cmd.modules": "RP family mods:",
+  "rpcore.cmd.skills_managed": "Skills are managed by RP Perks.",
+  "rpcore.cmd.skills_unmanaged": "RP Perks is not installed — no skills, everything works as at max level.",
+  "rpcore.cmd.skill_level": "%s: skill %s — level %s",
+  "rpcore.cmd.skill_unmanaged": "Nobody manages skill %s (RP Perks needed)"
+}
