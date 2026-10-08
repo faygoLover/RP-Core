@@ -24,6 +24,12 @@ public interface TraitProvider {
         return false;
     }
 
+    /**
+     * Практика навыка (рост навыков): мод, где навык применяется, сообщает «сколько сделано». Сколько из этого
+     * станет опытом — решает источник (настройки роста, перки). Вызывается на сервере.
+     */
+    default void practice(Player player, ResourceLocation skill, double amount) {}
+
     /** Есть ли у игрока черта. */
     default boolean hasTrait(Player player, ResourceLocation trait) {
         return false;

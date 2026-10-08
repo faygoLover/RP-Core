@@ -18,6 +18,19 @@ public final class RpIds {
     public static final ResourceLocation MEDICINE = id("medicine");
     /** Кулинария (будущий мод питания). */
     public static final ResourceLocation COOKING = id("cooking");
+    /** Короткоствольное оружие: пистолеты, пистолеты-пулемёты. */
+    public static final ResourceLocation SHORT_ARMS = id("short_arms");
+    /** Длинноствольное оружие: винтовки, дробовики. */
+    public static final ResourceLocation LONG_ARMS = id("long_arms");
+    /** Тяжёлое оружие: пулемёты, снайперские винтовки, гранатомёты. */
+    public static final ResourceLocation HEAVY_ARMS = id("heavy_arms");
+    public static final ResourceLocation EXPLOSIVES = id("explosives");
+    /** Ближний бой: любое оружие ближнего боя и голые руки. */
+    public static final ResourceLocation MELEE = id("melee");
+    /** Сила (растёт от нагрузки: удары, добыча). */
+    public static final ResourceLocation STRENGTH = id("strength");
+    /** Форма (растёт от нагрузки: бег, плавание, лестницы). */
+    public static final ResourceLocation FITNESS = id("fitness");
 
     // ------------------------------------------------------------------ черты тела и характера
     /** Крепкий: тяжелее ранить, дольше держится. */

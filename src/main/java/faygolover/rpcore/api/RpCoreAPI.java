@@ -86,6 +86,17 @@ public final class RpCoreAPI {
         return false;
     }
 
+    /** Сообщить о практике навыка (сервер): тот, кто ведёт навык, начислит опыт. */
+    public static void practice(Player player, ResourceLocation skill, double amount) {
+        if (amount <= 0 || player.level().isClientSide) return;
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill)) {
+                p.practice(player, skill, amount);
+                return;
+            }
+        }
+    }
+
     public static boolean hasTrait(Player player, ResourceLocation trait) {
         for (TraitProvider p : PROVIDERS) if (p.hasTrait(player, trait)) return true;
         return false;
