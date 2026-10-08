@@ -52,3 +52,18 @@ RP Core — общая библиотека семейства RP-модов а�
 JDK 17, `gradlew.bat build` (без сети: `--offline`). Готовый jar кладётся в `libs/` модов семейства (`blank:rpcore:<версия>` через flatDir).
 Проверить загрузку мода с одним Core: `gradlew.bat runGameTestServer` в папке мода.
 RP Medicine: `-Pno_perks=true`, `-Pno_stamina=true` — запуск и тесты без этих модов.
+
+## Шаг 3 (08.10.2026) — RP Culinary, сделано
+Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
+- Сытость, вода, нутриенты, стадия голода, аппетит, вес и жир.
+- Рвота, капельница, прокрутка времени.
+
+События и связи:
+- `FoodEatenEvent` — «съел»: Medicine поднимает сахар диабетика.
+- `ExertionEvent` через `RpCoreAPI.exertion`: Stamina сообщает нагрузку.
+- `BodyProvider.faint`, `weightKg`, `bodyFatPercent`.
+- Метки `food/hunger`, `food/thirst`, `food/weight`, `body/nutrition`, черта `anorexic`.
+
+Что поменялось в модах:
+- Medicine 0.3.0 больше не ведёт питание: берёт всё у Кулинарии.
+- Stamina 1.2.0 и Perks 1.2.0 при Кулинарии уступают ей голод.
