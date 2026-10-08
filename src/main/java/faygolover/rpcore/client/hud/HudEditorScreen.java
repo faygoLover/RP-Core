@@ -54,8 +54,9 @@ public class HudEditorScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         renderBackground(g);
-        g.drawCenteredString(font, title, width / 2, 12, 0xFFFFFF);
-        g.drawCenteredString(font, Component.translatable("rpcore.hud.editor.hint"), width / 2, 24, 0xA0A0A0);
+        // Под строкой кнопок (на узком окне кнопки закрывали заголовок).
+        g.drawCenteredString(font, title, width / 2, 24, 0xFFFFFF);
+        g.drawCenteredString(font, Component.translatable("rpcore.hud.editor.hint"), width / 2, 36, 0xA0A0A0);
         if (HudRegistry.elements().isEmpty())
             g.drawCenteredString(font, Component.translatable("rpcore.hud.editor.empty"), width / 2, height / 2, 0xFFFFFF);
         for (HudElement e : HudRegistry.elements()) {
