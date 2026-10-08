@@ -38,6 +38,26 @@ public final class RpCoreAPI {
         }
     }
 
+    // ------------------------------------------------------------------ тело
+
+    private static volatile BodyProvider body;
+
+    /** Мод тела (RP Medicine). Один. */
+    public static void registerBody(BodyProvider provider) {
+        body = provider;
+    }
+
+    /** Ведёт ли мод тела эту часть физиологии (тогда простая версия в других модах уступает ему). */
+    public static boolean bodyHandles(ResourceLocation feature) {
+        BodyProvider b = body;
+        return b != null && b.handles(feature);
+    }
+
+    /** Мод тела или null. */
+    public static BodyProvider body() {
+        return body;
+    }
+
     // ------------------------------------------------------------------ навыки и черты
 
     public static void registerProvider(TraitProvider provider) {

@@ -33,4 +33,12 @@ public final class RpIds {
     public static final ResourceLocation ALCOHOLIC = id("alcoholic");
     public static final ResourceLocation TEETOTALER = id("teetotaler");
     public static final ResourceLocation CAFFEINE_ADDICT = id("caffeine_addict");
+
+    // ------------------------------------------------------------------ части физиологии (BodyProvider.handles)
+    /** Ванильное здоровье заменено своим (максимум здоровья от перков не имеет смысла). */
+    public static final ResourceLocation BODY_HEALTH = id("body/health");
+    /** Привыкание и ломка от кофеина ведёт мод тела. */
+    public static final ResourceLocation BODY_CAFFEINE = id("body/caffeine");
+    /** Травмы ног (растяжение, вывих) ведёт мод тела. */
+    public static final ResourceLocation BODY_SPRAIN = id("body/sprain");
 }

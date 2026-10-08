@@ -25,6 +25,10 @@ public class RpCore {
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.addListener(CoreCommand::register);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, CoreConfig.SPEC);
+        // Заплатки от утечек памяти чужих модов (taa, sanitydim) — отключаются в config/rpcore-common.toml.
+        MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.fix.LeakFixes::onLogout);
+        MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.fix.LeakFixes::onServerTick);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
