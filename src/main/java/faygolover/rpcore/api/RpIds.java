@@ -48,6 +48,20 @@ public final class RpIds {
     public static final ResourceLocation CAFFEINE_ADDICT = id("caffeine_addict");
     /** Анорексия: маленький желудок, плохой аппетит. */
     public static final ResourceLocation ANOREXIC = id("anorexic");
+    /** Диетолог: точный состав еды и советы. */
+    public static final ResourceLocation DIETITIAN = id("dietitian");
+    /** Полевой повар: на костре и в коптильне готовит как на 2 уровня выше. */
+    public static final ResourceLocation FIELD_COOK = id("field_cook");
+    /** Чистюля: почти не травится сырым и сомнительным. */
+    public static final ResourceLocation CLEAN = id("clean");
+    /** Гурман: однообразное надоедает быстрее, вкусное радует сильнее. */
+    public static final ResourceLocation GOURMET = id("gourmet");
+    /** Кухонный кошмар: готовит на 3 уровня хуже. */
+    public static final ResourceLocation KITCHEN_NIGHTMARE = id("kitchen_nightmare");
+    /** Быстрый обмен веществ: тратит больше, худеет легче. */
+    public static final ResourceLocation FAST_METABOLISM = id("fast_metabolism");
+    /** Склонность к полноте: тратит меньше, полнеет легче. */
+    public static final ResourceLocation SLOW_METABOLISM = id("slow_metabolism");
 
     // ------------------------------------------------------------------ части физиологии (BodyProvider.handles)
     /** Ванильное здоровье заменено своим (максимум здоровья от перков не имеет смысла). */
