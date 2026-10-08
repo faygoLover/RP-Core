@@ -7,14 +7,16 @@ RP Core — общая библиотека семейства RP-модов а�
 | Мод | Версия | Требует | По желанию |
 |---|---|---|---|
 | RP Core (`rpcore`) | 0.1.0 | — | — |
-| RP Perks (`rpperks`) | 1.1.0 | Core | — |
-| RP Stamina (`rpstamina`) | 1.1.0 | Core | (Perks меняет её атрибуты, если стоит) |
+| RP Perks (`rpperks`) | 1.1.0 | Core | Stamina, LSO (перки меняют их атрибуты) |
+| RP Stamina (`rpstamina`) | 1.1.0 | Core | Perks (меняет её атрибуты: максимум, восстановление, расход) |
 | RP Medicine (`rpmedicine`) | 0.2.0 | Core | Perks, Stamina, Patchouli, TaCZ, ZC, LSO, Curios, Voice Chat |
 
 **В Core:**
 - **Навыки и черты** (`api/RpCoreAPI`, `RpIds`, `TraitProvider`). Мод, который ведёт навыки, регистрирует источник; остальные спрашивают Core. Навыки: `rpcore:medicine`, `rpcore:cooking` (0–10). Черты: `tough`, `fragile`, `brave`, `coward`, `diabetic`, `smoker`, `alcoholic`, `teetotaler`, `caffeine_addict`.
 - **Общий HUD и один редактор** (`client/hud`). Моды регистрируют элементы (`HudRegistry.register`), Core хранит раскладку игрока в `config/rpcore-hud.json` и рисует всё одним слоем. Редактор — `/rphud` (а также `/rpmedicine hud`, `/staminahud`, кнопка в настройках Medicine). Первая раскладка берётся из старых конфигов модов — у игроков ничего не съезжает.
 - **`/rpcore`** — какие моды семейства стоят и кто ведёт навыки; `/rpcore skill <игрок> <навык> [уровень|reset]` (ГМ).
+
+**Perks ↔ Stamina** связаны напрямую через атрибуты (`rpstamina:max_stamina` и др.): Perks находит их по имени, если Stamina стоит, иначе пропускает. Кода друг друга не требуют. В шаге 2 это можно перевести на общие модификаторы Core.
 
 **Кто что даёт:**
 - RP Perks ведёт навыки: уровень ГМа (хранится у игрока, синхронизируется), иначе по перкам — «Курсы первой помощи» 3, «Анастасия» 8, «Кулинар» 5 (Кулинария; выбрано по умолчанию). Черты — по перкам (таблица в `rpperks/compat/CoreTraits`).
