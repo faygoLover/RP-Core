@@ -43,6 +43,9 @@ public final class CoreCommand {
         boolean medicine = RpCoreAPI.isSkillManaged(faygolover.rpcore.api.RpIds.MEDICINE);
         src.sendSuccess(() -> Component.translatable(medicine ? "rpcore.cmd.skills_managed" : "rpcore.cmd.skills_unmanaged")
                 .withStyle(ChatFormatting.GRAY), false);
+        boolean food = RpCoreAPI.nutrition() != null;
+        src.sendSuccess(() -> Component.translatable(food ? "rpcore.cmd.food_managed" : "rpcore.cmd.food_unmanaged")
+                .withStyle(ChatFormatting.GRAY), false);
         return 1;
     }
 

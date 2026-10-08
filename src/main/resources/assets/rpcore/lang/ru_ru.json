@@ -10,5 +10,7 @@
   "rpcore.cmd.skills_managed": "Навыки ведёт RP Perks.",
   "rpcore.cmd.skills_unmanaged": "RP Perks не установлен — навыков нет, всё как на максимальном уровне.",
   "rpcore.cmd.skill_level": "%s: навык %s — уровень %s",
-  "rpcore.cmd.skill_unmanaged": "Навык %s никто не ведёт (нужен RP Perks)"
+  "rpcore.cmd.skill_unmanaged": "Навык %s никто не ведёт (нужен RP Perks)",
+  "rpcore.cmd.food_managed": "Голод, жажду и вес ведёт RP Culinary.",
+  "rpcore.cmd.food_unmanaged": "RP Culinary не установлен — голод ванильный."
 }

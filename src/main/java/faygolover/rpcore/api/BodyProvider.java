@@ -20,4 +20,19 @@ public interface BodyProvider {
     default boolean sprain(Player player) {
         return false;
     }
+
+    /** Обморок (голодный, от жажды) на {@code seconds} секунд. true — сделано; иначе вызывающий обходится сам. */
+    default boolean faint(Player player, int seconds) {
+        return false;
+    }
+
+    /** Вес тела, кг, или NaN — мод тела его не ведёт (первое знакомство мода питания с игроком). */
+    default double weightKg(Player player) {
+        return Double.NaN;
+    }
+
+    /** Доля жира, %, или NaN. */
+    default double bodyFatPercent(Player player) {
+        return Double.NaN;
+    }
 }

@@ -10,5 +10,7 @@
   "rpcore.cmd.skills_managed": "Skills are managed by RP Perks.",
   "rpcore.cmd.skills_unmanaged": "RP Perks is not installed — no skills, everything works as at max level.",
   "rpcore.cmd.skill_level": "%s: skill %s — level %s",
-  "rpcore.cmd.skill_unmanaged": "Nobody manages skill %s (RP Perks needed)"
+  "rpcore.cmd.skill_unmanaged": "Nobody manages skill %s (RP Perks needed)",
+  "rpcore.cmd.food_managed": "Hunger, thirst and weight are handled by RP Culinary.",
+  "rpcore.cmd.food_unmanaged": "RP Culinary is not installed — vanilla hunger."
 }

@@ -1,7 +1,9 @@
 package faygolover.rpcore.api;
 
+import faygolover.rpcore.api.event.ExertionEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +18,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <ul>
  *   <li>Навыки и черты: источник регистрирует {@link TraitProvider}, остальные спрашивают {@link #skill}, {@link #hasTrait}.</li>
  *   <li>Модули: каждый мод семейства отмечается в {@link #registerModule}, чтобы {@code /rpcore} показал, что установлено.</li>
+ *   <li>Тело ({@link BodyProvider}, RP Medicine) и питание ({@link NutritionProvider}, RP Culinary) — по одному моду.</li>
+ *   <li>Нагрузка: {@link #exertion} — RP Stamina сообщает потраченную выносливость, питание считает калории.</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */
@@ -56,6 +60,34 @@ public final class RpCoreAPI {
     /** Мод тела или null. */
     public static BodyProvider body() {
         return body;
+    }
+
+    // ------------------------------------------------------------------ питание
+
+    private static volatile NutritionProvider nutrition;
+
+    /** Мод питания (RP Culinary). Один. */
+    public static void registerNutrition(NutritionProvider provider) {
+        nutrition = provider;
+    }
+
+    /** Мод питания или null. */
+    public static NutritionProvider nutrition() {
+        return nutrition;
+    }
+
+    /** Ведёт ли мод питания эту часть ({@link RpIds#FOOD_HUNGER}…): тогда своя простая версия уступает ему. */
+    public static boolean nutritionHandles(ResourceLocation feature) {
+        NutritionProvider n = nutrition;
+        return n != null && n.handles(feature);
+    }
+
+    // ------------------------------------------------------------------ нагрузка
+
+    /** Физическая нагрузка (сервер): потраченная выносливость RP Stamina. Слушать — {@link ExertionEvent}. */
+    public static void exertion(Player player, double stamina) {
+        if (stamina <= 0 || player.level().isClientSide) return;
+        MinecraftForge.EVENT_BUS.post(new ExertionEvent(player, stamina));
     }
 
     // ------------------------------------------------------------------ навыки и черты

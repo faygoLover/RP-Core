@@ -46,6 +46,8 @@ public final class RpIds {
     public static final ResourceLocation ALCOHOLIC = id("alcoholic");
     public static final ResourceLocation TEETOTALER = id("teetotaler");
     public static final ResourceLocation CAFFEINE_ADDICT = id("caffeine_addict");
+    /** Анорексия: маленький желудок, плохой аппетит. */
+    public static final ResourceLocation ANOREXIC = id("anorexic");
 
     // ------------------------------------------------------------------ части физиологии (BodyProvider.handles)
     /** Ванильное здоровье заменено своим (максимум здоровья от перков не имеет смысла). */
@@ -54,4 +56,14 @@ public final class RpIds {
     public static final ResourceLocation BODY_CAFFEINE = id("body/caffeine");
     /** Травмы ног (растяжение, вывих) ведёт мод тела. */
     public static final ResourceLocation BODY_SPRAIN = id("body/sprain");
+    /** Как нехватка и избыток нутриентов действуют на тело (заживление, иммунитет, выносливость), решает мод тела. */
+    public static final ResourceLocation BODY_NUTRITION = id("body/nutrition");
+
+    // ------------------------------------------------------------------ части питания (NutritionProvider.handles)
+    /** Голод в калориях вместо ванильной сытости. */
+    public static final ResourceLocation FOOD_HUNGER = id("food/hunger");
+    /** Жажда (своя или LSO полоской). */
+    public static final ResourceLocation FOOD_THIRST = id("food/thirst");
+    /** Вес и жир меняются от калорий. */
+    public static final ResourceLocation FOOD_WEIGHT = id("food/weight");
 }
