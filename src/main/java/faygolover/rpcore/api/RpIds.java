@@ -2,6 +2,8 @@ package faygolover.rpcore.api;
 
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 /**
  * Общие названия навыков и черт. Моды договариваются через них, а не через классы друг друга:
  * RP Medicine спрашивает «есть ли черта diabetic», RP Perks отвечает по своим перкам.
@@ -31,6 +33,9 @@ public final class RpIds {
     public static final ResourceLocation STRENGTH = id("strength");
     /** Форма (растёт от нагрузки: бег, плавание, лестницы). */
     public static final ResourceLocation FITNESS = id("fitness");
+    /** Все навыки семейства по порядку (подсказки команд, окна). */
+    public static final List<ResourceLocation> SKILLS = List.of(MEDICINE, COOKING, SHORT_ARMS, LONG_ARMS, HEAVY_ARMS,
+            EXPLOSIVES, MELEE, STRENGTH, FITNESS);
 
     // ------------------------------------------------------------------ черты тела и характера
     /** Крепкий: тяжелее ранить, дольше держится. */
@@ -41,6 +46,14 @@ public final class RpIds {
     public static final ResourceLocation BRAVE = id("brave");
     /** Трусливый: болевой шок сильнее. */
     public static final ResourceLocation COWARD = id("coward");
+    /** Раны и переломы заживают быстрее. */
+    public static final ResourceLocation FAST_HEALING = id("fast_healing");
+    /** Раны и переломы заживают медленнее. */
+    public static final ResourceLocation SLOW_HEALING = id("slow_healing");
+    /** Крепкий иммунитет: инфекции слабее. */
+    public static final ResourceLocation STRONG_IMMUNITY = id("strong_immunity");
+    /** Слабый иммунитет: инфекции тяжелее. */
+    public static final ResourceLocation WEAK_IMMUNITY = id("weak_immunity");
     public static final ResourceLocation DIABETIC = id("diabetic");
     public static final ResourceLocation SMOKER = id("smoker");
     public static final ResourceLocation ALCOHOLIC = id("alcoholic");
