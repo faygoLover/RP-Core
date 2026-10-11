@@ -17,6 +17,14 @@ public interface BodyProvider {
     float condition(Player player);
 
     /** Неудачное падение: подвернуть ногу настоящей травмой. true — сделано. */
+    /**
+     * Человек без сознания (нокдаун и т. п.): не говорит, не пользуется КПК. По умолчанию — в сознании.
+     * @since 0.3.3
+     */
+    default boolean unconscious(Player player) {
+        return false;
+    }
+
     default boolean sprain(Player player) {
         return false;
     }

@@ -62,6 +62,12 @@ public final class RpCoreAPI {
         return body;
     }
 
+    /** Без сознания ли игрок (по моду тела; без него — всегда в сознании). */
+    public static boolean unconscious(net.minecraft.world.entity.player.Player player) {
+        BodyProvider b = body;
+        return b != null && b.unconscious(player);
+    }
+
     // ------------------------------------------------------------------ питание
 
     private static volatile NutritionProvider nutrition;
