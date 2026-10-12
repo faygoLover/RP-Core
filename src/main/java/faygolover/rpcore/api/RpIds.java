@@ -31,7 +31,7 @@ public final class RpIds {
     public static final ResourceLocation MELEE = id("melee");
     /** Сила (растёт от нагрузки: удары, добыча). */
     public static final ResourceLocation STRENGTH = id("strength");
-    /** Форма (растёт от нагрузки: бег, плавание, лестницы). */
+    /** Телосложение (бывшая «Форма»; растёт от нагрузки: бег, плавание, лестницы). Id не меняется — сохранения. */
     public static final ResourceLocation FITNESS = id("fitness");
     /** Все навыки семейства по порядку (подсказки команд, окна). */
     public static final List<ResourceLocation> SKILLS = List.of(MEDICINE, COOKING, SHORT_ARMS, LONG_ARMS, HEAVY_ARMS,

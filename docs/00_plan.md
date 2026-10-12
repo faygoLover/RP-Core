@@ -94,3 +94,37 @@ Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
 Решения по ревью семейства (фото в Core, модульные розетки, тесты из jar, аудит команд, утечки, RP Fixes, подмена
 сытости, Сила и Телосложение ×10) — `docs/01_review_2026-10-11.md`. Аномалии и Medicine —
 `RP Medicine (Health revork)/docs/11_anomalies.md`.
+
+## Блок 1 (13.10.2026) — Core 0.4.0, сделано
+Нарезка — `docs/02_blocks_2026-10-12.md`, решения — `docs/01_review_2026-10-11.md`. В игре не проверено.
+
+| Мод | Версия | Что изменилось |
+|---|---|---|
+| RP Core | 0.4.0 | розетка выносливости, защита от второго мода тела/питания/выносливости, служба фото, свой сетевой канал, `/rptime`, общий список команд, настройка отладочных команд; заплатки утечек уехали в RP Fixes |
+| RP Fixes | 1.0.0 | новый мод: заплатки taa и Sanity (`config/rpfixes-common.toml`), только сервер, ничего не требует |
+| RP Stamina | 1.3.0 | регистрирует розетку; бег решает миксин в `LocalPlayer.hasEnoughFoodToStartSprinting()`, подмены сытости больше нет; `/rpstamina`; `/rptime` |
+| RP Perks | 1.4.0 | `/rpperks`, `/rpperks admin`; «Телосложение»; `physical_xp_cost = 10`; `physical_decay_enabled`; выносливость через розетку |
+| RP Culinary | 0.2.0 | выносливость через розетку; `/rptime` вместо `/rpculinary advance`; утечка `REPEATS`; тесты вон из jar |
+
+**Новое в API Core 0.4.0** (старое не удалено — Medicine 0.3.x и PDA 0.1.x работают с новым Core как есть):
+- `StaminaProvider` + `RpCoreAPI.registerStamina / stamina() / staminaAttribute(Stat)`: сколько, максимум, измотан,
+  потратить N, атрибут характеристики (MAX, REGEN, COST, MOVE/SWIM/MINE/MELEE_COST, ARMOR_BURDEN) для модификаторов.
+- `registerBody / registerNutrition / registerStamina`: второй мод не заменяет первого, в лог — оба класса.
+- Фото: сервер — `api/Photos` (`png`, `has`, `request` — переснять), событие `PhotoChangedEvent`; клиент —
+  `client/photo/ClientPhotos` (`skin(uuid)` — текстура скина, `drawFace(g, uuid, x, y, size)` — лицо с шапкой, false —
+  фото ещё нет). Core сам просит снимок при входе, если фото нет. Файлы — `<мир>/rpcore/photos/<uuid>.png`.
+- Команды: `RpCoreAPI.registerCommand(modId, синтаксис, ключ перевода, права, отладочная)`, `/rpcore commands [мод]`;
+  `RpCoreAPI.debugCommands()` — для `.requires(...)` отладочных веток (`commands.debug_commands` в `rpcore-common.toml`).
+- Время RP: `RpCoreAPI.timeRunning()` (пока false — голод, раны, таймеры тела стоят), событие `RpTimeSkipEvent`
+  (`seconds/hours`, `sleeping`, `scope` ALL/WOUNDS/FOOD, `food()`, `wounds()`). Команда — `/rptime`,
+  включается `rptime.enabled` (по умолчанию выключено — время идёт всегда; `sleep`/`skip` работают всегда).
+- Правило в javadoc `NutritionProvider`: **ванильной сытостью владеет мод питания**, остальные её не трогают.
+- «Общие модификаторы» (п. 10 блока): брат решил 12.10 сводить только выносливость — это и есть розетка с атрибутами.
+  Скорость и урон остаются ванильными атрибутами (они и так складываются в одном месте).
+- `/rptime` и Stamina (решение брата): «стоп» выносливость не трогает; `sleep` — выносливость полная, `skip` —
+  восстанавливается как стоя.
+
+**Для блока 5 (Medicine):** `StaminaCompat` → `RpCoreAPI.stamina()`; `EffectsApplier` — атрибуты через
+`RpCoreAPI.staminaAttribute(...)`; медкарта → `Photos` / `ClientPhotos` (пока Medicine сама тоже просит снимок при
+входе — после блока 5 останется только Core); Medicine слушает `RpTimeSkipEvent` (раны) и `timeRunning()`;
+команды — в `registerCommand`, `/rpmedicine profile` — за `debugCommands()`.

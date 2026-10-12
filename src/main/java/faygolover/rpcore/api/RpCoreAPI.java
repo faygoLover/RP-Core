@@ -1,7 +1,10 @@
 package faygolover.rpcore.api;
 
+import faygolover.rpcore.CoreConfig;
+import faygolover.rpcore.RpCore;
 import faygolover.rpcore.api.event.ExertionEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -18,8 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <ul>
  *   <li>Навыки и черты: источник регистрирует {@link TraitProvider}, остальные спрашивают {@link #skill}, {@link #hasTrait}.</li>
  *   <li>Модули: каждый мод семейства отмечается в {@link #registerModule}, чтобы {@code /rpcore} показал, что установлено.</li>
- *   <li>Тело ({@link BodyProvider}, RP Medicine) и питание ({@link NutritionProvider}, RP Culinary) — по одному моду.</li>
+ *   <li>Тело ({@link BodyProvider}, RP Medicine), питание ({@link NutritionProvider}, RP Culinary) и выносливость
+ *   ({@link StaminaProvider}, RP Stamina) — по одному моду. Второй такой мод первого не заменяет (в лог — оба).</li>
  *   <li>Нагрузка: {@link #exertion} — RP Stamina сообщает потраченную выносливость, питание считает калории.</li>
+ *   <li>Команды: каждый мод сообщает свои в {@link #registerCommand}, {@code /rpcore commands} показывает все.</li>
+ *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, события {@link faygolover.rpcore.api.event.RpTimeSkipEvent}.</li>
+ *   <li>Фото игроков (портрет по скину) — {@link Photos}.</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */
@@ -46,9 +53,9 @@ public final class RpCoreAPI {
 
     private static volatile BodyProvider body;
 
-    /** Мод тела (RP Medicine). Один. */
-    public static void registerBody(BodyProvider provider) {
-        body = provider;
+    /** Мод тела (RP Medicine). Один: второй не заменяет первого. */
+    public static synchronized void registerBody(BodyProvider provider) {
+        if (accept("тела", body, provider)) body = provider;
     }
 
     /** Ведёт ли мод тела эту часть физиологии (тогда простая версия в других модах уступает ему). */
@@ -72,9 +79,9 @@ public final class RpCoreAPI {
 
     private static volatile NutritionProvider nutrition;
 
-    /** Мод питания (RP Culinary). Один. */
-    public static void registerNutrition(NutritionProvider provider) {
-        nutrition = provider;
+    /** Мод питания (RP Culinary). Один: второй не заменяет первого. */
+    public static synchronized void registerNutrition(NutritionProvider provider) {
+        if (accept("питания", nutrition, provider)) nutrition = provider;
     }
 
     /** Мод питания или null. */
@@ -86,6 +93,75 @@ public final class RpCoreAPI {
     public static boolean nutritionHandles(ResourceLocation feature) {
         NutritionProvider n = nutrition;
         return n != null && n.handles(feature);
+    }
+
+    // ------------------------------------------------------------------ выносливость
+
+    private static volatile StaminaProvider stamina;
+
+    /** Мод выносливости (RP Stamina). Один: второй не заменяет первого. @since 0.4.0 */
+    public static synchronized void registerStamina(StaminaProvider provider) {
+        if (accept("выносливости", stamina, provider)) stamina = provider;
+    }
+
+    /** Мод выносливости или null — тогда выносливости нет. @since 0.4.0 */
+    public static StaminaProvider stamina() {
+        return stamina;
+    }
+
+    /** Атрибут характеристики выносливости для модификаторов или null (нет мода выносливости). @since 0.4.0 */
+    public static Attribute staminaAttribute(StaminaProvider.Stat stat) {
+        StaminaProvider s = stamina;
+        return s == null ? null : s.attribute(stat);
+    }
+
+    /** Второй мод на то же место: оставляем первого, в лог — оба имени. */
+    private static boolean accept(String what, Object current, Object provider) {
+        if (provider == null || current == provider) return false;
+        if (current == null) return true;
+        RpCore.LOGGER.error("RP Core: мод {} уже есть ({}), второй ({}) не подключён.", what,
+                current.getClass().getName(), provider.getClass().getName());
+        return false;
+    }
+
+    // ------------------------------------------------------------------ команды
+
+    /**
+     * Команда мода семейства для общего списка {@code /rpcore commands}.
+     * @param syntax         как набирать, например {@code /rpstamina set <игроки> <число>}
+     * @param descriptionKey ключ перевода с описанием
+     * @param permission     уровень прав (0 — все, 2 — ГМ)
+     * @param debug          отладочная: видна и работает, только если в конфиге Core включены отладочные команды
+     */
+    public record CommandInfo(String modId, String syntax, String descriptionKey, int permission, boolean debug) {}
+
+    private static final List<CommandInfo> COMMANDS = new CopyOnWriteArrayList<>();
+
+    /** Сообщить свою команду в общий список (регистрировать один раз, в FMLCommonSetupEvent). @since 0.4.0 */
+    public static void registerCommand(String modId, String syntax, String descriptionKey, int permission, boolean debug) {
+        COMMANDS.add(new CommandInfo(modId, syntax, descriptionKey, permission, debug));
+    }
+
+    public static List<CommandInfo> commands() {
+        return List.copyOf(COMMANDS);
+    }
+
+    /**
+     * Включены ли отладочные команды семейства ({@code config/rpcore-common.toml}, {@code commands.debug_commands}).
+     * Проверять в {@code .requires(...)} отладочной ветки. @since 0.4.0
+     */
+    public static boolean debugCommands() {
+        return CoreConfig.SPEC.isLoaded() && CoreConfig.DEBUG_COMMANDS.get();
+    }
+
+    // ------------------------------------------------------------------ время RP
+
+    /**
+     * Идёт ли время RP ({@code /rptime}). Пока не идёт — голод не тратится, раны не заживают, таймеры тела стоят.
+     * Механика выключена в конфиге — время идёт всегда (как без неё). Сервер. @since 0.4.0
+     */
+    public static boolean timeRunning() {
+        return faygolover.rpcore.time.RpTime.running();
     }
 
     // ------------------------------------------------------------------ нагрузка

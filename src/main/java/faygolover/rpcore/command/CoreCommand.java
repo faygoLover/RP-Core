@@ -1,6 +1,7 @@
 package faygolover.rpcore.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -9,6 +10,7 @@ import faygolover.rpcore.api.RpIds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
@@ -19,8 +21,8 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import java.util.OptionalInt;
 
 /**
- * {@code /rpcore} — что из семейства установлено и кто ведёт навыки; {@code /rpcore skill} — уровень навыка
- * (если навык кто-то ведёт, например RP Perks).
+ * {@code /rpcore} — что из семейства установлено и кто ведёт навыки; {@code /rpcore commands [мод]} — общий список
+ * команд семейства; {@code /rpcore skill} — уровень навыка (если навык кто-то ведёт, например RP Perks).
  */
 public final class CoreCommand {
     private CoreCommand() {}
@@ -28,6 +30,11 @@ public final class CoreCommand {
     public static void register(RegisterCommandsEvent e) {
         e.getDispatcher().register(Commands.literal("rpcore")
                 .executes(CoreCommand::info)
+                .then(Commands.literal("commands")
+                        .executes(c -> commands(c, null))
+                        .then(Commands.argument("mod", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(RpCoreAPI.modules().keySet(), b))
+                                .executes(c -> commands(c, StringArgumentType.getString(c, "mod")))))
                 .then(Commands.literal("skill").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("skill", ResourceLocationArgument.id()).suggests(SKILLS)
@@ -37,12 +44,12 @@ public final class CoreCommand {
                                         .then(Commands.literal("reset").executes(c -> setSkill(c, -1)))))));
     }
 
-    /** Подсказка по Tab: короткие имена навыков с русским названием рядом (если стоит RP Perks). */
+    /** Подсказка по Tab: короткие имена навыков с названием рядом (переводы Core). */
     private static final SuggestionProvider<CommandSourceStack> SKILLS = (c, b) -> {
         String typed = b.getRemaining().toLowerCase(java.util.Locale.ROOT);
         for (ResourceLocation id : RpIds.SKILLS) {
             if (id.getPath().startsWith(typed) || id.toString().startsWith(typed))
-                b.suggest(id.getPath(), Component.translatable("skill.rpperks." + id.getPath()));
+                b.suggest(id.getPath(), Component.translatable("skill.rpcore." + id.getPath()));
         }
         return b.buildFuture();
     };
@@ -67,7 +74,32 @@ public final class CoreCommand {
         boolean food = RpCoreAPI.nutrition() != null;
         src.sendSuccess(() -> Component.translatable(food ? "rpcore.cmd.food_managed" : "rpcore.cmd.food_unmanaged")
                 .withStyle(ChatFormatting.GRAY), false);
+        src.sendSuccess(() -> Component.translatable("rpcore.cmd.commands_hint").withStyle(ChatFormatting.GRAY), false);
         return 1;
+    }
+
+    /** Общий список команд семейства: что можно этому игроку; отладочные — только если включены в конфиге. */
+    private static int commands(CommandContext<CommandSourceStack> c, String mod) {
+        var src = c.getSource();
+        boolean debug = RpCoreAPI.debugCommands();
+        String current = null;
+        int n = 0;
+        for (RpCoreAPI.CommandInfo info : RpCoreAPI.commands().stream()
+                .sorted(java.util.Comparator.comparing(RpCoreAPI.CommandInfo::modId)).toList()) {
+            if (mod != null && !info.modId().equals(mod)) continue;
+            if (!src.hasPermission(info.permission()) || info.debug() && !debug) continue;
+            if (!info.modId().equals(current)) {
+                current = info.modId();
+                String title = current;
+                src.sendSuccess(() -> Component.literal(title + ":").withStyle(ChatFormatting.GOLD), false);
+            }
+            src.sendSuccess(() -> Component.literal(" " + info.syntax()).withStyle(ChatFormatting.YELLOW)
+                    .append(Component.literal(" — ").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.translatable(info.descriptionKey()).withStyle(ChatFormatting.GRAY)), false);
+            n++;
+        }
+        if (n == 0) src.sendFailure(Component.translatable("rpcore.cmd.commands_none"));
+        return n;
     }
 
     private static int showSkill(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

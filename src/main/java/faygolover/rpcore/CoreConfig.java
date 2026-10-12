@@ -9,17 +9,27 @@ public final class CoreConfig {
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.BooleanValue FIX_TAA_LEAK;
-    public static final ForgeConfigSpec.BooleanValue FIX_SANITY_LEAK;
+    public static final ForgeConfigSpec.BooleanValue DEBUG_COMMANDS;
+    public static final ForgeConfigSpec.IntValue PHOTO_INTERVAL;
+    public static final ForgeConfigSpec.BooleanValue RPTIME_ENABLED;
 
     static {
-        B.comment("Исправления чужих модов. Срабатывают, только если такой мод установлен.").push("fixes");
-        FIX_TAA_LEAK = B.comment("Tacz Attribute Add (taa): не держать в памяти вышедших игроков и убранных стрелков",
-                        "(ShooterContext хранит последнего стрелка каждого потока сервера).")
-                .define("taa_shooter_leak", true);
-        FIX_SANITY_LEAK = B.comment("Sanity: Descent Into Madness (sanitydim): убирать вышедших игроков из PLAYER_TO_SPAWN_TIMEOUT",
-                        "(иначе каждый вход оставляет в памяти целого игрока до перезапуска).")
-                .define("sanity_player_leak", true);
+        B.push("commands");
+        DEBUG_COMMANDS = B.comment("Отладочные команды модов семейства (/rpstamina debug, /rpstamina export_defaults,",
+                        "/rpculinary audit и т. п.). Выключены — их нет в подсказках и они не работают.")
+                .define("debug_commands", false);
+        B.pop();
+
+        B.push("photo");
+        PHOTO_INTERVAL = B.comment("Фото игрока (портрет по скину для медкарты и КПК): не чаще одного снимка за столько секунд.")
+                .defineInRange("min_interval_seconds", 60, 5, 86400);
+        B.pop();
+
+        B.push("rptime");
+        RPTIME_ENABLED = B.comment("Время RP (/rptime start|stop). Включено — после запуска сервера время стоит, пока ведущий",
+                        "не скажет /rptime start: голод не тратится, раны не заживают, таймеры тела стоят.",
+                        "Выключено — время идёт всегда, как без этой механики. /rptime sleep и skip работают в обоих случаях.")
+                .define("enabled", false);
         B.pop();
         SPEC = B.build();
     }

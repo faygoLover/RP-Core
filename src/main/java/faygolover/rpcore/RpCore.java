@@ -3,6 +3,10 @@ package faygolover.rpcore;
 import com.mojang.logging.LogUtils;
 import faygolover.rpcore.api.RpCoreAPI;
 import faygolover.rpcore.command.CoreCommand;
+import faygolover.rpcore.command.TimeCommand;
+import faygolover.rpcore.network.CoreNetwork;
+import faygolover.rpcore.photo.PhotoServer;
+import faygolover.rpcore.time.RpTime;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
@@ -12,7 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 /**
- * RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine). Каждый мод семейства
+ * RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine, RP Culinary, RP PDA). Каждый мод семейства
  * требует только её; друг с другом моды связываются через {@link RpCoreAPI}, поэтому работают и по
  * отдельности, и вместе.
  */
@@ -24,15 +28,30 @@ public class RpCore {
     public RpCore() {
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
-        MinecraftForge.EVENT_BUS.addListener(CoreCommand::register);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, CoreConfig.SPEC);
-        // Заплатки от утечек памяти чужих модов (taa, sanitydim) — отключаются в config/rpcore-common.toml.
-        MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.fix.LeakFixes::onLogout);
-        MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.fix.LeakFixes::onServerTick);
+        var bus = MinecraftForge.EVENT_BUS;
+        bus.addListener(CoreCommand::register);
+        bus.addListener(TimeCommand::register);
+        bus.addListener(RpTime::onServerStarting);
+        // Фото игроков (медкарта, КПК).
+        bus.addListener(PhotoServer::onLogin);
+        bus.addListener(PhotoServer::onLogout);
+        bus.addListener(PhotoServer::onServerStopped);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
     private void commonSetup(FMLCommonSetupEvent e) {
-        e.enqueueWork(() -> RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, HUD"));
+        CoreNetwork.register();
+        e.enqueueWork(() -> {
+            RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, HUD, время RP, фото");
+            RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|reset]", "rpcore.help.skill", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rphud", "rpcore.help.rphud", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime", "rpcore.help.rptime", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime start|stop", "rpcore.help.rptime_start", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime sleep <время> <игроки> [all|wounds|food]", "rpcore.help.rptime_sleep", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime skip <время> <игроки> [all|wounds|food]", "rpcore.help.rptime_skip", 2, false);
+        });
     }
 }
