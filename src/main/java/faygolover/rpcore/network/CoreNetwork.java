@@ -10,11 +10,11 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.Optional;
 
-/** Свой сетевой канал RP Core ({@code rpcore:main}). Пока по нему ходят только фото игроков. */
+/** Свой сетевой канал RP Core ({@code rpcore:main}). По нему ходят фото игроков и картинки по ключу. */
 public final class CoreNetwork {
     private CoreNetwork() {}
 
-    private static final String VERSION = "1";
+    private static final String VERSION = "2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RpCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -30,6 +30,15 @@ public final class CoreNetwork {
                 PhotoPackets.Data::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(id++, PhotoPackets.Changed.class, PhotoPackets.Changed::encode, PhotoPackets.Changed::decode,
                 PhotoPackets.Changed::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        // Картинки по ключу (0.4.1).
+        CHANNEL.registerMessage(id++, PicturePackets.Upload.class, PicturePackets.Upload::encode, PicturePackets.Upload::decode,
+                PicturePackets.Upload::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(id++, PicturePackets.Query.class, PicturePackets.Query::encode, PicturePackets.Query::decode,
+                PicturePackets.Query::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(id++, PicturePackets.Data.class, PicturePackets.Data::encode, PicturePackets.Data::decode,
+                PicturePackets.Data::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, PicturePackets.Changed.class, PicturePackets.Changed::encode, PicturePackets.Changed::decode,
+                PicturePackets.Changed::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     public static void send(ServerPlayer player, Object msg) {

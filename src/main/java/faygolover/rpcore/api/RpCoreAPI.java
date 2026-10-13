@@ -26,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Нагрузка: {@link #exertion} — RP Stamina сообщает потраченную выносливость, питание считает калории.</li>
  *   <li>Команды: каждый мод сообщает свои в {@link #registerCommand}, {@code /rpcore commands} показывает все.</li>
  *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, события {@link faygolover.rpcore.api.event.RpTimeSkipEvent}.</li>
- *   <li>Фото игроков (портрет по скину) — {@link Photos}.</li>
+ *   <li>Фото игроков (портрет по скину) — {@link Photos}; картинки по ключу (свои аватарки, у NPC тоже) — {@link Pictures}.</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */

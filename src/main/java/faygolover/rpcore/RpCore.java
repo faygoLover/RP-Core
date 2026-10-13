@@ -37,6 +37,8 @@ public class RpCore {
         bus.addListener(PhotoServer::onLogin);
         bus.addListener(PhotoServer::onLogout);
         bus.addListener(PhotoServer::onServerStopped);
+        bus.addListener(faygolover.rpcore.photo.PictureServer::onLogout);
+        bus.addListener(faygolover.rpcore.photo.PictureServer::onServerStopped);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
