@@ -56,6 +56,7 @@ public final class RpIds {
     public static final ResourceLocation WEAK_IMMUNITY = id("weak_immunity");
     public static final ResourceLocation DIABETIC = id("diabetic");
     public static final ResourceLocation SMOKER = id("smoker");
+    /** Закалённый алкоголик: легко переносит алкоголь. */
     public static final ResourceLocation ALCOHOLIC = id("alcoholic");
     public static final ResourceLocation TEETOTALER = id("teetotaler");
     public static final ResourceLocation CAFFEINE_ADDICT = id("caffeine_addict");
@@ -138,6 +139,8 @@ public final class RpIds {
     public static final ResourceLocation QUICK_WORKER = id("quick_worker");
     /** Медлительный: медицина и готовка медленнее (Medicine, Culinary). @since 0.5.0 */
     public static final ResourceLocation SLOW_WORKER = id("slow_worker");
+    /** Алкоголик: зависимость, без алкоголя — стресс и ломка (Medicine). Не путать с {@link #ALCOHOLIC} — «легко переносит». @since 0.5.0 */
+    public static final ResourceLocation ALCOHOL_ADDICT = id("alcohol_addict");
     /** Неграмотный: не читает тексты (PDA). @since 0.5.0 */
     public static final ResourceLocation ILLITERATE = id("illiterate");
 
