@@ -23,6 +23,7 @@ public final class CoreClient {
     private static void onLogout(net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut e) {
         faygolover.rpcore.client.photo.ClientPhotos.clear();
         faygolover.rpcore.client.photo.ClientPictures.clear();
+        faygolover.rpcore.profile.ProfileServer.clearClient();
     }
 
     private static void onOverlays(RegisterGuiOverlaysEvent e) {

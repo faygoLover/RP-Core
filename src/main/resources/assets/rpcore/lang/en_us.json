@@ -43,5 +43,18 @@
   "rpcore.time.skipped_offline": "Skip: %s player(s) online and %s offline, %s (%s)",
   "rpcore.time.scope.all": "everything",
   "rpcore.time.scope.wounds": "wounds only",
-  "rpcore.time.scope.food": "hunger only"
+  "rpcore.time.scope.food": "hunger only",
+  "rpcore.help.profile": "body profile: sex, age, height; reset lets the player fill it in again",
+  "rpcore.cmd.profile": "%s: sex — %s, age — %s, height — %s cm (%s)",
+  "rpcore.cmd.profile_body": "Weight %s kg, fat %s %% — %s; normal blood ≈ %s ml",
+  "rpcore.cmd.profile_filled": "profile filled in",
+  "rpcore.cmd.profile_empty": "profile not filled in — the player can fill it in",
+  "rpcore.profile.sex.none": "not set",
+  "rpcore.profile.sex.male": "male",
+  "rpcore.profile.sex.female": "female",
+  "rpcore.body_state.exhausted": "exhausted",
+  "rpcore.body_state.under": "below normal",
+  "rpcore.body_state.normal": "normal",
+  "rpcore.body_state.over": "above normal",
+  "rpcore.body_state.obese": "obese"
 }

@@ -52,4 +52,32 @@ public interface NutritionProvider {
 
     /** Прокрутка времени (команда ГМа, сон): голод и жажда за {@code hours} часов игры. */
     void advance(Player player, double hours);
+
+    /**
+     * Жажда: 0 — напоен, 1 — хочет пить, 2 — очень хочет («нет сил»), 3 — обезвожен. По умолчанию — по
+     * {@link #hydration} с границами 30 % и 10 %.
+     * @since 0.5.0
+     */
+    default int thirstStage(Player player) {
+        double h = hydration(player);
+        if (!Double.isFinite(h)) return 0;
+        if (h <= 0) return 3;
+        if (h < 0.1) return 2;
+        if (h < 0.3) return 1;
+        return 0;
+    }
+
+    /**
+     * Потратить запас нутриента (белок на восстановление мышц после тренировки). {@code amount} — в единицах запаса
+     * 0–120. Мод питания до 0.5.0 этого не умеет — тогда ничего не происходит.
+     * @since 0.5.0
+     */
+    default void consumeNutrient(Player player, String id, double amount) {}
+
+    /**
+     * Сжечь калории сверх обычного (дожигание после тренировки, восстановление мышц). Мод питания до 0.5.0 этого не
+     * умеет — тогда ничего не происходит.
+     * @since 0.5.0
+     */
+    default void burnKcal(Player player, double kcal) {}
 }

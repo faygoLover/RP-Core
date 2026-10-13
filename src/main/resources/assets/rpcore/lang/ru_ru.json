@@ -43,5 +43,18 @@
   "rpcore.time.skipped_offline": "Прокрутка: %s игрок(ов) в сети и %s не в сети, %s (%s)",
   "rpcore.time.scope.all": "всё",
   "rpcore.time.scope.wounds": "только раны",
-  "rpcore.time.scope.food": "только голод"
+  "rpcore.time.scope.food": "только голод",
+  "rpcore.help.profile": "анкета тела: пол, возраст, рост; reset — игрок заполнит её заново",
+  "rpcore.cmd.profile": "%s: пол — %s, возраст — %s, рост — %s см (%s)",
+  "rpcore.cmd.profile_body": "Вес %s кг, жир %s %% — %s; кровь в норме ≈ %s мл",
+  "rpcore.cmd.profile_filled": "анкета заполнена",
+  "rpcore.cmd.profile_empty": "анкета не заполнена — игрок может заполнить сам",
+  "rpcore.profile.sex.none": "не указан",
+  "rpcore.profile.sex.male": "мужской",
+  "rpcore.profile.sex.female": "женский",
+  "rpcore.body_state.exhausted": "истощение",
+  "rpcore.body_state.under": "ниже нормы",
+  "rpcore.body_state.normal": "норма",
+  "rpcore.body_state.over": "выше нормы",
+  "rpcore.body_state.obese": "ожирение"
 }

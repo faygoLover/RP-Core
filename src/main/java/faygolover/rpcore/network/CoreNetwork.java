@@ -10,11 +10,11 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.Optional;
 
-/** Свой сетевой канал RP Core ({@code rpcore:main}). По нему ходят фото игроков и картинки по ключу. */
+/** Свой сетевой канал RP Core ({@code rpcore:main}). По нему ходят фото игроков, картинки по ключу и анкета тела. */
 public final class CoreNetwork {
     private CoreNetwork() {}
 
-    private static final String VERSION = "2";
+    private static final String VERSION = "3";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RpCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -39,6 +39,11 @@ public final class CoreNetwork {
                 PicturePackets.Data::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(id++, PicturePackets.Changed.class, PicturePackets.Changed::encode, PicturePackets.Changed::decode,
                 PicturePackets.Changed::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        // Анкета тела (0.5.0).
+        CHANNEL.registerMessage(id++, ProfilePackets.Sync.class, ProfilePackets.Sync::encode, ProfilePackets.Sync::decode,
+                ProfilePackets.Sync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, ProfilePackets.Submit.class, ProfilePackets.Submit::encode, ProfilePackets.Submit::decode,
+                ProfilePackets.Submit::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
     public static void send(ServerPlayer player, Object msg) {

@@ -8,6 +8,9 @@ import net.minecraft.world.entity.player.Player;
  * механики, а переводят их на него: перк «Живучий» — через черту, «Бешенство ботаника» — от состояния тела,
  * «Неудачливый» подворачивает ногу настоящей травмой, кофеиновая ломка — физиологией веществ.
  * Регистрирует — {@link RpCoreAPI#registerBody}. Методы вызываются на сервере.
+ * <p>
+ * Новые вызовы — с ответом «не умею» по умолчанию (false, 1, true): вызывающий мод тогда обходится простой версией.
+ * Что мод тела ведёт на самом деле — {@link #handles} ({@link RpIds#BODY_BRUISES}, {@link RpIds#BODY_MUSCLES}…).
  */
 public interface BodyProvider {
     /** Ведёт ли мод эту часть физиологии ({@link RpIds#BODY_HEALTH}, {@link RpIds#BODY_CAFFEINE}…). */
@@ -16,7 +19,6 @@ public interface BodyProvider {
     /** Общее состояние, 0–1 (1 — здоров). Вместо ванильной доли здоровья. */
     float condition(Player player);
 
-    /** Неудачное падение: подвернуть ногу настоящей травмой. true — сделано. */
     /**
      * Человек без сознания (нокдаун и т. п.): не говорит, не пользуется КПК. По умолчанию — в сознании.
      * @since 0.3.3
@@ -25,6 +27,7 @@ public interface BodyProvider {
         return false;
     }
 
+    /** Неудачное падение: подвернуть ногу настоящей травмой. true — сделано. */
     default boolean sprain(Player player) {
         return false;
     }
@@ -42,5 +45,57 @@ public interface BodyProvider {
     /** Доля жира, %, или NaN. */
     default double bodyFatPercent(Player player) {
         return Double.NaN;
+    }
+
+    /**
+     * Ушиб части тела ({@link RpIds#PARTS}): уронил гантель на ногу, упал с турника, груша по голове.
+     * {@code severity} 0–1 (1 — сильный ушиб). true — сделано.
+     * @since 0.5.0
+     */
+    default boolean bruise(Player player, ResourceLocation part, double severity) {
+        return false;
+    }
+
+    /**
+     * Перегрузка мышц части тела: 1 — боль в мышцах, 2 — растяжение, 3 — надрыв. true — сделано.
+     * @since 0.5.0
+     */
+    default boolean strain(Player player, ResourceLocation part, int stage) {
+        return false;
+    }
+
+    /**
+     * Можно ли сейчас нагружать часть тела (тренировка): нельзя при переломе, вывихе, сильной боли, без конечности.
+     * @since 0.5.0
+     */
+    default boolean canExert(Player player, ResourceLocation part) {
+        return true;
+    }
+
+    /**
+     * Насколько хорошо человек сейчас учится, 0–1 (боль, обморок): множитель опыта всех навыков.
+     * @since 0.5.0
+     */
+    default double learningFactor(Player player) {
+        return 1.0;
+    }
+
+    /**
+     * Последствие питания и прочих долгих состояний ({@link RpIds#COND_OVERFILL}, {@link RpIds#COND_SCURVY}…).
+     * {@code severity} 0–1; 0 — состояние прошло. Вызывающий шлёт его заново, пока оно длится (не чаще раза в
+     * секунду), мод тела сам решает, что человек чувствует и что видно при осмотре. true — мод это ведёт.
+     * @since 0.5.0
+     */
+    default boolean condition(Player player, ResourceLocation id, double severity) {
+        return false;
+    }
+
+    /**
+     * Показать игроку ощущение (ключ перевода, например {@code rpculinary.sense.heavy}) так же, как свои — текстом
+     * над панелью. true — показано; иначе вызывающий показывает сам.
+     * @since 0.5.0
+     */
+    default boolean sensation(Player player, String key) {
+        return false;
     }
 }

@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import faygolover.rpcore.api.BodyProfile;
 import faygolover.rpcore.api.RpCoreAPI;
 import faygolover.rpcore.api.RpIds;
 import net.minecraft.ChatFormatting;
@@ -22,7 +23,8 @@ import java.util.OptionalInt;
 
 /**
  * {@code /rpcore} — что из семейства установлено и кто ведёт навыки; {@code /rpcore commands [мод]} — общий список
- * команд семейства; {@code /rpcore skill} — уровень навыка (если навык кто-то ведёт, например RP Perks).
+ * команд семейства; {@code /rpcore skill} — уровень навыка (если навык кто-то ведёт, например RP Perks);
+ * {@code /rpcore profile} — анкета тела (пол, возраст, рост); {@code reset} — игрок сможет заполнить её заново.
  */
 public final class CoreCommand {
     private CoreCommand() {}
@@ -41,7 +43,21 @@ public final class CoreCommand {
                                         .executes(c -> showSkill(c))
                                         .then(Commands.argument("level", IntegerArgumentType.integer(0, 10))
                                                 .executes(c -> setSkill(c, IntegerArgumentType.getInteger(c, "level"))))
-                                        .then(Commands.literal("reset").executes(c -> setSkill(c, -1)))))));
+                                        .then(Commands.literal("reset").executes(c -> setSkill(c, -1))))))
+                .then(Commands.literal("profile").requires(s -> s.hasPermission(2))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(CoreCommand::showProfile)
+                                .then(Commands.literal("sex")
+                                        .then(Commands.literal("male").executes(c -> editProfile(c, p -> p.withSex(BodyProfile.Sex.MALE))))
+                                        .then(Commands.literal("female").executes(c -> editProfile(c, p -> p.withSex(BodyProfile.Sex.FEMALE))))
+                                        .then(Commands.literal("none").executes(c -> editProfile(c, p -> p.withSex(BodyProfile.Sex.NONE)))))
+                                .then(Commands.literal("age")
+                                        .then(Commands.argument("age", IntegerArgumentType.integer(BodyProfile.MIN_AGE, BodyProfile.MAX_AGE))
+                                                .executes(c -> editProfile(c, p -> p.withAge(IntegerArgumentType.getInteger(c, "age"))))))
+                                .then(Commands.literal("height")
+                                        .then(Commands.argument("cm", IntegerArgumentType.integer((int) BodyProfile.MIN_HEIGHT, (int) BodyProfile.MAX_HEIGHT))
+                                                .executes(c -> editProfile(c, p -> p.withHeight(IntegerArgumentType.getInteger(c, "cm"))))))
+                                .then(Commands.literal("reset").executes(c -> editProfile(c, p -> p.withFilled(false)))))));
     }
 
     /** Подсказка по Tab: короткие имена навыков с названием рядом (переводы Core). */
@@ -120,5 +136,28 @@ public final class CoreCommand {
             return 0;
         }
         return showSkill(c);
+    }
+
+    private static int showProfile(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        ServerPlayer p = EntityArgument.getPlayer(c, "player");
+        BodyProfile prof = RpCoreAPI.profile(p);
+        double w = RpCoreAPI.weightKg(p), fat = RpCoreAPI.bodyFatPercent(p);
+        c.getSource().sendSuccess(() -> Component.translatable("rpcore.cmd.profile", p.getDisplayName(),
+                Component.translatable("rpcore.profile.sex." + prof.sex().id()), prof.age(), Math.round(prof.heightCm()),
+                Component.translatable(prof.filled() ? "rpcore.cmd.profile_filled" : "rpcore.cmd.profile_empty")), false);
+        if (Double.isFinite(w) && Double.isFinite(fat)) {
+            c.getSource().sendSuccess(() -> Component.translatable("rpcore.cmd.profile_body", String.format(java.util.Locale.ROOT, "%.1f", w),
+                    String.format(java.util.Locale.ROOT, "%.1f", fat),
+                    Component.translatable("rpcore.body_state." + RpCoreAPI.bodyState(p).name().toLowerCase(java.util.Locale.ROOT)),
+                    Math.round(faygolover.rpcore.api.BodyNorms.bloodVolumeMl(prof.sex(), prof.heightCm(), w))).withStyle(ChatFormatting.GRAY), false);
+        }
+        return 1;
+    }
+
+    private static int editProfile(CommandContext<CommandSourceStack> c, java.util.function.UnaryOperator<BodyProfile> edit)
+            throws CommandSyntaxException {
+        ServerPlayer p = EntityArgument.getPlayer(c, "player");
+        RpCoreAPI.setProfile(p, edit.apply(RpCoreAPI.profile(p)));
+        return showProfile(c);
     }
 }

@@ -39,16 +39,21 @@ public class RpCore {
         bus.addListener(PhotoServer::onServerStopped);
         bus.addListener(faygolover.rpcore.photo.PictureServer::onLogout);
         bus.addListener(faygolover.rpcore.photo.PictureServer::onServerStopped);
+        // Анкета тела.
+        bus.addListener(faygolover.rpcore.profile.ProfileServer::onLogin);
+        bus.addListener(faygolover.rpcore.profile.ProfileServer::onRespawn);
+        bus.addListener(faygolover.rpcore.profile.ProfileServer::onDimension);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
     private void commonSetup(FMLCommonSetupEvent e) {
         CoreNetwork.register();
         e.enqueueWork(() -> {
-            RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, HUD, время RP, фото");
+            RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, анкета тела, HUD, время RP, фото");
             RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|reset]", "rpcore.help.skill", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rphud", "rpcore.help.rphud", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime", "rpcore.help.rptime", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime start|stop", "rpcore.help.rptime_start", 2, false);

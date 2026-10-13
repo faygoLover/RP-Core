@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Команды: каждый мод сообщает свои в {@link #registerCommand}, {@code /rpcore commands} показывает все.</li>
  *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, события {@link faygolover.rpcore.api.event.RpTimeSkipEvent}.</li>
  *   <li>Фото игроков (портрет по скину) — {@link Photos}; картинки по ключу (свои аватарки, у NPC тоже) — {@link Pictures}.</li>
+ *   <li>Анкета тела (пол, возраст, рост) — {@link #profile}; формулы тела — {@link BodyNorms}.</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */
@@ -172,6 +173,67 @@ public final class RpCoreAPI {
         MinecraftForge.EVENT_BUS.post(new ExertionEvent(player, stamina));
     }
 
+    /**
+     * Выносливость восстановилась (сервер): RP Stamina сообщает, сколько вернулось. Слушать —
+     * {@link faygolover.rpcore.api.event.StaminaRestoredEvent}. @since 0.5.0
+     */
+    public static void staminaRestored(Player player, double amount) {
+        if (amount <= 0 || player.level().isClientSide) return;
+        MinecraftForge.EVENT_BUS.post(new faygolover.rpcore.api.event.StaminaRestoredEvent(player, amount));
+    }
+
+    // ------------------------------------------------------------------ анкета тела
+
+    /**
+     * Анкета тела игрока (пол, возраст, рост). Сервер — для любого игрока; клиент — только своя (у других —
+     * {@link BodyProfile#DEFAULT}). @since 0.5.0
+     */
+    public static BodyProfile profile(Player player) {
+        return faygolover.rpcore.profile.ProfileServer.get(player);
+    }
+
+    /** Записать анкету (сервер; команда ГМа, переход со старых данных мода). @since 0.5.0 */
+    public static void setProfile(net.minecraft.server.level.ServerPlayer player, BodyProfile profile) {
+        faygolover.rpcore.profile.ProfileServer.set(player, profile);
+    }
+
+    /**
+     * Клиент: отправить заполненную анкету (окно создания персонажа). Сервер примет её, только пока анкета не
+     * заполнена. @since 0.5.0
+     */
+    public static void submitProfile(BodyProfile.Sex sex, int age, double heightCm) {
+        faygolover.rpcore.network.CoreNetwork.sendToServer(new faygolover.rpcore.network.ProfilePackets.Submit(sex, age, heightCm));
+    }
+
+    /** Вес тела, кг: у мода питания, иначе у мода тела; NaN — никто не ведёт. @since 0.5.0 */
+    public static double weightKg(Player player) {
+        NutritionProvider n = nutrition;
+        if (n != null) return n.weightKg(player);
+        BodyProvider b = body;
+        return b == null ? Double.NaN : b.weightKg(player);
+    }
+
+    /** Доля жира, %: у мода питания, иначе у мода тела; NaN — никто не ведёт. @since 0.5.0 */
+    public static double bodyFatPercent(Player player) {
+        NutritionProvider n = nutrition;
+        if (n != null) return n.bodyFatPercent(player);
+        BodyProvider b = body;
+        return b == null ? Double.NaN : b.bodyFatPercent(player);
+    }
+
+    /** Тело относительно нормы своего пола и возраста (сервер). Вес никто не ведёт — норма. @since 0.5.0 */
+    public static BodyNorms.BodyState bodyState(Player player) {
+        return BodyNorms.state(profile(player), weightKg(player), bodyFatPercent(player));
+    }
+
+    /** Насколько хорошо человек сейчас учится, 0–1 (боль — у мода тела; без него — 1). @since 0.5.0 */
+    public static double learningFactor(Player player) {
+        BodyProvider b = body;
+        if (b == null) return 1.0;
+        double f = b.learningFactor(player);
+        return Double.isFinite(f) ? Math.max(0, Math.min(1, f)) : 1.0;
+    }
+
     // ------------------------------------------------------------------ навыки и черты
 
     public static void registerProvider(TraitProvider provider) {
@@ -206,6 +268,17 @@ public final class RpCoreAPI {
         for (TraitProvider p : PROVIDERS) {
             if (p.managesSkill(skill)) {
                 p.practice(player, skill, amount);
+                return;
+            }
+        }
+    }
+
+    /** Прямой опыт навыка (сервер): ровно {@code xp} опыта, без пересчёта практики. @since 0.5.0 */
+    public static void grantXp(Player player, ResourceLocation skill, double xp) {
+        if (xp <= 0 || player.level().isClientSide) return;
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill)) {
+                p.grantXp(player, skill, xp);
                 return;
             }
         }

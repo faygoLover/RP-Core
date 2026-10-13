@@ -30,6 +30,13 @@ public interface TraitProvider {
      */
     default void practice(Player player, ResourceLocation skill, double amount) {}
 
+    /**
+     * Прямой опыт навыка: ровно {@code xp} опыта (до множителей таланта, особенностей, боли), без пересчёта «практики»
+     * (например, «за 100 выносливости»). Так спорт даёт опыт за каждый повтор. Сервер.
+     * @since 0.5.0
+     */
+    default void grantXp(Player player, ResourceLocation skill, double xp) {}
+
     /** Есть ли у игрока черта. */
     default boolean hasTrait(Player player, ResourceLocation trait) {
         return false;

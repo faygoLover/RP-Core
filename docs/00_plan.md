@@ -153,3 +153,27 @@ Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
 - `ClientPictures.texture(ключ)` — текстура картинки по ключу (null — нет или ещё не пришла). RP PDA перекрашивает
   по ней свою картинку-аватарку в два цвета ретро-экрана.
 - Сетевой канал не менялся (версия 2), старые моды работают как раньше.
+
+## Core 0.5.0 (14.10.2026) — шаг 1 плана спорта и особенностей, сделано
+План — `RP Stamina Sports/docs/09_deploy_plan.md`, шаг 1. В игре не проверено. Старое API не удалено.
+- **Анкета тела** `BodyProfile` (пол, возраст, рост, «заполнена»):
+  - хранится в `PlayerPersisted` и переживает смерть, своему клиенту уходит копия;
+  - `RpCoreAPI.profile / setProfile / submitProfile` — игрок присылает анкету один раз;
+  - событие `BodyProfileChangedEvent`;
+  - команда `/rpcore profile`.
+- **Формулы тела** `BodyNorms`:
+  - объём крови по Надлеру;
+  - нормы жира по полу и возрасту, `BodyState` (истощение … ожирение);
+  - множители возраста: выносливость, заживление, рост Силы и Телосложения.
+- **`RpCoreAPI`:** `weightKg`, `bodyFatPercent`, `bodyState`, `learningFactor`, `grantXp`, `staminaRestored`.
+- **`TraitProvider.grantXp`** — прямой опыт (спорт).
+- **`StaminaRestoredEvent`** — Stamina сообщает, сколько восстановилось; Culinary берёт за это калории.
+- **`BodyProvider`:** `bruise`, `strain`, `canExert`, `learningFactor`, `condition`, `sensation`. Метки `BODY_BRUISES`,
+  `BODY_MUSCLES`, `BODY_CONDITIONS`, `BODY_SENSATIONS`.
+- **`NutritionProvider`:** `thirstStage` (по умолчанию из `hydration`), `consumeNutrient`, `burnKcal`.
+- **`RpIds`:**
+  - части тела `PART_*`;
+  - состояния `COND_*` (переполнение, травма желудка, перепил, цинга, камни, белок, давление);
+  - черты новых особенностей (Живучий, Нежный, Выносливый, Астматик, Железный желудок и др.). `CLEAN` устарел, его
+    заменяет `IRON_STOMACH`.
+- **Сетевой канал Core — версия 3.** На сервере и у игроков должен стоять Core 0.5.0.
