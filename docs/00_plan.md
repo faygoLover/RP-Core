@@ -138,3 +138,13 @@ Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
 `RpCoreAPI.staminaAttribute(...)`; медкарта → `Photos` / `ClientPhotos` (пока Medicine сама тоже просит снимок при
 входе — после блока 5 останется только Core); Medicine слушает `RpTimeSkipEvent` (раны) и `timeRunning()`;
 команды — в `registerCommand`, `/rpmedicine profile` — за `debugCommands()`.
+
+**Core 0.4.2 (13.10.2026, блок 5, решения брата):**
+- `StaminaProvider.restore(игрок, сколько, кто)` — выдать выносливость сразу (стимуляторы, еда, адреналин; первым —
+  золотое яблоко в Medicine). Метод с пустой реализацией по умолчанию: мод выносливости старше Stamina 1.3.1 просто
+  ничего не выдаёт.
+- `/rptime sleep|skip <время> <игроки> [all|wounds|food] [online|all|offline]`: последнее слово — кого. `online` (или
+  ничего) — выбранных в сети; `all` — их и всех, кого нет в сети; `offline` — только всех, кого нет в сети. Для вышедших —
+  событие `RpTimeSkipOfflineEvent` (одно на всех, `count(n)` — сколько прокрутил мод). Вышедших ведёт RP Medicine
+  (тела вышедших игроков); RP Culinary вышедших сам не крутит — голод им прокручивает Medicine при входе, как раньше.
+- Сетевой канал не менялся (версия 2).

@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import faygolover.rpcore.api.event.RpTimeSkipEvent;
+import faygolover.rpcore.api.event.RpTimeSkipOfflineEvent;
 import faygolover.rpcore.time.RpTime;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -27,10 +28,13 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>{@code /rptime} — идёт ли время;</li>
  *   <li>{@code /rptime start|stop} — пустить или остановить (если механика включена в конфиге Core);</li>
- *   <li>{@code /rptime sleep <время> <игроки> [all|wounds|food]} — прокрутка во сне, мир не меняется;</li>
- *   <li>{@code /rptime skip <время> <игроки> [all|wounds|food]} — то же бодрствуя.</li>
+ *   <li>{@code /rptime sleep <время> <игроки> [all|wounds|food] [online|all|offline]} — прокрутка во сне, мир не меняется;</li>
+ *   <li>{@code /rptime skip <время> <игроки> [all|wounds|food] [online|all|offline]} — то же бодрствуя.</li>
  * </ul>
  * Время — {@code 8h}, {@code 30m}, {@code 1h30m}, {@code 45s} или просто число часов ({@code 2.5}).
+ * Последнее слово — кого: {@code online} (или ничего) — выбранных игроков в сети, {@code all} — их и всех, кого нет в
+ * сети, {@code offline} — только всех, кого нет в сети (выбранные в сети тогда не прокручиваются). Вышедшего игрока
+ * в селекторе не выбрать — их прокручивают только всех вместе.
  */
 public final class TimeCommand {
     private TimeCommand() {}
@@ -38,6 +42,9 @@ public final class TimeCommand {
     /** Больше недели за раз не прокручиваем. */
     private static final long MAX_SECONDS = 7L * 24 * 3600;
     private static final Pattern PART = Pattern.compile("(\\d+(?:\\.\\d+)?)([hms]?)");
+    /** Кого прокручивать: выбранных в сети, их и вышедших, только вышедших. @since 0.4.2 */
+    private enum Who { ONLINE, ALL, OFFLINE }
+
     private static final SimpleCommandExceptionType BAD_TIME =
             new SimpleCommandExceptionType(Component.translatable("rpcore.time.bad_time"));
 
@@ -55,10 +62,18 @@ public final class TimeCommand {
                 .then(Commands.argument("time", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"30m", "1h", "2h", "8h"}, b))
                         .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(c -> skip(c, sleeping, RpTimeSkipEvent.Scope.ALL))
-                                .then(Commands.literal("all").executes(c -> skip(c, sleeping, RpTimeSkipEvent.Scope.ALL)))
-                                .then(Commands.literal("wounds").executes(c -> skip(c, sleeping, RpTimeSkipEvent.Scope.WOUNDS)))
-                                .then(Commands.literal("food").executes(c -> skip(c, sleeping, RpTimeSkipEvent.Scope.FOOD)))));
+                                .executes(c -> skip(c, sleeping, RpTimeSkipEvent.Scope.ALL, Who.ONLINE))
+                                .then(scopeBranch("all", sleeping, RpTimeSkipEvent.Scope.ALL))
+                                .then(scopeBranch("wounds", sleeping, RpTimeSkipEvent.Scope.WOUNDS))
+                                .then(scopeBranch("food", sleeping, RpTimeSkipEvent.Scope.FOOD))));
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> scopeBranch(String name, boolean sleeping, RpTimeSkipEvent.Scope scope) {
+        return Commands.literal(name)
+                .executes(c -> skip(c, sleeping, scope, Who.ONLINE))
+                .then(Commands.literal("online").executes(c -> skip(c, sleeping, scope, Who.ONLINE)))
+                .then(Commands.literal("all").executes(c -> skip(c, sleeping, scope, Who.ALL)))
+                .then(Commands.literal("offline").executes(c -> skip(c, sleeping, scope, Who.OFFLINE)));
     }
 
     private static int status(CommandContext<CommandSourceStack> c) {
@@ -78,15 +93,23 @@ public final class TimeCommand {
         return 1;
     }
 
-    private static int skip(CommandContext<CommandSourceStack> c, boolean sleeping, RpTimeSkipEvent.Scope scope)
+    private static int skip(CommandContext<CommandSourceStack> c, boolean sleeping, RpTimeSkipEvent.Scope scope, Who who)
             throws CommandSyntaxException {
         long seconds = parse(StringArgumentType.getString(c, "time"));
-        Collection<ServerPlayer> targets = EntityArgument.getPlayers(c, "targets");
+        Collection<ServerPlayer> targets = who == Who.OFFLINE ? java.util.List.of() : EntityArgument.getPlayers(c, "targets");
         for (ServerPlayer p : targets) MinecraftForge.EVENT_BUS.post(new RpTimeSkipEvent(p, seconds, sleeping, scope));
         String what = scope.name().toLowerCase(Locale.ROOT);
-        c.getSource().sendSuccess(() -> Component.translatable(sleeping ? "rpcore.time.slept" : "rpcore.time.skipped",
-                targets.size(), format(seconds), Component.translatable("rpcore.time.scope." + what)), true);
-        return targets.size();
+        Component scopeName = Component.translatable("rpcore.time.scope." + what);
+        if (who == Who.ONLINE) {
+            c.getSource().sendSuccess(() -> Component.translatable(sleeping ? "rpcore.time.slept" : "rpcore.time.skipped",
+                    targets.size(), format(seconds), scopeName), true);
+            return targets.size();
+        }
+        RpTimeSkipOfflineEvent offline = new RpTimeSkipOfflineEvent(c.getSource().getServer(), seconds, sleeping, scope);
+        MinecraftForge.EVENT_BUS.post(offline);
+        c.getSource().sendSuccess(() -> Component.translatable(sleeping ? "rpcore.time.slept_offline" : "rpcore.time.skipped_offline",
+                targets.size(), offline.players(), format(seconds), scopeName), true);
+        return targets.size() + offline.players();
     }
 
     /** «1h30m», «45m», «2.5» (часы) → секунды. */

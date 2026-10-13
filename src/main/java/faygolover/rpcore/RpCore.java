@@ -52,8 +52,8 @@ public class RpCore {
             RpCoreAPI.registerCommand(MODID, "/rphud", "rpcore.help.rphud", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime", "rpcore.help.rptime", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime start|stop", "rpcore.help.rptime_start", 2, false);
-            RpCoreAPI.registerCommand(MODID, "/rptime sleep <время> <игроки> [all|wounds|food]", "rpcore.help.rptime_sleep", 2, false);
-            RpCoreAPI.registerCommand(MODID, "/rptime skip <время> <игроки> [all|wounds|food]", "rpcore.help.rptime_skip", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime sleep <время> <игроки> [all|wounds|food] [online|all|offline]", "rpcore.help.rptime_sleep", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rptime skip <время> <игроки> [all|wounds|food] [online|all|offline]", "rpcore.help.rptime_skip", 2, false);
         });
     }
 }

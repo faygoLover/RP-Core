@@ -51,6 +51,14 @@ public interface StaminaProvider {
      */
     void spend(Player player, float amount, ResourceLocation source);
 
+    /**
+     * Выдать {@code amount} выносливости сразу (стимуляторы, еда, адреналин): без множителей трат, не выше максимума.
+     * {@code source} — кто выдаёт (для отладки). Мод выносливости до 0.4.2 этого не умеет — тогда ничего не происходит.
+     *
+     * @since 0.4.2
+     */
+    default void restore(Player player, float amount, ResourceLocation source) {}
+
     /** Атрибут характеристики (для модификаторов) или null, если мод её не ведёт. */
     @Nullable
     Attribute attribute(Stat stat);
