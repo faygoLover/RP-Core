@@ -43,6 +43,18 @@ public final class ClientPictures {
         return true;
     }
 
+    /**
+     * Текстура картинки (для своей отрисовки, например перекраски); null — картинки нет или ещё не пришла (первый
+     * вызов спрашивает сервер, как {@link #draw}).
+     *
+     * @since 0.4.3
+     */
+    @Nullable
+    public static ResourceLocation texture(String key) {
+        Entry e = entry(key);
+        return e == null ? null : e.texture;
+    }
+
     /** Отправить свою картинку (сервер примет, только если его мод разрешил этот ключ). PNG до 30 КБ. */
     public static boolean upload(String key, byte[] png) {
         if (png.length == 0 || png.length > PhotoServer.MAX_BYTES || Minecraft.getInstance().getConnection() == null) return false;
