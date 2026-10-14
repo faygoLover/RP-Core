@@ -14,8 +14,8 @@ import org.lwjgl.opengl.GL11;
 
 /**
  * Снимок своего скина по запросу сервера (как фото медкарты RP Medicine): ждём, пока скин догрузится (с Ely.by
- * он приходит не сразу), снимаем текстуру с видеокарты в PNG и отправляем. Не загрузился за полминуты — ничего
- * не шлём, сервер попросит снова при следующем входе.
+ * он приходит не сразу), снимаем текстуру с видеокарты в PNG и отправляем. Не загрузился за полминуты — снимаем
+ * стандартный скин (Стив, Алекс…), чтобы фото было всегда.
  */
 public final class SkinCapture {
     private SkinCapture() {}
@@ -39,8 +39,10 @@ public final class SkinCapture {
         }
         waitTicks--;
         ResourceLocation skin = mc.player.getSkinTextureLocation();
-        if (skin.equals(DefaultPlayerSkin.getDefaultSkin(mc.player.getUUID()))) return;
-        if (settleTicks-- > 0) return;
+        // Скин по умолчанию — ждём настоящий; не пришёл за полминуты (нет скина вовсе) — снимаем стандартный.
+        boolean standard = skin.equals(DefaultPlayerSkin.getDefaultSkin(mc.player.getUUID()));
+        if (standard && waitTicks > 0) return;
+        if (!standard && settleTicks-- > 0) return;
         waitTicks = 0;
         byte[] png = capture(mc, skin);
         if (png != null && png.length <= PhotoServer.MAX_BYTES) CoreNetwork.sendToServer(new PhotoPackets.Upload(png));

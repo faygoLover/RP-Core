@@ -9,7 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Один редактор HUD для всех модов семейства (раньше у RP Stamina и RP Medicine были свои копии):
- * перетаскивание мышью, колесо — масштаб, ПКМ — скрыть или показать, кнопка — якорь выбранного элемента.
+ * перетаскивание мышью, колесо — масштаб (с Shift — на 1 пиксель экрана), ПКМ — скрыть или показать, Shift+ПКМ —
+ * скрыть или показать только иконку, кнопка — якорь выбранного элемента.
  */
 public class HudEditorScreen extends Screen {
     @Nullable
@@ -92,7 +93,8 @@ public class HudEditorScreen extends Screen {
         anchorButton.setMessage(anchorLabel());
         if (button == 1) {
             HudLayout.Entry c = HudLayout.get(e);
-            c.visible = !c.visible;
+            if (hasShiftDown() && e.hasIcon()) c.icon = !c.icon;
+            else c.visible = !c.visible;
             HudLayout.save();
             return true;
         }
@@ -131,9 +133,11 @@ public class HudEditorScreen extends Screen {
         if (e == null) e = selected;
         if (e == null) return false;
         HudLayout.Entry c = HudLayout.get(e);
-        // Шаг 0,05; с Shift — 0,01 (подогнать точно, например, под ширину хотбара).
-        double step = hasShiftDown() ? 0.01 : 0.05;
-        c.scale = Mth.clamp(Math.round((c.scale + (delta > 0 ? step : -step)) * 100) / 100.0, 0.25, 4.0);
+        // Шаг 0,05; с Shift — ширина меняется ровно на 1 пиксель экрана (подогнать, например, под ширину хотбара).
+        if (hasShiftDown()) {
+            double px = Math.max(1, e.width() * minecraft.getWindow().getGuiScale());
+            c.scale = Mth.clamp(c.scale + (delta > 0 ? 1 : -1) / px, 0.25, 4.0);
+        } else c.scale = Mth.clamp(Math.round((c.scale + (delta > 0 ? 0.05 : -0.05)) * 100) / 100.0, 0.25, 4.0);
         HudLayout.save();
         return true;
     }

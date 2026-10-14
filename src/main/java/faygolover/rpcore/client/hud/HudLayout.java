@@ -29,6 +29,8 @@ public final class HudLayout {
         public int y;
         public double scale;
         public boolean visible;
+        /** Иконка элемента ({@link HudElement#hasIcon}). */
+        public boolean icon = true;
 
         Entry(Anchor anchor, int x, int y, double scale, boolean visible) {
             this.anchor = anchor;
@@ -56,6 +58,11 @@ public final class HudLayout {
         return ENTRIES.computeIfAbsent(e.id().toString(), k -> Entry.defaults(e));
     }
 
+    /** Рисовать ли иконку элемента. @since 0.5.2 */
+    public static boolean iconShown(HudElement e) {
+        return get(e).icon;
+    }
+
     public static synchronized void reset(HudElement e) {
         ENTRIES.put(e.id().toString(), Entry.defaults(e));
     }
@@ -78,12 +85,14 @@ public final class HudLayout {
             JsonObject root = JsonParser.parseReader(r).getAsJsonObject();
             for (var en : root.entrySet()) {
                 JsonObject o = en.getValue().getAsJsonObject();
-                ENTRIES.put(en.getKey(), new Entry(
+                Entry c = new Entry(
                         Anchor.parse(o.has("anchor") ? o.get("anchor").getAsString() : "", Anchor.TOP_LEFT),
                         o.has("x") ? o.get("x").getAsInt() : 0,
                         o.has("y") ? o.get("y").getAsInt() : 0,
                         o.has("scale") ? Math.max(0.25, Math.min(4.0, o.get("scale").getAsDouble())) : 1.0,
-                        !o.has("visible") || o.get("visible").getAsBoolean()));
+                        !o.has("visible") || o.get("visible").getAsBoolean());
+                c.icon = !o.has("icon") || o.get("icon").getAsBoolean();
+                ENTRIES.put(en.getKey(), c);
             }
         } catch (Exception ex) {
             RpCore.LOGGER.warn("RP Core: не удалось прочитать {}: {}", f, ex.toString());
@@ -100,6 +109,7 @@ public final class HudLayout {
             o.addProperty("y", c.y);
             o.addProperty("scale", c.scale);
             o.addProperty("visible", c.visible);
+            if (!c.icon) o.addProperty("icon", false);
             root.add(en.getKey(), o);
         }
         try {
