@@ -1,6 +1,6 @@
 {
   "rpcore.hud.editor.title": "Редактор HUD",
-  "rpcore.hud.editor.hint": "Тащите мышью, колесо — размер, ПКМ — скрыть или показать",
+  "rpcore.hud.editor.hint": "Тащите мышью, колесо — размер (с Shift — точно), ПКМ — скрыть или показать",
   "rpcore.hud.editor.reset": "Сброс",
   "rpcore.hud.editor.done": "Готово",
   "rpcore.hud.editor.select": "Выберите элемент",

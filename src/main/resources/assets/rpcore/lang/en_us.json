@@ -1,6 +1,6 @@
 {
   "rpcore.hud.editor.title": "HUD editor",
-  "rpcore.hud.editor.hint": "Drag with the mouse, wheel — size, right click — hide or show",
+  "rpcore.hud.editor.hint": "Drag with the mouse, wheel — size (Shift — fine), right click — hide or show",
   "rpcore.hud.editor.reset": "Reset",
   "rpcore.hud.editor.done": "Done",
   "rpcore.hud.editor.select": "Select an element",

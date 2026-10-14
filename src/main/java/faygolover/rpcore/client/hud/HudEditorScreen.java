@@ -131,7 +131,9 @@ public class HudEditorScreen extends Screen {
         if (e == null) e = selected;
         if (e == null) return false;
         HudLayout.Entry c = HudLayout.get(e);
-        c.scale = Mth.clamp(Math.round((c.scale + (delta > 0 ? 0.1 : -0.1)) * 10) / 10.0, 0.25, 4.0);
+        // Шаг 0,05; с Shift — 0,01 (подогнать точно, например, под ширину хотбара).
+        double step = hasShiftDown() ? 0.01 : 0.05;
+        c.scale = Mth.clamp(Math.round((c.scale + (delta > 0 ? step : -step)) * 100) / 100.0, 0.25, 4.0);
         HudLayout.save();
         return true;
     }
