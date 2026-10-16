@@ -17,13 +17,13 @@ import java.util.Set;
 /**
  * Замок семейства RP (Core 0.6.0, только локальная сборка). Если в jar Core есть {@code rpcore_lock.properties}
  * (его кладёт сборка, когда рядом с build.gradle лежит {@code lock.local.properties}), предметы модов семейства
- * скрыты из креатива и JEI, пока у игрока нет доступа. Доступ открывают: dev-окружение, верный ключ в
+ * и Zone Artifacts (сам мод от Core не зависит) скрыты из креатива и JEI, пока у игрока нет доступа. Доступ открывают: dev-окружение, верный ключ в
  * {@code config/rpcore-client.toml} или выдача с выделенного сервера (права ведущего). Без файла замка всё как раньше.
  */
 public final class RpAccess {
     private RpAccess() {}
 
-    private static final String DEFAULT_NAMESPACES = "rpcore,rpperks,rpstamina,rpmedicine,rpculinary,rppda,rpsports,rpfixes";
+    private static final String DEFAULT_NAMESPACES = "rpcore,rpperks,rpstamina,rpmedicine,rpculinary,rppda,rpsports,rpfixes,fl_zone_arts";
 
     private static final boolean LOCKED;
     private static final Set<String> NAMESPACES;

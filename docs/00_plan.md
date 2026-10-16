@@ -183,7 +183,7 @@ Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
 - **Включение.** Рядом с `build.gradle` лежит `lock.local.properties` (в `.gitignore`), в нём `password` и `salt`.
   Сборка кладёт в jar `rpcore_lock.properties`: соль и хэш PBKDF2-SHA256 (100 000 итераций). Пароля в jar нет.
   Нет файла — замка нет, всё как раньше. Сменили пароль — пересобрать Core.
-- **Что прячется.** Предметы с id из `namespaces`. По умолчанию это все RP-моды; предметы сейчас есть у Medicine, PDA и Sports.
+- **Что прячется.** Предметы с id из `namespaces`. По умолчанию это все RP-моды и Zone Artifacts (`fl_zone_arts`, сам мод от Core не зависит); предметы сейчас есть у Medicine, PDA, Sports и Zone Artifacts.
   - Креатив: из всех вкладок, включая поиск. Пустая вкладка сама не показывается.
   - JEI: из списка предметов, плюс ванильные рецепты (верстак, печи, камнерез, кузница), если рецепт или результат из наших модов.
   - Сами моды не менялись, всё в Core (`access/RpAccess`, `client/access/ClientAccess`, `client/access/CoreJeiPlugin`).
