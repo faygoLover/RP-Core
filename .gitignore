@@ -4,3 +4,5 @@ run/
 out/
 *.log
 .idea/
+# Пароль замка семейства — только локально
+lock.local.properties

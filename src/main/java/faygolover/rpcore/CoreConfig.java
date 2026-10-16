@@ -12,6 +12,7 @@ public final class CoreConfig {
     public static final ForgeConfigSpec.BooleanValue DEBUG_COMMANDS;
     public static final ForgeConfigSpec.IntValue PHOTO_INTERVAL;
     public static final ForgeConfigSpec.BooleanValue RPTIME_ENABLED;
+    public static final ForgeConfigSpec.IntValue ACCESS_PERMISSION_LEVEL;
 
     static {
         B.push("commands");
@@ -30,6 +31,12 @@ public final class CoreConfig {
                         "не скажет /rptime start: голод не тратится, раны не заживают, таймеры тела стоят.",
                         "Выключено — время идёт всегда, как без этой механики. /rptime sleep и skip работают в обоих случаях.")
                 .define("enabled", false);
+        B.pop();
+
+        B.push("access");
+        ACCESS_PERMISSION_LEVEL = B.comment("Ведущие: с таким уровнем прав на выделенном сервере игроку открыты все предметы RP-модов",
+                        "(в сборках с замком). В одиночном мире и LAN не действует.")
+                .defineInRange("gm_permission_level", 2, 1, 4);
         B.pop();
         SPEC = B.build();
     }

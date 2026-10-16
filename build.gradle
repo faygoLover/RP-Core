@@ -53,12 +53,51 @@ minecraft {
     }
 }
 
+repositories {
+    // JEI — только API для компиляции (замок семейства прячет предметы и из JEI); в игре необязателен.
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+        content { includeGroup 'mezz.jei' }
+    }
+}
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+}
+
+// Замок семейства (только локальная сборка). Если рядом лежит lock.local.properties (он в .gitignore), в jar кладётся
+// rpcore_lock.properties с солью и хэшем пароля (PBKDF2) — тогда предметы RP-модов скрыты из креатива и JEI, пока
+// у игрока нет ключа (config/rpcore-client.toml → [access] key) или прав ведущего на сервере. Пароль в jar не попадает.
+def lockSrc = file('lock.local.properties')
+def generateRpLock = tasks.register('generateRpLock') {
+    def outDir = layout.buildDirectory.dir('generated/rplock')
+    inputs.files(lockSrc)
+    outputs.dir(outDir)
+    doLast {
+        def dir = outDir.get().asFile
+        project.delete(dir)
+        dir.mkdirs()
+        if (!lockSrc.exists()) return
+        def p = new Properties()
+        lockSrc.withReader('UTF-8') { p.load(it) }
+        def password = p.getProperty('password', '').trim()
+        if (password.isEmpty()) throw new GradleException('lock.local.properties: пустой password')
+        def salt = p.getProperty('salt', 'rp-family').trim()
+        int iterations = 100000
+        def spec = new javax.crypto.spec.PBEKeySpec(password.toCharArray(), salt.getBytes('UTF-8'), iterations, 256)
+        def hash = javax.crypto.SecretKeyFactory.getInstance('PBKDF2WithHmacSHA256').generateSecret(spec).encoded.encodeHex().toString()
+        def lines = ["salt=${salt}", "hash=${hash}", "iterations=${iterations}"]
+        if (p.getProperty('namespaces')) lines << "namespaces=${p.getProperty('namespaces').trim()}"
+        new File(dir, 'rpcore_lock.properties').setText(lines.join('\n') + '\n', 'UTF-8')
+        logger.lifecycle('RP Core: замок включён')
+    }
 }
 
 tasks.named('processResources', ProcessResources).configure {
+    from(generateRpLock)
     var replaceProperties = [
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,

@@ -18,12 +18,14 @@ public final class CoreClient {
         MinecraftForge.EVENT_BUS.addListener(CoreClient::onClientCommands);
         MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.client.photo.SkinCapture::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(CoreClient::onLogout);
+        faygolover.rpcore.client.access.ClientAccess.init(modBus);
     }
 
     private static void onLogout(net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut e) {
         faygolover.rpcore.client.photo.ClientPhotos.clear();
         faygolover.rpcore.client.photo.ClientPictures.clear();
         faygolover.rpcore.profile.ProfileServer.clearClient();
+        faygolover.rpcore.client.access.ClientAccess.onLogout();
     }
 
     private static void onOverlays(RegisterGuiOverlaysEvent e) {

@@ -43,6 +43,11 @@ public class RpCore {
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onLogin);
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onRespawn);
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onDimension);
+        // Замок семейства: доступ ведущего с выделенного сервера.
+        bus.addListener(faygolover.rpcore.access.AccessServer::onLogin);
+        bus.addListener(faygolover.rpcore.access.AccessServer::onLogout);
+        bus.addListener(faygolover.rpcore.access.AccessServer::onServerTick);
+        bus.addListener(faygolover.rpcore.access.AccessServer::onServerStopped);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
