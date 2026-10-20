@@ -25,7 +25,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   ({@link StaminaProvider}, RP Stamina) — по одному моду. Второй такой мод первого не заменяет (в лог — оба).</li>
  *   <li>Нагрузка: {@link #exertion} — RP Stamina сообщает потраченную выносливость, питание считает калории.</li>
  *   <li>Команды: каждый мод сообщает свои в {@link #registerCommand}, {@code /rpcore commands} показывает все.</li>
- *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, события {@link faygolover.rpcore.api.event.RpTimeSkipEvent}.</li>
+ *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, {@link #setTimeRunning}, события
+ *   {@link faygolover.rpcore.api.event.RpTimeSkipEvent}; кто спит для ускорения ночи RP Time —
+ *   {@link faygolover.rpcore.api.event.RpSleepCountEvent}.</li>
  *   <li>Фото игроков (портрет по скину) — {@link Photos}; картинки по ключу (свои аватарки, у NPC тоже) — {@link Pictures}.</li>
  *   <li>Анкета тела (пол, возраст, рост) — {@link #profile}; формулы тела — {@link BodyNorms}.</li>
  *   <li>Инвентарь: мод ограничения — {@link InventoryProvider} ({@link #slotOpen}, {@link #slotUsable}), поправки к
@@ -262,6 +264,21 @@ public final class RpCoreAPI {
      */
     public static boolean timeRunning() {
         return faygolover.rpcore.time.RpTime.running();
+    }
+
+    /** Включена ли механика {@code /rptime start|stop} в конфиге Core. Сервер. @since 0.7.2 */
+    public static boolean timeControlEnabled() {
+        return faygolover.rpcore.time.RpTime.enabled();
+    }
+
+    /**
+     * Пустить или остановить время RP, как {@code /rptime start|stop} (RP Time: {@code /time pause|resume}).
+     * Механика выключена в конфиге — ничего не делает и возвращает {@code false}. Сервер. @since 0.7.2
+     */
+    public static boolean setTimeRunning(boolean running) {
+        if (!faygolover.rpcore.time.RpTime.enabled()) return false;
+        faygolover.rpcore.time.RpTime.setStarted(running);
+        return true;
     }
 
     // ------------------------------------------------------------------ нагрузка

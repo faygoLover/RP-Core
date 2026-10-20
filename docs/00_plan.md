@@ -201,3 +201,12 @@ Core 0.3.0: API питания `NutritionProvider` (ведёт RP Culinary).
   стресса). `RpCoreAPI.filterSpeech(player, text, channel)` зовёт мод, который доставляет речь (RP PDA): речь рядом
   (`VOICE_NEARBY`) и сообщения (`MESSAGE`). Системные сообщения и речь ГМа не фильтруются.
 - **`RpIds`:** `STRONG_WILLED` (Волевой), `SUGGESTIBLE` (Внушаемый). Отдаёт RP Perks 2.1.2.
+
+## Core 0.7.2 (20.10.2026) — под RP Time, сделано
+Мод времени суток RP Time (`RP Time/docs/00_plan.md`). Только API, сеть не менялась.
+- **`RpSleepCountEvent`** — как считать игрока для ускорения ночи (спит / держит ночь / не считается). RP Time
+  ставит начальное по ванилле, RP Medicine 0.8.4 отвечает: койка — спит, без сознания — держит, клиническая смерть —
+  не считается.
+- **`RpCoreAPI.setTimeRunning(boolean)`**, **`timeControlEnabled()`** — RP Time связывает свою паузу с `/rptime`:
+  `/rptime stop` останавливает и солнце, `/time pause` = `/rptime stop`.
+- Сон в Core (можно ли уснуть, разбудить, тик сна), длина суток из Time — по плану RP Needs (Core 0.8.0), не здесь.
