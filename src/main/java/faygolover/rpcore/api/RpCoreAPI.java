@@ -28,6 +28,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Время RP ({@code /rptime}): {@link #timeRunning}, события {@link faygolover.rpcore.api.event.RpTimeSkipEvent}.</li>
  *   <li>Фото игроков (портрет по скину) — {@link Photos}; картинки по ключу (свои аватарки, у NPC тоже) — {@link Pictures}.</li>
  *   <li>Анкета тела (пол, возраст, рост) — {@link #profile}; формулы тела — {@link BodyNorms}.</li>
+ *   <li>Инвентарь: мод ограничения — {@link InventoryProvider} ({@link #slotOpen}, {@link #slotUsable}), поправки к
+ *   нему — {@link InventoryModifier} ({@link #registerInventoryModifier}).</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */
@@ -114,6 +116,58 @@ public final class RpCoreAPI {
     public static Attribute staminaAttribute(StaminaProvider.Stat stat) {
         StaminaProvider s = stamina;
         return s == null ? null : s.attribute(stat);
+    }
+
+    // ------------------------------------------------------------------ инвентарь
+
+    private static volatile InventoryProvider inventory;
+    private static final Map<ResourceLocation, InventoryModifier> INVENTORY_MODIFIERS =
+            Collections.synchronizedMap(new LinkedHashMap<>());
+
+    /** Мод ограничения инвентаря (RP Inventory). Один: второй не заменяет первого. @since 0.7.0 */
+    public static synchronized void registerInventory(InventoryProvider provider) {
+        if (accept("инвентаря", inventory, provider)) inventory = provider;
+    }
+
+    /** Мод ограничения инвентаря или null — тогда открыто всё. @since 0.7.0 */
+    public static InventoryProvider inventory() {
+        return inventory;
+    }
+
+    /**
+     * Есть ли у игрока ячейка {@code index} ванильного инвентаря (0–8 хотбар, 9–35 хранилище, 36–39 броня, 40 вторая
+     * рука). Без мода ограничения — есть всегда. Замороженная ячейка — тоже есть. @since 0.7.0
+     */
+    public static boolean slotOpen(Player player, int index) {
+        InventoryProvider p = inventory;
+        return p == null || p.isSlotOpen(player, index);
+    }
+
+    /** Можно ли сейчас класть в ячейку и брать из неё: открыта и не заморожена. @since 0.7.0 */
+    public static boolean slotUsable(Player player, int index) {
+        InventoryProvider p = inventory;
+        return p == null || (p.isSlotOpen(player, index) && !p.isSlotFrozen(player, index));
+    }
+
+    /**
+     * Источник поправок к инвентарю (особенности, тело…). Тот же id второй раз — заменяет прежний. Регистрировать в
+     * FMLCommonSetupEvent. @since 0.7.0
+     */
+    public static void registerInventoryModifier(ResourceLocation id, InventoryModifier modifier) {
+        INVENTORY_MODIFIERS.put(id, modifier);
+    }
+
+    /** Все источники поправок (для мода ограничения). @since 0.7.0 */
+    public static Map<ResourceLocation, InventoryModifier> inventoryModifiers() {
+        synchronized (INVENTORY_MODIFIERS) {
+            return Map.copyOf(INVENTORY_MODIFIERS);
+        }
+    }
+
+    /** У источника поправок что-то поменялось для игрока — пересчитать в ближайший тик (сервер). @since 0.7.0 */
+    public static void inventoryChanged(Player player) {
+        InventoryProvider p = inventory;
+        if (p != null && !player.level().isClientSide) p.refresh(player);
     }
 
     /** Второй мод на то же место: оставляем первого, в лог — оба имени. */
