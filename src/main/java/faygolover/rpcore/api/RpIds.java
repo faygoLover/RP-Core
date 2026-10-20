@@ -143,6 +143,10 @@ public final class RpIds {
     public static final ResourceLocation ALCOHOL_ADDICT = id("alcohol_addict");
     /** Неграмотный: не читает тексты (PDA). @since 0.5.0 */
     public static final ResourceLocation ILLITERATE = id("illiterate");
+    /** Волевой: рассудок крепче, не теряет контроль в панике (Psyche). @since 0.7.1 */
+    public static final ResourceLocation STRONG_WILLED = id("strong_willed");
+    /** Внушаемый: рассудок слабее, Пси-зона бьёт сильнее (Psyche). @since 0.7.1 */
+    public static final ResourceLocation SUGGESTIBLE = id("suggestible");
 
     // ------------------------------------------------------------------ части тела (BodyProvider: ушибы, мышцы)
     /** @since 0.5.0 */

@@ -179,6 +179,51 @@ public final class RpCoreAPI {
         return false;
     }
 
+    // ------------------------------------------------------------------ речь
+
+    /** Как сказано: вслух рядом или сообщением (КПК, личка). @since 0.7.1 */
+    public enum SpeechChannel { VOICE_NEARBY, MESSAGE }
+
+    /**
+     * Фильтр речи игрока: меняет то, что он говорит или пишет (заикание от стресса, бред). Возвращает новый текст или
+     * тот же. Вызывается на сервере.
+     * @since 0.7.1
+     */
+    @FunctionalInterface
+    public interface SpeechFilter {
+        String filter(net.minecraft.server.level.ServerPlayer player, String text, SpeechChannel channel);
+    }
+
+    private static final Map<ResourceLocation, SpeechFilter> SPEECH_FILTERS = Collections.synchronizedMap(new LinkedHashMap<>());
+
+    /** Подключить фильтр речи (тот же id второй раз — заменяет прежний). Регистрировать в FMLCommonSetupEvent. @since 0.7.1 */
+    public static void registerSpeechFilter(ResourceLocation id, SpeechFilter filter) {
+        SPEECH_FILTERS.put(id, filter);
+    }
+
+    /**
+     * Пропустить текст игрока через все фильтры речи по порядку регистрации. Зовёт мод, который доставляет речь (RP
+     * PDA): перед тем как показать её другим. Только речь самого игрока — не системные сообщения и не ГМа. Сервер.
+     * @since 0.7.1
+     */
+    public static String filterSpeech(net.minecraft.server.level.ServerPlayer player, String text, SpeechChannel channel) {
+        if (text == null || text.isEmpty()) return text;
+        List<SpeechFilter> filters;
+        synchronized (SPEECH_FILTERS) {
+            filters = List.copyOf(SPEECH_FILTERS.values());
+        }
+        String out = text;
+        for (SpeechFilter f : filters) {
+            try {
+                String next = f.filter(player, out, channel);
+                if (next != null && !next.isEmpty()) out = next;
+            } catch (RuntimeException e) {
+                RpCore.LOGGER.error("RP Core: фильтр речи упал", e);
+            }
+        }
+        return out;
+    }
+
     // ------------------------------------------------------------------ команды
 
     /**
