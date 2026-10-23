@@ -29,6 +29,7 @@ public class RpCore {
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
         faygolover.rpcore.gm.GmRegistry.register(modBus);
+        faygolover.rpcore.effect.RpEffects.register(modBus);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, CoreConfig.SPEC);
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(CoreCommand::register);
@@ -49,12 +50,20 @@ public class RpCore {
         bus.addListener(faygolover.rpcore.access.AccessServer::onLogout);
         bus.addListener(faygolover.rpcore.access.AccessServer::onServerTick);
         bus.addListener(faygolover.rpcore.access.AccessServer::onServerStopped);
+        // Эффекты «Красные глаза» и «Помехи»: рассылка видящим, без частиц.
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onAdded);
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onRemove);
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onExpired);
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onJoin);
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onStartTracking);
+        bus.addListener(faygolover.rpcore.effect.EffectSync::onServerTick);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
     }
 
     private void commonSetup(FMLCommonSetupEvent e) {
         CoreNetwork.register();
         e.enqueueWork(() -> {
+            faygolover.rpcore.effect.RpEffects.registerBrewing();
             RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, анкета тела, HUD, время RP, фото");
             RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);

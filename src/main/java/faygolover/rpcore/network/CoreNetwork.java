@@ -14,7 +14,7 @@ import java.util.Optional;
 public final class CoreNetwork {
     private CoreNetwork() {}
 
-    private static final String VERSION = "5";
+    private static final String VERSION = "6";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RpCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -52,6 +52,9 @@ public final class CoreNetwork {
                 GmPackets.Open::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(id++, GmPackets.Apply.class, GmPackets.Apply::encode, GmPackets.Apply::decode,
                 GmPackets.Apply::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        // Эффекты на сущностях — видящим (0.8.1).
+        CHANNEL.registerMessage(id++, EffectPackets.State.class, EffectPackets.State::encode, EffectPackets.State::decode,
+                EffectPackets.State::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     public static void send(ServerPlayer player, Object msg) {

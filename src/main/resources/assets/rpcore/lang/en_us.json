@@ -113,5 +113,15 @@
   "rpcore.gm.holder.takeBy": "Who can take",
   "rpcore.gm.holder.takeBy.all": "Everyone",
   "rpcore.gm.holder.takeBy.gm": "GM only",
-  "rpcore.gm.holder.respawn": "Returns after, s (0 = never)"
+  "rpcore.gm.holder.respawn": "Returns after, s (0 = never)",
+  "effect.rpcore.red_eyes": "Red Eyes",
+  "effect.rpcore.interference": "Interference",
+  "item.minecraft.potion.effect.red_eyes": "Potion of Red Eyes",
+  "item.minecraft.splash_potion.effect.red_eyes": "Splash Potion of Red Eyes",
+  "item.minecraft.lingering_potion.effect.red_eyes": "Lingering Potion of Red Eyes",
+  "item.minecraft.tipped_arrow.effect.red_eyes": "Arrow of Red Eyes",
+  "item.minecraft.potion.effect.interference": "Potion of Interference",
+  "item.minecraft.splash_potion.effect.interference": "Splash Potion of Interference",
+  "item.minecraft.lingering_potion.effect.interference": "Lingering Potion of Interference",
+  "item.minecraft.tipped_arrow.effect.interference": "Arrow of Interference"
 }

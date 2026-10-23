@@ -113,5 +113,15 @@
   "rpcore.gm.holder.takeBy": "Кто может взять",
   "rpcore.gm.holder.takeBy.all": "Все",
   "rpcore.gm.holder.takeBy.gm": "Только ГМ",
-  "rpcore.gm.holder.respawn": "Вернётся через, с (0 — нет)"
+  "rpcore.gm.holder.respawn": "Вернётся через, с (0 — нет)",
+  "effect.rpcore.red_eyes": "Красные глаза",
+  "effect.rpcore.interference": "Помехи",
+  "item.minecraft.potion.effect.red_eyes": "Зелье красных глаз",
+  "item.minecraft.splash_potion.effect.red_eyes": "Взрывное зелье красных глаз",
+  "item.minecraft.lingering_potion.effect.red_eyes": "Оседающее зелье красных глаз",
+  "item.minecraft.tipped_arrow.effect.red_eyes": "Стрела красных глаз",
+  "item.minecraft.potion.effect.interference": "Зелье помех",
+  "item.minecraft.splash_potion.effect.interference": "Взрывное зелье помех",
+  "item.minecraft.lingering_potion.effect.interference": "Оседающее зелье помех",
+  "item.minecraft.tipped_arrow.effect.interference": "Стрела помех"
 }
