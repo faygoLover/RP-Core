@@ -123,6 +123,7 @@ public class HolderBlockEntity extends BlockEntity implements GmConfigurable {
         t.putString("takeBy", takeBy);
         t.putInt("respawn", respawn);
         t.putBoolean("collide", getBlockState().getValue(HolderBlock.COLLIDE));
+        t.putInt("count", item.isEmpty() ? (template.isEmpty() ? 0 : template.getCount()) : item.getCount());
         return t;
     }
 
@@ -142,6 +143,12 @@ public class HolderBlockEntity extends BlockEntity implements GmConfigurable {
     @Override
     public void applyFrom(ServerPlayer gm, CompoundTag t) {
         readSettings(t);
+        // Сколько выдать: можно поменять после того, как предмет положили (до размера стака предмета).
+        if (t.contains("count")) {
+            for (ItemStack s : new ItemStack[]{item, template}) {
+                if (!s.isEmpty()) s.setCount(Mth.clamp(t.getInt("count"), 1, s.getMaxStackSize()));
+            }
+        }
         if (respawn > 0 && template.isEmpty()) template = item.copy();
         if (respawn == 0) {
             template = ItemStack.EMPTY;

@@ -5,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Невидимая нажимная пластина: без модели, коллизии, звука шагов и рамки выделения. Ведущий с меткой в руке видит
  * её контур, может выделить, сломать и открыть настройки (ПКМ меткой). Замечает только тех, кого велено
- * ({@link HiddenPlateBlockEntity#trigger}), и отпускает в тот же тик, как они сошли.
+ * ({@link HiddenPlateBlockEntity#trigger}) в своей области, и отпускает в тот же тик, как они сошли.
  */
 public class HiddenPlateBlock extends Block implements EntityBlock, GmBlock {
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
@@ -85,9 +84,15 @@ public class HiddenPlateBlock extends Block implements EntityBlock, GmBlock {
         return true;
     }
 
+    /** Стрелка — куда смотрел поставивший (по сторонам света; точнее — в настройках). */
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof HiddenPlateBlockEntity be) be.touch(entity);
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer,
+                            net.minecraft.world.item.ItemStack stack) {
+        if (placer != null && level.getBlockEntity(pos) instanceof HiddenPlateBlockEntity be) {
+            be.yaw = net.minecraft.util.Mth.wrapDegrees(Math.round(placer.getYRot() / 90f) * 90f);
+            be.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+        }
     }
 
     @Override

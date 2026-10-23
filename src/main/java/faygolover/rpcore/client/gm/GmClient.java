@@ -2,8 +2,6 @@ package faygolover.rpcore.client.gm;
 
 import faygolover.rpcore.gm.GmMarkerSet;
 import faygolover.rpcore.gm.GmRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,6 +17,7 @@ public final class GmClient {
         modBus.addListener(GmClient::onSetup);
         MinecraftForge.EVENT_BUS.addListener(GmOverlay::onHighlight);
         MinecraftForge.EVENT_BUS.addListener(GmOverlay::onRenderLevel);
+        MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, GmOverlay::onRenderLabels);
         MinecraftForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> GmMarkerSet.clear());
     }
 
@@ -30,40 +29,29 @@ public final class GmClient {
         e.enqueueWork(() -> {
             GmSchema.register(GmRegistry.HIDDEN_PLATE.get(), new GmSchema("plate")
                     .text("name", 32)
+                    .decimal("yaw", -180, 180).decimal("width", 0.5, 32).decimal("length", 0.5, 32)
                     .choice("trigger", "players", "non_gm", "living")
                     .choice("action", "none", "teleport", "anchor", "command")
                     .when("action", "teleport").coord("tx").coord("ty").coord("tz")
                     .decimal("tyaw", -180, 180).decimal("tpitch", -90, 90).text("tdim", 128)
                     .when("action", "anchor").text("anchor", 32)
-                    .when("action", "teleport", "anchor").bool("keepView").bool("keepOffset")
+                    .when("action", "teleport", "anchor").choice("view", "target", "keep").bool("keepOffset")
                     .when("action", "command").text("command", 256).integer("cmdLevel", 0, 4)
                     .always().integer("cooldown", 0, 72000)
                     .choice("redstone", "hold", "off", "pulse")
                     .when("redstone", "hold", "pulse", "").integer("power", 1, 15)
                     .when("redstone", "pulse").integer("pulse", 1, 1200)
-                    .always().bool("sound")
-                    .action("rpcore.gm.plate.here", GmClient::hereAsTarget));
+                    .always().bool("sound"));
             GmSchema.register(GmRegistry.WALL_HOLDER.get(), new GmSchema("holder")
+                    .integer("count", 1, 64)
                     .choice("render", "flat", "block")
                     .decimal("scale", 0.1, 4).decimal("rot", -180, 180).decimal("spin", -720, 720)
                     .bool("collide").choice("takeBy", "all", "gm").integer("respawn", 0, 604800));
             GmSchema.register(GmRegistry.VACUUM_HOLDER.get(), new GmSchema("holder")
+                    .integer("count", 1, 64)
                     .choice("render", "item", "flat", "block")
                     .decimal("scale", 0.1, 4).decimal("rot", -180, 180).decimal("tilt", -90, 90).decimal("spin", -720, 720)
                     .bool("bob").bool("collide").choice("takeBy", "all", "gm").integer("respawn", 0, 604800));
         });
-    }
-
-    /** «Сюда: моё место» — цель телепорта пластины = где стоит и куда смотрит ведущий. */
-    private static void hereAsTarget(net.minecraft.nbt.CompoundTag t) {
-        LocalPlayer p = Minecraft.getInstance().player;
-        if (p == null) return;
-        t.putString("action", "teleport");
-        t.putDouble("tx", Math.round(p.getX() * 100) / 100.0);
-        t.putDouble("ty", Math.round(p.getY() * 100) / 100.0);
-        t.putDouble("tz", Math.round(p.getZ() * 100) / 100.0);
-        t.putFloat("tyaw", Math.round(net.minecraft.util.Mth.wrapDegrees(p.getYRot()) * 10) / 10f);
-        t.putFloat("tpitch", Math.round(p.getXRot() * 10) / 10f);
-        t.putString("tdim", p.level().dimension().location().toString());
     }
 }

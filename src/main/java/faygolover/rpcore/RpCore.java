@@ -34,6 +34,7 @@ public class RpCore {
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(CoreCommand::register);
         bus.addListener(TimeCommand::register);
+        bus.addListener(faygolover.rpcore.command.PointCommand::register);
         bus.addListener(RpTime::onServerStarting);
         // Фото игроков (медкарта, КПК).
         bus.addListener(PhotoServer::onLogin);
@@ -69,6 +70,7 @@ public class RpCore {
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|reset]", "rpcore.help.skill", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore point set|remove|tp <имя>, /rpcore point list", "rpcore.help.point", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rphud", "rpcore.help.rphud", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime", "rpcore.help.rptime", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime start|stop", "rpcore.help.rptime_start", 2, false);

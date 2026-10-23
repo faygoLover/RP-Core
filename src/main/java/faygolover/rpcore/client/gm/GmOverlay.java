@@ -32,7 +32,7 @@ public final class GmOverlay {
     private GmOverlay() {}
 
     private static final double RADIUS_SQR = 48 * 48;
-    private static final double LABEL_SQR = 16 * 16;
+    private static final double LABEL_SQR = 24 * 24;
 
     static void onHighlight(RenderHighlightEvent.Block e) {
         Minecraft mc = Minecraft.getInstance();
@@ -63,16 +63,40 @@ public final class GmOverlay {
             AABB box = shape.isEmpty() ? new AABB(0, 0, 0, 1, 1, 1) : shape.bounds();
             box = box.move(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z).inflate(0.002);
             int c = gb.markerColor();
-            LevelRenderer.renderLineBox(pose, lines, box, (c >> 16 & 255) / 255f, (c >> 8 & 255) / 255f, (c & 255) / 255f, 0.9f);
+            float r = (c >> 16 & 255) / 255f, g = (c >> 8 & 255) / 255f, b = (c & 255) / 255f;
+            LevelRenderer.renderLineBox(pose, lines, box, r, g, b, 0.9f);
+            if (be instanceof GmConfigurable gc) for (Vec3[] seg : gc.markerLines()) line(lines, pose, seg[0].subtract(cam), seg[1].subtract(cam), r, g, b);
         }
         buffers.endBatch(RenderType.lines());
-        // Подписи — вблизи, поверх всего.
+    }
+
+    private static void line(VertexConsumer vc, PoseStack pose, Vec3 a, Vec3 b, float r, float g, float bl) {
+        Vec3 n = b.subtract(a).normalize();
+        var last = pose.last();
+        vc.vertex(last.pose(), (float) a.x, (float) a.y, (float) a.z).color(r, g, bl, 0.95f).normal(last.normal(), (float) n.x, (float) n.y, (float) n.z).endVertex();
+        vc.vertex(last.pose(), (float) b.x, (float) b.y, (float) b.z).color(r, g, bl, 0.95f).normal(last.normal(), (float) n.x, (float) n.y, (float) n.z).endVertex();
+    }
+
+    /**
+     * Подписи — в самом конце кадра мира (после порталов RP Portals, слушатель с низшим приоритетом), поверх блоков,
+     * как ники игроков.
+     */
+    static void onRenderLabels(RenderLevelStageEvent e) {
+        if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || mc.level == null || !GmTools.holdsMarker(player)) return;
+        BlockEntity[] all = GmMarkerSet.snapshot();
+        if (all.length == 0) return;
+        Vec3 cam = e.getCamera().getPosition();
+        PoseStack pose = e.getPoseStack();
+        MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         Font font = mc.font;
         for (BlockEntity be : all) {
             if (be.isRemoved() || be.getLevel() != mc.level || !(be instanceof GmConfigurable gc)) continue;
             String label = gc.markerLabel();
             if (label.isEmpty()) continue;
-            Vec3 at = be.getBlockPos().getCenter().add(0, 0.7, 0);
+            Vec3 at = gc.markerLabelPos();
             if (at.distanceToSqr(cam) > LABEL_SQR) continue;
             pose.pushPose();
             pose.translate(at.x - cam.x, at.y - cam.y, at.z - cam.z);
