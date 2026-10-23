@@ -16,6 +16,7 @@ public final class ClientEffects {
     private static final Int2IntMap MASKS = new Int2IntOpenHashMap();
 
     public static void init(IEventBus modBus) {
+        CoreTechniques.init();
         modBus.addListener(ClientEffects::onLayers);
         MinecraftForge.EVENT_BUS.addListener(Interference::onRenderLevel);
         MinecraftForge.EVENT_BUS.addListener(Interference::onClientTick);

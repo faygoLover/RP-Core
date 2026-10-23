@@ -136,5 +136,7 @@
   "rpcore.gm.plate.view.keep": "Keep",
   "rpcore.gm.holder.count": "How many to give",
   "subtitles.rpcore.interference.click": "Geiger counter clicks",
-  "subtitles.rpcore.interference.static": "Static hiss"
+  "subtitles.rpcore.interference.static": "Static hiss",
+  "flrender.technique.rpcore.eye_spheres": "RP Core: glowing eye spheres",
+  "flrender.technique.rpcore.eye_spheres.tooltip": "The Red Eyes effect: white-hot spheres with a halo, always facing the viewer. Off = flat glowing spots on the face (cheaper). With red_eyes_style = FLAT in rpcore-client.toml - always spots."
 }

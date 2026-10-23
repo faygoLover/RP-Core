@@ -1,5 +1,6 @@
 package faygolover.rpcore.client.effect;
 
+import faygolover.flrender.api.FlRender;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import faygolover.rpcore.RpCore;
@@ -66,9 +67,10 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         boolean helmet = !p.getItemBySlot(EquipmentSlot.HEAD).isEmpty();
         // В интерфейсе (инвентарь) — плоская проекция.
         boolean gui = com.mojang.blaze3d.systems.RenderSystem.getProjectionMatrix().m23() == 0f;
-        if (CoreClientConfig.EYES_STYLE.get() == CoreClientConfig.EyesStyle.FLAT) renderFlat(pose, buffers, helmet, gui, age);
+        // Шары — техника FL Render (со «Среднего»); на «Низком» — плоские пятна.
+        if (CoreClientConfig.EYES_STYLE.get() == CoreClientConfig.EyesStyle.FLAT || !CoreTechniques.EYE_SPHERES.on()) renderFlat(pose, buffers, helmet, gui, age);
         // В проходе теней шейдерпака шары не рисуем — свет тени не отбрасывает.
-        else if (!ShaderPack.shadowPass()) renderSphere(pose, buffers, helmet, gui, age, p.getId());
+        else if (!FlRender.shadowPass()) renderSphere(pose, buffers, helmet, gui, age, p.getId());
         pose.popPose();
     }
 
@@ -98,7 +100,7 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         for (Vector3f c : eyes) disc(core, c, SPHERE_R * unit * breath, 1f);
         // Свечение складывается со сценой, порядок не важен.
         VertexConsumer glow = buffers.getBuffer(RenderType.eyes(BLOOM));
-        float[][] layers = !gui && ShaderPack.inUse() ? GLOW_PACK : GLOW_PLAIN;
+        float[][] layers = !gui && FlRender.shaderPack() ? GLOW_PACK : GLOW_PLAIN;
         for (Vector3f c : eyes)
             for (float[] l : layers) disc(glow, c, l[0] * unit * (0.96f + 0.04f * breath), l[1] * breath);
     }

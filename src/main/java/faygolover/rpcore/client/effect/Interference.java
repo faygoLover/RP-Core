@@ -1,19 +1,15 @@
 package faygolover.rpcore.client.effect;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import faygolover.flrender.render.PostFx;
 import faygolover.rpcore.RpCore;
 import faygolover.rpcore.effect.EffectSync;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.PostChain;
-import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-import java.util.List;
 
 /**
  * «Помехи»: у всех, кто рядом с носителем, экран как у камеры в зоне радиации — частицы засвечивают случайные
@@ -28,9 +24,7 @@ public final class Interference {
     private static final ResourceLocation CHAIN = new ResourceLocation(RpCore.MODID, "shaders/post/interference.json");
     private static final double RADIUS = 12.0;
 
-    private static PostChain chain;
-    private static boolean failed;
-    private static int w = -1, h = -1;
+    private static final PostFx FX = new PostFx(CHAIN);
     private static float target, strength, strengthO;
 
     static void onClientTick(TickEvent.ClientTickEvent e) {
@@ -71,33 +65,11 @@ public final class Interference {
     static void onRenderLevel(RenderLevelStageEvent e) {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         float s = strengthO + (strength - strengthO) * e.getPartialTick();
-        if (s <= 0.002f || failed) return;
-        Minecraft mc = Minecraft.getInstance();
-        var main = mc.getMainRenderTarget();
-        try {
-            if (chain == null || main.width != w || main.height != h) {
-                if (chain != null) chain.close();
-                chain = new PostChain(mc.getTextureManager(), mc.getResourceManager(), main, CHAIN);
-                chain.resize(main.width, main.height);
-                w = main.width;
-                h = main.height;
-            }
-            List<PostPass> passes = ObfuscationReflectionHelper.getPrivateValue(PostChain.class, chain, "f_110009_");
-            if (passes != null && !passes.isEmpty()) {
-                var fx = passes.get(0).getEffect();
-                fx.safeGetUniform("Strength").set(s);
-                // Свои часы: «Time» прохода Minecraft сбрасывается каждую секунду — помехи повторялись узором.
-                fx.safeGetUniform("Clock").set((float) ((System.nanoTime() / 1_000_000L) % 1_000_000L) / 1000f);
-            }
-            RenderSystem.disableBlend();
-            RenderSystem.disableDepthTest();
-            RenderSystem.resetTextureMatrix();
-            chain.process(e.getPartialTick());
-            main.bindWrite(false);
-            RenderSystem.enableDepthTest();
-        } catch (Exception ex) {
-            failed = true;
-            RpCore.LOGGER.error("RP Core: проход «Помехи» не загрузился", ex);
-        }
+        if (s <= 0.002f) return;
+        FX.process(e.getPartialTick(), fx -> {
+            fx.safeGetUniform("Strength").set(s);
+            // Свои часы: «Time» прохода Minecraft сбрасывается каждую секунду — помехи повторялись узором.
+            fx.safeGetUniform("Clock").set((float) ((System.nanoTime() / 1_000_000L) % 1_000_000L) / 1000f);
+        });
     }
 }

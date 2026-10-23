@@ -6,3 +6,4 @@ out/
 .idea/
 # Пароль замка семейства — только локально
 lock.local.properties
+libs/*.jar

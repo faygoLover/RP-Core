@@ -136,5 +136,7 @@
   "rpcore.gm.plate.view.keep": "Не менять",
   "rpcore.gm.holder.count": "Сколько выдать",
   "subtitles.rpcore.interference.click": "Щелчки счётчика",
-  "subtitles.rpcore.interference.static": "Шипение помех"
+  "subtitles.rpcore.interference.static": "Шипение помех",
+  "flrender.technique.rpcore.eye_spheres": "RP Core: светящиеся глаза-шары",
+  "flrender.technique.rpcore.eye_spheres.tooltip": "Эффект «Красные глаза»: раскалённые шары с ореолом, всегда повёрнуты к зрителю. Выкл — плоские светящиеся пятна на лице (дешевле). Если в rpcore-client.toml стоит red_eyes_style = FLAT — всегда пятна."
 }
