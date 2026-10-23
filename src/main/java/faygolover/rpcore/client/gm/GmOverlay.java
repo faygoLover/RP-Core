@@ -89,7 +89,8 @@ public final class GmOverlay {
         BlockEntity[] all = GmMarkerSet.snapshot();
         if (all.length == 0) return;
         Vec3 cam = e.getCamera().getPosition();
-        PoseStack pose = e.getPoseStack();
+        // На этапе AFTER_LEVEL Forge отдаёт стек с проекцией, а не с поворотом камеры — поворот строим сами.
+        PoseStack pose = cameraPose(e.getCamera());
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         Font font = mc.font;
         for (BlockEntity be : all) {
@@ -108,5 +109,13 @@ public final class GmOverlay {
             pose.popPose();
         }
         buffers.endBatch();
+    }
+
+    /** Поворот камеры, как у мира (без наклона «крена»): для этапа AFTER_LEVEL. */
+    public static PoseStack cameraPose(net.minecraft.client.Camera camera) {
+        PoseStack pose = new PoseStack();
+        pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(camera.getXRot()));
+        pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(camera.getYRot() + 180f));
+        return pose;
     }
 }
