@@ -37,7 +37,7 @@ final class InterferenceSound {
             acc += l;
         }
         for (int i = 0; i < n; i++) {
-            float vol = 0.25f + 0.45f * s + RND.nextFloat() * 0.1f;
+            float vol = Math.min(1f, 0.5f + 0.5f * s + RND.nextFloat() * 0.1f);
             float pitch = 0.9f + RND.nextFloat() * 0.25f;
             mc.getSoundManager().play(SimpleSoundInstance.forUI(RpEffects.INTERFERENCE_CLICK.get(), pitch, vol));
         }

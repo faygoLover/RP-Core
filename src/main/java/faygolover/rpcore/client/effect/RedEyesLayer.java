@@ -20,9 +20,8 @@ import org.joml.Matrix4f;
 /**
  * «Красные глаза»: глаза светятся чисто красным. На месте глаз — красное светящееся пятно (оно же закрывает глаза
  * скина и анимированные глаза текстурпаков), вплотную к лицу (в шлеме — сразу перед шлемом). От каждого глаза вперёд
- * идёт расходящийся луч, как у фонарика в пыльной комнате: у глаза свет сильнее всего (складывается почти до белого),
- * дальше рассеивается. Свечение и лучи складываются со сценой ({@link RenderType#eyes}) — видны в темноте и с
- * шейдерпаком.
+ * идёт слабый расходящийся свет. Глаз — ровного цвета, ореол вокруг тусклее. Рисуется чуть «подтянутым» к камере
+ * ({@link EyeRenderTypes}), чтобы не прятаться за объёмным вторым слоем скина.
  */
 public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     private static final ResourceLocation SPOT = new ResourceLocation(RpCore.MODID, "textures/entity/eye_spot.png");
@@ -31,7 +30,7 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
     private static final float PX = 1f / 16f;
     /** Глаза на лице (пиксели головы, как у скина Стива): x = ±2, y = −3.5. */
     private static final float EYE_Y = -3.5f;
-    private static final float SPOT_SIZE = 2.2f, GLOW_SIZE = 3.6f;
+    private static final float SPOT_SIZE = 2.0f, GLOW_SIZE = 4.6f;
     /** Луч: длина и ширина у глаза и в конце (пиксели головы). */
     private static final float BEAM_LEN = 22f, BEAM_W0 = 1.2f, BEAM_W1 = 9f;
 
@@ -46,20 +45,23 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         pose.pushPose();
         getParentModel().head.translateAndRotate(pose);
         boolean helmet = !p.getItemBySlot(EquipmentSlot.HEAD).isEmpty();
-        float z = (helmet ? -5.06f : -4.52f) * PX;
+        // Почти вплотную к лицу (в шлеме — к лицевой части шлема): пятно глаза ровное, ореол чуть впереди.
+        float z = (helmet ? -5.04f : -4.04f) * PX;
         Matrix4f m = pose.last().pose();
         Matrix3f n = pose.last().normal();
         float flicker = 0.9f + 0.1f * (float) Math.sin(age * 0.3f);
 
-        VertexConsumer spot = buffers.getBuffer(RenderType.entityTranslucentEmissive(SPOT));
+        // В интерфейсе (инвентарь — плоская проекция) обычные типы: «подтягивание» к камере сдвинуло бы глаза по экрану.
+        boolean gui = com.mojang.blaze3d.systems.RenderSystem.getProjectionMatrix().m23() == 0f;
+        java.util.function.Function<ResourceLocation, RenderType> spotType = gui ? RenderType::entityTranslucentEmissive : EyeRenderTypes.SPOT;
+        java.util.function.Function<ResourceLocation, RenderType> glowType = gui ? RenderType::eyes : EyeRenderTypes.GLOW;
+        VertexConsumer spot = buffers.getBuffer(spotType.apply(SPOT));
         for (float cx : new float[]{-2f, 2f}) face(spot, m, n, cx, EYE_Y, SPOT_SIZE, z, 1f);
-        VertexConsumer glow = buffers.getBuffer(RenderType.eyes(GLOW));
-        for (float cx : new float[]{-2f, 2f}) {
-            face(glow, m, n, cx, EYE_Y, GLOW_SIZE, z - 0.02f * PX, flicker);
-            face(glow, m, n, cx, EYE_Y, GLOW_SIZE * 0.6f, z - 0.03f * PX, flicker);
-        }
-        VertexConsumer beam = buffers.getBuffer(RenderType.eyes(BEAM));
-        for (float cx : new float[]{-2f, 2f}) beam(beam, m, n, cx, EYE_Y, z - 0.05f * PX, 0.55f * flicker);
+        VertexConsumer glow = buffers.getBuffer(glowType.apply(GLOW));
+        // Ореол — один слой, тусклее самого глаза; свет вперёд — слабый.
+        for (float cx : new float[]{-2f, 2f}) face(glow, m, n, cx, EYE_Y, GLOW_SIZE, z - 0.02f * PX, 0.6f * flicker);
+        VertexConsumer beam = buffers.getBuffer(glowType.apply(BEAM));
+        for (float cx : new float[]{-2f, 2f}) beam(beam, m, n, cx, EYE_Y, z - 0.05f * PX, 0.3f * flicker);
         pose.popPose();
     }
 
