@@ -1,0 +1,27 @@
+{
+  "interference.click": {
+    "subtitle": "subtitles.rpcore.interference.click",
+    "sounds": [
+      {
+        "name": "rpcore:interference/click1"
+      },
+      {
+        "name": "rpcore:interference/click2"
+      },
+      {
+        "name": "rpcore:interference/click3"
+      },
+      {
+        "name": "rpcore:interference/click4"
+      }
+    ]
+  },
+  "interference.static": {
+    "subtitle": "subtitles.rpcore.interference.static",
+    "sounds": [
+      {
+        "name": "rpcore:interference/static"
+      }
+    ]
+  }
+}

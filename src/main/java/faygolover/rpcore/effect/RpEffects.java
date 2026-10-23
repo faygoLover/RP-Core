@@ -33,6 +33,13 @@ public final class RpEffects {
 
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, RpCore.MODID);
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTIONS, RpCore.MODID);
+    public static final DeferredRegister<net.minecraft.sounds.SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, RpCore.MODID);
+
+    /** «Помехи»: щелчок счётчика Гейгера и закольцованное шипение. */
+    public static final RegistryObject<net.minecraft.sounds.SoundEvent> INTERFERENCE_CLICK = SOUNDS.register("interference.click",
+            () -> net.minecraft.sounds.SoundEvent.createVariableRangeEvent(new net.minecraft.resources.ResourceLocation(RpCore.MODID, "interference.click")));
+    public static final RegistryObject<net.minecraft.sounds.SoundEvent> INTERFERENCE_STATIC = SOUNDS.register("interference.static",
+            () -> net.minecraft.sounds.SoundEvent.createVariableRangeEvent(new net.minecraft.resources.ResourceLocation(RpCore.MODID, "interference.static")));
 
     public static final RegistryObject<MobEffect> RED_EYES = EFFECTS.register("red_eyes", () -> new Plain(MobEffectCategory.NEUTRAL, 0xD01818));
     public static final RegistryObject<MobEffect> INTERFERENCE = EFFECTS.register("interference", () -> new Plain(MobEffectCategory.NEUTRAL, 0x6E7F74));
@@ -58,6 +65,7 @@ public final class RpEffects {
     public static void register(IEventBus modBus) {
         EFFECTS.register(modBus);
         POTIONS.register(modBus);
+        SOUNDS.register(modBus);
     }
 
     /** Рецепты варки (из FMLCommonSetupEvent → enqueueWork). */

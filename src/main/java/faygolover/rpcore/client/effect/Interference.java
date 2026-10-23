@@ -16,8 +16,9 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import java.util.List;
 
 /**
- * «Помехи»: у всех, кто рядом с носителем, экран рябит, как камера в зоне радиации — зерно, дрожь строк, разрывы,
- * сдвиг цветов, бегущая полоса. Сила — от расстояния до ближайшего носителя (радиус 12 блоков на уровень эффекта),
+ * «Помехи»: у всех, кто рядом с носителем, экран как у камеры в зоне радиации — частицы засвечивают случайные
+ * точки и короткие чёрточки, лёгкое зерно; плюс шипение и щелчки счётчика Гейгера ({@link InterferenceSound}).
+ * Сила — от расстояния до ближайшего носителя (радиус 12 блоков на уровень эффекта),
  * плавно нарастает и спадает. У самого носителя ничего нет. Свой проход поверх кадра после мира (до руки и
  * интерфейса), не занимает слот постэффекта игры (его держит RP Medicine); с шейдерпаком — после его кадра.
  */
@@ -40,6 +41,7 @@ public final class Interference {
         // Нарастает быстрее, чем спадает.
         strength += (target - strength) * (target > strength ? 0.35f : 0.12f);
         if (strength < 0.002f) strength = 0f;
+        InterferenceSound.tick(strength);
     }
 
     private static float compute(Minecraft mc) {
@@ -61,6 +63,11 @@ public final class Interference {
         return Math.min(1f, best);
     }
 
+    /** Текущая сила помех (0–1). */
+    static float current() {
+        return strength;
+    }
+
     static void onRenderLevel(RenderLevelStageEvent e) {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         float s = strengthO + (strength - strengthO) * e.getPartialTick();
@@ -76,7 +83,12 @@ public final class Interference {
                 h = main.height;
             }
             List<PostPass> passes = ObfuscationReflectionHelper.getPrivateValue(PostChain.class, chain, "f_110009_");
-            if (passes != null && !passes.isEmpty()) passes.get(0).getEffect().safeGetUniform("Strength").set(s);
+            if (passes != null && !passes.isEmpty()) {
+                var fx = passes.get(0).getEffect();
+                fx.safeGetUniform("Strength").set(s);
+                // Свои часы: «Time» прохода Minecraft сбрасывается каждую секунду — помехи повторялись узором.
+                fx.safeGetUniform("Clock").set((float) ((System.nanoTime() / 1_000_000L) % 1_000_000L) / 1000f);
+            }
             RenderSystem.disableBlend();
             RenderSystem.disableDepthTest();
             RenderSystem.resetTextureMatrix();

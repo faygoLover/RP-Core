@@ -134,5 +134,7 @@
   "rpcore.gm.plate.view": "Взгляд после переноса",
   "rpcore.gm.plate.view.target": "Как у цели",
   "rpcore.gm.plate.view.keep": "Не менять",
-  "rpcore.gm.holder.count": "Сколько выдать"
+  "rpcore.gm.holder.count": "Сколько выдать",
+  "subtitles.rpcore.interference.click": "Щелчки счётчика",
+  "subtitles.rpcore.interference.static": "Шипение помех"
 }

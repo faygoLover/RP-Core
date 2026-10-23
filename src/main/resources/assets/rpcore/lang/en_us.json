@@ -134,5 +134,7 @@
   "rpcore.gm.plate.view": "View after teleport",
   "rpcore.gm.plate.view.target": "As the target",
   "rpcore.gm.plate.view.keep": "Keep",
-  "rpcore.gm.holder.count": "How many to give"
+  "rpcore.gm.holder.count": "How many to give",
+  "subtitles.rpcore.interference.click": "Geiger counter clicks",
+  "subtitles.rpcore.interference.static": "Static hiss"
 }

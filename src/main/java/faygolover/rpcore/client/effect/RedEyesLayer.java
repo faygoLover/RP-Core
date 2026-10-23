@@ -18,13 +18,18 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 /**
- * «Красные глаза»: на лице игрока два светящихся красных глаза (там, где глаза у скина Стива) с ореолом. Рисуются
- * как глаза паука ({@link RenderType#eyes}) — светятся в темноте и с шейдерпаком. В шлеме — перед шлемом, видно
- * сквозь него.
+ * «Красные глаза»: на месте глаз — два крупных раскалённых красных круга-прожектора. Сам круг непрозрачный и светится
+ * в полную силу (закрывает глаза скина и анимированные глаза текстурпаков), вокруг — два слоя красного свечения,
+ * которые складываются со светом сцены, как глаза паука ({@link RenderType#eyes}) — видны в темноте и с шейдерпаком.
+ * В шлеме — перед шлемом.
  */
 public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+    private static final ResourceLocation DISC = new ResourceLocation(RpCore.MODID, "textures/entity/eye_disc.png");
     private static final ResourceLocation GLOW = new ResourceLocation(RpCore.MODID, "textures/entity/eye_glow.png");
     private static final float PX = 1f / 16f;
+    /** Центры глаз на лице (пиксели головы, как у скина Стива): x = ±2, y = −3.5. */
+    private static final float EYE_Y = -3.5f;
+    private static final float DISC_SIZE = 2.9f, GLOW_IN = 6.5f, GLOW_OUT = 10f;
 
     public RedEyesLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
         super(parent);
@@ -37,33 +42,36 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         pose.pushPose();
         getParentModel().head.translateAndRotate(pose);
         boolean helmet = !p.getItemBySlot(EquipmentSlot.HEAD).isEmpty();
-        float z = (helmet ? -5.3f : -4.6f) * PX;
-        VertexConsumer vc = buffers.getBuffer(RenderType.eyes(GLOW));
+        float z = (helmet ? -5.35f : -4.65f) * PX;
         Matrix4f m = pose.last().pose();
         Matrix3f n = pose.last().normal();
-        float flicker = 0.9f + 0.1f * (float) Math.sin(age * 0.35f);
+        float pulse = 0.88f + 0.12f * (float) Math.sin(age * 0.3f);
+
+        VertexConsumer disc = buffers.getBuffer(RenderType.entityTranslucentEmissive(DISC));
+        for (float cx : new float[]{-2f, 2f}) quad(disc, m, n, cx, EYE_Y, DISC_SIZE, z, 1f, 1f, 1f, 1f);
+        VertexConsumer glow = buffers.getBuffer(RenderType.eyes(GLOW));
         for (float cx : new float[]{-2f, 2f}) {
-            // Ядро — по размеру глаза скина (2×1), ореол — шире.
-            quad(vc, m, n, (cx - 1.1f) * PX, (-4.1f) * PX, (cx + 1.1f) * PX, (-2.9f) * PX, z, 1f, 0.25f, 0.2f);
-            quad(vc, m, n, (cx - 2.6f) * PX, (-5.3f) * PX, (cx + 2.6f) * PX, (-1.7f) * PX, z - 0.01f * PX, 0.55f * flicker, 0.04f, 0.03f);
+            quad(glow, m, n, cx, EYE_Y, GLOW_IN, z - 0.02f * PX, pulse, pulse, pulse, 1f);
+            quad(glow, m, n, cx, EYE_Y, GLOW_OUT, z - 0.04f * PX, 0.55f * pulse, 0.55f * pulse, 0.55f * pulse, 1f);
         }
         pose.popPose();
     }
 
-    /** Квадрат в плоскости лица, с обеих сторон. */
-    private static void quad(VertexConsumer vc, Matrix4f m, Matrix3f n, float x0, float y0, float x1, float y1, float z, float r, float g, float b) {
-        v(vc, m, n, x0, y0, z, 0, 0, r, g, b);
-        v(vc, m, n, x0, y1, z, 0, 1, r, g, b);
-        v(vc, m, n, x1, y1, z, 1, 1, r, g, b);
-        v(vc, m, n, x1, y0, z, 1, 0, r, g, b);
-        v(vc, m, n, x1, y0, z, 1, 0, r, g, b);
-        v(vc, m, n, x1, y1, z, 1, 1, r, g, b);
-        v(vc, m, n, x0, y1, z, 0, 1, r, g, b);
-        v(vc, m, n, x0, y0, z, 0, 0, r, g, b);
+    /** Квадрат {@code size}×{@code size} пикселей головы с центром (cx, cy), в плоскости лица, с обеих сторон. */
+    private static void quad(VertexConsumer vc, Matrix4f m, Matrix3f n, float cx, float cy, float size, float z, float r, float g, float b, float a) {
+        float x0 = (cx - size / 2) * PX, x1 = (cx + size / 2) * PX, y0 = (cy - size / 2) * PX, y1 = (cy + size / 2) * PX;
+        v(vc, m, n, x0, y0, z, 0, 0, r, g, b, a);
+        v(vc, m, n, x0, y1, z, 0, 1, r, g, b, a);
+        v(vc, m, n, x1, y1, z, 1, 1, r, g, b, a);
+        v(vc, m, n, x1, y0, z, 1, 0, r, g, b, a);
+        v(vc, m, n, x1, y0, z, 1, 0, r, g, b, a);
+        v(vc, m, n, x1, y1, z, 1, 1, r, g, b, a);
+        v(vc, m, n, x0, y1, z, 0, 1, r, g, b, a);
+        v(vc, m, n, x0, y0, z, 0, 0, r, g, b, a);
     }
 
-    private static void v(VertexConsumer vc, Matrix4f m, Matrix3f n, float x, float y, float z, float u, float vv, float r, float g, float b) {
-        vc.vertex(m, x, y, z).color(r, g, b, 1f).uv(u, vv).overlayCoords(OverlayTexture.NO_OVERLAY)
+    private static void v(VertexConsumer vc, Matrix4f m, Matrix3f n, float x, float y, float z, float u, float vv, float r, float g, float b, float a) {
+        vc.vertex(m, x, y, z).color(r, g, b, a).uv(u, vv).overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(LightTexture.FULL_BRIGHT).normal(n, 0, 0, -1).endVertex();
     }
 }
