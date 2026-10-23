@@ -26,8 +26,8 @@ final class InterferenceSound {
             mc.getSoundManager().play(hiss);
         }
         if (s <= 0.02f) return;
-        // Щелчки — случайный поток: в среднем 1,5…45 в секунду.
-        double perTick = (1.5 + 43.5 * s * s) / 20.0;
+        // Щелчки — случайный поток: в среднем 1…25 в секунду (как у счётчика от слабого фона до сильного).
+        double perTick = (1.0 + 24.0 * s * s) / 20.0;
         int n = 0;
         double p = RND.nextDouble();
         double l = Math.exp(-perTick), acc = l;
@@ -62,7 +62,7 @@ final class InterferenceSound {
                 if (volume <= 0.01f) stop();
                 return;
             }
-            float want = 0.08f + 0.55f * target * target;
+            float want = 0.06f + 0.5f * target * target;
             volume += (want - volume) * 0.2f;
         }
 

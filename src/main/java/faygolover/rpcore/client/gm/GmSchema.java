@@ -51,6 +51,12 @@ public final class GmSchema {
         return this;
     }
 
+    /** Следующие поля видны при произвольном условии на текущие значения. */
+    public GmSchema when(Predicate<CompoundTag> condition) {
+        when = condition;
+        return this;
+    }
+
     /** Следующие поля видны, только если флажок {@code key} включён. */
     public GmSchema whenTrue(String key) {
         when = t -> t.getBoolean(key);
