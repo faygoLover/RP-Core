@@ -28,6 +28,7 @@ public class RpCore {
     public RpCore() {
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
+        faygolover.rpcore.gm.GmRegistry.register(modBus);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, CoreConfig.SPEC);
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(CoreCommand::register);

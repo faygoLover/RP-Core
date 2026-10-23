@@ -23,7 +23,7 @@ import java.util.Set;
 public final class RpAccess {
     private RpAccess() {}
 
-    private static final String DEFAULT_NAMESPACES = "rpcore,rpperks,rpstamina,rpmedicine,rpculinary,rppda,rpsports,rpfixes,fl_zone_arts";
+    private static final String DEFAULT_NAMESPACES = "rpcore,rpperks,rpstamina,rpmedicine,rpculinary,rppda,rpsports,rpfixes,fl_zone_arts,rpportals,fltint";
 
     private static final boolean LOCKED;
     private static final Set<String> NAMESPACES;

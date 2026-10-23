@@ -9,7 +9,7 @@ import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 
-/** Клиент RP Core: общий слой HUD, команда {@code /rphud} — редактор HUD всех модов семейства, фото игроков. */
+/** Клиент RP Core: общий слой HUD, команда {@code /rphud} — редактор HUD всех модов семейства, фото игроков, «ГМские штуки», пустая рука. */
 public final class CoreClient {
     private CoreClient() {}
 
@@ -19,6 +19,10 @@ public final class CoreClient {
         MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.client.photo.SkinCapture::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(CoreClient::onLogout);
         faygolover.rpcore.client.access.ClientAccess.init(modBus);
+        faygolover.rpcore.client.gm.GmClient.init(modBus);
+        modBus.addListener(EmptyHand::onKeys);
+        MinecraftForge.EVENT_BUS.addListener(EmptyHand::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(EmptyHand::onRenderHand);
     }
 
     private static void onLogout(net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut e) {

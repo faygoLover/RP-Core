@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "rpcore:hidden_plate",
+    "rpcore:wall_holder",
+    "rpcore:vacuum_holder"
+  ]
+}

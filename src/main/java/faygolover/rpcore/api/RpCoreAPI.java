@@ -32,6 +32,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Анкета тела (пол, возраст, рост) — {@link #profile}; формулы тела — {@link BodyNorms}.</li>
  *   <li>Инвентарь: мод ограничения — {@link InventoryProvider} ({@link #slotOpen}, {@link #slotUsable}), поправки к
  *   нему — {@link InventoryModifier} ({@link #registerInventoryModifier}).</li>
+ *   <li>«ГМские штуки» (0.8.0): общая вкладка креатива {@link #MISC_TAB}, метки ведущего — тег
+ *   {@code rpcore:gm_markers} ({@link faygolover.rpcore.gm.GmTools}), блоки с подсветкой — {@link faygolover.rpcore.gm.GmBlock}
+ *   и {@link faygolover.rpcore.gm.GmMarkerSet}, окно настроек — {@link faygolover.rpcore.gm.GmConfigurable},
+ *   именованные точки прибытия — {@link faygolover.rpcore.gm.RpAnchors}, перенос — {@link faygolover.rpcore.gm.GmTeleport}.</li>
  * </ul>
  * Регистрировать — в FMLCommonSetupEvent (через enqueueWork).
  */
@@ -411,4 +415,8 @@ public final class RpCoreAPI {
         for (TraitProvider p : PROVIDERS) out.add(p.getClass().getName());
         return out;
     }
+
+    /** Вкладка креатива «RP: разное» — для модов семейства, у которых слишком мало предметов на свою вкладку. */
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.item.CreativeModeTab> MISC_TAB =
+            faygolover.rpcore.gm.GmRegistry.MISC_TAB_KEY;
 }

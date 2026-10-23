@@ -21,16 +21,8 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 public final class ClientAccess {
     private ClientAccess() {}
 
-    private static final ForgeConfigSpec SPEC;
-    private static final ForgeConfigSpec.ConfigValue<String> KEY;
-
-    static {
-        var b = new ForgeConfigSpec.Builder();
-        b.push("access");
-        KEY = b.comment("Ключ ведущего RP, если выдан.").define("key", "");
-        b.pop();
-        SPEC = b.build();
-    }
+    private static final ForgeConfigSpec SPEC = faygolover.rpcore.client.CoreClientConfig.SPEC;
+    private static final ForgeConfigSpec.ConfigValue<String> KEY = faygolover.rpcore.client.CoreClientConfig.KEY;
 
     /** Хук JEI: ставит плагин JEI, когда JEI установлен. */
     private static Runnable jeiRefresh = () -> {};
