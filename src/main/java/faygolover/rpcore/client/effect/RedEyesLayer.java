@@ -22,9 +22,9 @@ import org.joml.Vector3f;
 /**
  * «Красные глаза». Два вида ({@link CoreClientConfig#EYES_STYLE}):
  * <ul>
- *     <li><b>шары</b> (по умолчанию) — на месте каждого глаза ярко светящийся красный шар: круг, всегда повёрнутый к
- *     зрителю, с горячим светлым ядром и мягким краем, вокруг — ореол и широкое слабое свечение, медленно и неровно
- *     «дышат» (как Комета в Zone Artifacts). Шар выдвинут к зрителю — его не закрывают 3D Skin Layers / Fresh
+ *     <li><b>шары</b> (по умолчанию) — на месте каждого глаза небольшой раскалённый шар: круг, всегда повёрнутый к
+ *     зрителю, белый в середине и красный по краю, вокруг — сияние, как блум шейдерпака (и без пака), медленно и
+ *     неровно «дышит» (как Комета в Zone Artifacts). Шар выдвинут к зрителю — его не закрывают 3D Skin Layers / Fresh
  *     Animations, а стены и сама голова сзади закрывают;</li>
  *     <li><b>плоские</b> (0.8.6) — красное светящееся пятно на лице (закрывает глаза скина и анимированные глаза
  *     текстурпаков), вплотную к лицу (в шлеме — сразу перед шлемом), тусклее ореол и слабый расходящийся свет вперёд;
@@ -43,8 +43,15 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
     private static final float SPOT_SIZE = 2.0f, GLOW_SIZE = 4.6f;
     /** Луч: длина и ширина у глаза и в конце (пиксели головы). */
     private static final float BEAM_LEN = 22f, BEAM_W0 = 1.2f, BEAM_W1 = 9f;
-    /** Шар: радиусы самого шара, ореола и широкого свечения; насколько выдвинут к зрителю (пиксели головы). */
-    private static final float SPHERE_R = 1.35f, BLOOM_R = 3.6f, HALO_R = 8f, SPHERE_PULL = 1.8f;
+    /** Шар: радиус и насколько выдвинут к зрителю (пиксели головы). */
+    private static final float SPHERE_R = 0.9f, SPHERE_PULL = 1.4f;
+    /**
+     * Свечение вокруг шара — слои {радиус в пикселях головы, яркость}. Без шейдерпака — своё «сияние», как блум
+     * шейдерпака (Insanity): раскалённая кромка у шара, яркий красный ореол на всё лицо и широкое слабое свечение
+     * вокруг головы. С шейдерпаком блум даёт сам пак — свои слои слабее, чтобы не было двойного.
+     */
+    private static final float[][] GLOW_PLAIN = {{1.8f, 0.9f}, {3.6f, 1.0f}, {8f, 0.4f}};
+    private static final float[][] GLOW_PACK = {{2.4f, 0.6f}, {5.5f, 0.15f}};
 
     public RedEyesLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
         super(parent);
@@ -60,7 +67,8 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         // В интерфейсе (инвентарь) — плоская проекция.
         boolean gui = com.mojang.blaze3d.systems.RenderSystem.getProjectionMatrix().m23() == 0f;
         if (CoreClientConfig.EYES_STYLE.get() == CoreClientConfig.EyesStyle.FLAT) renderFlat(pose, buffers, helmet, gui, age);
-        else renderSphere(pose, buffers, helmet, gui, age, p.getId());
+        // В проходе теней шейдерпака шары не рисуем — свет тени не отбрасывает.
+        else if (!ShaderPack.shadowPass()) renderSphere(pose, buffers, helmet, gui, age, p.getId());
         pose.popPose();
     }
 
@@ -88,12 +96,11 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         }
         VertexConsumer core = buffers.getBuffer(RenderType.entityTranslucentEmissive(SPHERE));
         for (Vector3f c : eyes) disc(core, c, SPHERE_R * unit * breath, 1f);
-        // Ореол и широкое свечение складываются со сценой, порядок не важен.
+        // Свечение складывается со сценой, порядок не важен.
         VertexConsumer glow = buffers.getBuffer(RenderType.eyes(BLOOM));
-        for (Vector3f c : eyes) {
-            disc(glow, c, BLOOM_R * unit * breath, 0.8f);
-            disc(glow, c, HALO_R * unit * (0.96f + 0.04f * breath), 0.2f * breath);
-        }
+        float[][] layers = !gui && ShaderPack.inUse() ? GLOW_PACK : GLOW_PLAIN;
+        for (Vector3f c : eyes)
+            for (float[] l : layers) disc(glow, c, l[0] * unit * (0.96f + 0.04f * breath), l[1] * breath);
     }
 
     /** Квадрат с центром {@code c}, параллельный экрану (координаты камеры), с обеих сторон. */
