@@ -1,0 +1,8 @@
+{
+  "items": [
+    "sa_combat:energy_drink",
+    "survival_instinct:energy_can"
+  ],
+  "water": 20,
+  "caffeine": 1.0
+}

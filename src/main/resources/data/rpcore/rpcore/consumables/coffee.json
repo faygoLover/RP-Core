@@ -1,0 +1,9 @@
+{
+  "items": [
+    "herbalbrews:coffee",
+    "sa_combat:coffee",
+    "scpo:papercup_coffee"
+  ],
+  "water": 20,
+  "caffeine": "strong"
+}

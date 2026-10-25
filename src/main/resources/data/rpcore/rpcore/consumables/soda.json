@@ -1,0 +1,18 @@
+{
+  "items": [
+    "sa_combat:fanta_grape_soda",
+    "sa_combat:fanta_orange_soda",
+    "survival_instinct:blue_soda",
+    "survival_instinct:lemon_soda",
+    "survival_instinct:red_soda",
+    "alexscaves:purple_soda_bottle",
+    "scpo:carmin_soda",
+    "scpo:cotton_soda_can",
+    "scpo:stitch_soda",
+    "scpo:redacted_soda_can",
+    "cybernetic_system:soda_absorption",
+    "cybernetic_system:soda_haste",
+    "cybernetic_system:soda_strenght"
+  ],
+  "water": 20
+}

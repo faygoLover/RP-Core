@@ -1,0 +1,10 @@
+{
+  "items": [
+    "vinery:apple_cider",
+    "vinery:kelp_cider",
+    "vinery:mead",
+    "farmersdelight:apple_cider"
+  ],
+  "water": 15,
+  "alcohol": "weak"
+}

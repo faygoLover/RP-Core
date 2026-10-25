@@ -36,6 +36,8 @@ public class RpCore {
         bus.addListener(TimeCommand::register);
         bus.addListener(faygolover.rpcore.command.PointCommand::register);
         bus.addListener(RpTime::onServerStarting);
+        // Общая база напитков, еды и курева (вода, кофеин, алкоголь, никотин).
+        bus.addListener((net.minecraftforge.event.AddReloadListenerEvent e) -> e.addListener(faygolover.rpcore.api.Consumables.LOADER));
         // Фото игроков (медкарта, КПК).
         bus.addListener(PhotoServer::onLogin);
         bus.addListener(PhotoServer::onLogout);

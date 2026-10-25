@@ -1,0 +1,14 @@
+{
+  "items": [
+    "herbalbrews:hibiscus_tea",
+    "herbalbrews:lavender_tea",
+    "herbalbrews:rooibos_tea",
+    "farm_and_charm:strawberry_tea",
+    "farm_and_charm:strawberry_tea_cup",
+    "farm_and_charm:nettle_tea",
+    "farm_and_charm:nettle_tea_cup",
+    "farm_and_charm:ribwort_tea",
+    "farm_and_charm:ribwort_tea_cup"
+  ],
+  "water": 25
+}

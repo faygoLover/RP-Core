@@ -1,0 +1,8 @@
+{
+  "items": [
+    "minecraft:potion"
+  ],
+  "potion": "minecraft:water",
+  "water": 35,
+  "calories": false
+}

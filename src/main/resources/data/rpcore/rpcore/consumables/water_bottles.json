@@ -1,0 +1,13 @@
+{
+  "items": [
+    "sa_core:water_bottle",
+    "survival_instinct:bottle_of_water",
+    "legendarysurvivaloverhaul:purified_water_bottle",
+    "legendarysurvivaloverhaul:canteen",
+    "legendarysurvivaloverhaul:canteen_purified",
+    "legendarysurvivaloverhaul:large_canteen",
+    "legendarysurvivaloverhaul:large_canteen_purified"
+  ],
+  "water": 35,
+  "calories": false
+}

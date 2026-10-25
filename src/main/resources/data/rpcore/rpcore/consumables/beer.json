@@ -1,0 +1,15 @@
+{
+  "items": [
+    "brewery:beer_barley",
+    "brewery:beer_haley",
+    "brewery:beer_hops",
+    "brewery:beer_nettle",
+    "brewery:beer_oat",
+    "brewery:beer_wheat",
+    "sa_combat:beer",
+    "sa_combat:duff_beer",
+    "survival_instinct:beer"
+  ],
+  "water": 15,
+  "alcohol": "weak"
+}

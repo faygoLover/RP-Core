@@ -1,0 +1,7 @@
+{
+  "effects": [
+    "tobacconistmod:nicotine"
+  ],
+  "nicotine": 0.4,
+  "cooldown_seconds": 30
+}

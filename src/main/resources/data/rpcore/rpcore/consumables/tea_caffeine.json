@@ -1,0 +1,10 @@
+{
+  "items": [
+    "herbalbrews:black_tea",
+    "herbalbrews:green_tea",
+    "herbalbrews:oolong_tea",
+    "herbalbrews:yerba_mate_tea"
+  ],
+  "water": 25,
+  "caffeine": "weak"
+}
