@@ -325,6 +325,21 @@ public final class RpCoreAPI {
         faygolover.rpcore.network.CoreNetwork.sendToServer(new faygolover.rpcore.network.ProfilePackets.Submit(sex, age, heightCm));
     }
 
+    /** Вкусы персонажа (любимое и нелюбимое). Сервер — любого игрока, клиент — свои. @since 0.10.0 */
+    public static FoodTaste taste(Player player) {
+        return faygolover.rpcore.profile.ProfileServer.taste(player);
+    }
+
+    /** Записать вкусы (сервер, ГМ). @since 0.10.0 */
+    public static void setTaste(net.minecraft.server.level.ServerPlayer player, FoodTaste taste) {
+        faygolover.rpcore.profile.ProfileServer.setTaste(player, taste);
+    }
+
+    /** Клиент: отправить выбранные вкусы (сервер примет один раз). @since 0.10.0 */
+    public static void submitTaste(String favourite, String disliked) {
+        faygolover.rpcore.network.CoreNetwork.sendToServer(new faygolover.rpcore.network.ProfilePackets.TasteSubmit(favourite, disliked));
+    }
+
     /** Вес тела, кг: у мода питания, иначе у мода тела; NaN — никто не ведёт. @since 0.5.0 */
     public static double weightKg(Player player) {
         NutritionProvider n = nutrition;

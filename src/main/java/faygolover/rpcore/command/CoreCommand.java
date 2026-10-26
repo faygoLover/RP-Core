@@ -57,7 +57,45 @@ public final class CoreCommand {
                                 .then(Commands.literal("height")
                                         .then(Commands.argument("cm", IntegerArgumentType.integer((int) BodyProfile.MIN_HEIGHT, (int) BodyProfile.MAX_HEIGHT))
                                                 .executes(c -> editProfile(c, p -> p.withHeight(IntegerArgumentType.getInteger(c, "cm"))))))
-                                .then(Commands.literal("reset").executes(c -> editProfile(c, p -> p.withFilled(false)))))));
+                                .then(Commands.literal("reset").executes(c -> editProfile(c, p -> p.withFilled(false))))))
+                .then(Commands.literal("taste").requires(s -> s.hasPermission(2))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(CoreCommand::showTaste)
+                                .then(Commands.literal("reset").executes(c -> setTaste(c, null, null)))
+                                .then(Commands.argument("favourite", ResourceLocationArgument.id()).suggests(TASTES)
+                                        .then(Commands.argument("disliked", ResourceLocationArgument.id()).suggests(TASTES)
+                                                .executes(c -> setTaste(c, ResourceLocationArgument.getId(c, "favourite").toString(),
+                                                        ResourceLocationArgument.getId(c, "disliked").toString())))))));
+    }
+
+    /** Варианты вкусов: kind:… и method:…. */
+    private static final SuggestionProvider<CommandSourceStack> TASTES =
+            (c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(faygolover.rpcore.api.FoodTaste.options(), b);
+
+    private static int showTaste(com.mojang.brigadier.context.CommandContext<CommandSourceStack> c)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var p = EntityArgument.getPlayer(c, "player");
+        var t = faygolover.rpcore.api.RpCoreAPI.taste(p);
+        c.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("rpcore.taste.show", p.getDisplayName(),
+                net.minecraft.network.chat.Component.translatable(faygolover.rpcore.api.FoodTaste.langKey(t.favourite())),
+                net.minecraft.network.chat.Component.translatable(faygolover.rpcore.api.FoodTaste.langKey(t.disliked()))), false);
+        return 1;
+    }
+
+    /** ГМ: вкусы игрока; null — сбросить (игрок выберет сам заново). */
+    private static int setTaste(com.mojang.brigadier.context.CommandContext<CommandSourceStack> c, String favourite, String disliked)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var p = EntityArgument.getPlayer(c, "player");
+        if (favourite == null) {
+            faygolover.rpcore.api.RpCoreAPI.setTaste(p, faygolover.rpcore.api.FoodTaste.NONE);
+        } else {
+            if (!faygolover.rpcore.api.FoodTaste.validPair(favourite, disliked)) {
+                c.getSource().sendFailure(net.minecraft.network.chat.Component.translatable("rpcore.taste.invalid"));
+                return 0;
+            }
+            faygolover.rpcore.api.RpCoreAPI.setTaste(p, new faygolover.rpcore.api.FoodTaste(favourite, disliked, true));
+        }
+        return showTaste(c);
     }
 
     /** Подсказка по Tab: короткие имена навыков с названием рядом (переводы Core). */

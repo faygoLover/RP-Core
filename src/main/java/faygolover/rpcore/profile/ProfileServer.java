@@ -22,9 +22,11 @@ public final class ProfileServer {
     private ProfileServer() {}
 
     private static final String TAG = "rpcore_profile";
+    private static final String TASTE_TAG = "rpcore_taste";
 
     /** Клиентская копия своей анкеты (по UUID; на выделенном сервере пуста). */
     private static final Map<UUID, BodyProfile> CLIENT = new ConcurrentHashMap<>();
+    private static final Map<UUID, faygolover.rpcore.api.FoodTaste> CLIENT_TASTE = new ConcurrentHashMap<>();
 
     public static BodyProfile get(Player p) {
         if (p.level().isClientSide) return CLIENT.getOrDefault(p.getUUID(), BodyProfile.DEFAULT);
@@ -51,6 +53,33 @@ public final class ProfileServer {
 
     public static void sync(ServerPlayer p) {
         CoreNetwork.send(p, new ProfilePackets.Sync(get(p)));
+        CoreNetwork.send(p, new ProfilePackets.TasteSync(taste(p)));
+    }
+
+    // ---------------------------------------------------------------- вкусы
+
+    public static faygolover.rpcore.api.FoodTaste taste(Player p) {
+        if (p.level().isClientSide) return CLIENT_TASTE.getOrDefault(p.getUUID(), faygolover.rpcore.api.FoodTaste.NONE);
+        CompoundTag persisted = p.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+        return faygolover.rpcore.api.FoodTaste.load(persisted.getCompound(TASTE_TAG));
+    }
+
+    public static void setTaste(ServerPlayer p, faygolover.rpcore.api.FoodTaste taste) {
+        CompoundTag root = p.getPersistentData();
+        CompoundTag persisted = root.getCompound(Player.PERSISTED_NBT_TAG);
+        persisted.put(TASTE_TAG, taste.save());
+        root.put(Player.PERSISTED_NBT_TAG, persisted);
+        CoreNetwork.send(p, new ProfilePackets.TasteSync(taste));
+    }
+
+    /** Игрок выбрал вкусы сам: один раз (дальше — ГМ); пара должна быть допустимой. */
+    public static void onSubmitTaste(ServerPlayer p, String favourite, String disliked) {
+        if (taste(p).chosen() || !faygolover.rpcore.api.FoodTaste.validPair(favourite, disliked)) return;
+        setTaste(p, new faygolover.rpcore.api.FoodTaste(favourite, disliked, true));
+    }
+
+    public static void onClientTaste(UUID uuid, faygolover.rpcore.api.FoodTaste taste) {
+        CLIENT_TASTE.put(uuid, taste);
     }
 
     /** Клиент: пришла своя анкета. */
@@ -60,6 +89,7 @@ public final class ProfileServer {
 
     public static void clearClient() {
         CLIENT.clear();
+        CLIENT_TASTE.clear();
     }
 
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {

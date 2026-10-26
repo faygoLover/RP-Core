@@ -14,7 +14,7 @@ import java.util.Optional;
 public final class CoreNetwork {
     private CoreNetwork() {}
 
-    private static final String VERSION = "6";
+    private static final String VERSION = "7";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RpCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -44,6 +44,10 @@ public final class CoreNetwork {
                 ProfilePackets.Sync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(id++, ProfilePackets.Submit.class, ProfilePackets.Submit::encode, ProfilePackets.Submit::decode,
                 ProfilePackets.Submit::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(id++, ProfilePackets.TasteSync.class, ProfilePackets.TasteSync::encode, ProfilePackets.TasteSync::decode,
+                ProfilePackets.TasteSync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, ProfilePackets.TasteSubmit.class, ProfilePackets.TasteSubmit::encode, ProfilePackets.TasteSubmit::decode,
+                ProfilePackets.TasteSubmit::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         // Замок семейства (0.6.0).
         CHANNEL.registerMessage(id++, AccessPackets.Grant.class, AccessPackets.Grant::encode, AccessPackets.Grant::decode,
                 AccessPackets.Grant::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));

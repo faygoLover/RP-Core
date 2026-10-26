@@ -54,7 +54,50 @@ public final class ProfilePackets {
         }
     }
 
+    /** Сервер → клиент: свои вкусы. */
+    public record TasteSync(faygolover.rpcore.api.FoodTaste taste) {
+        public static void encode(TasteSync p, FriendlyByteBuf buf) {
+            buf.writeUtf(p.taste.favourite());
+            buf.writeUtf(p.taste.disliked());
+            buf.writeBoolean(p.taste.chosen());
+        }
+
+        public static TasteSync decode(FriendlyByteBuf buf) {
+            return new TasteSync(new faygolover.rpcore.api.FoodTaste(buf.readUtf(64), buf.readUtf(64), buf.readBoolean()));
+        }
+
+        public static void handle(TasteSync p, Supplier<NetworkEvent.Context> ctx) {
+            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Client.onTaste(p.taste)));
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
+    /** Клиент → сервер: выбранные вкусы (принимаются один раз). */
+    public record TasteSubmit(String favourite, String disliked) {
+        public static void encode(TasteSubmit p, FriendlyByteBuf buf) {
+            buf.writeUtf(p.favourite);
+            buf.writeUtf(p.disliked);
+        }
+
+        public static TasteSubmit decode(FriendlyByteBuf buf) {
+            return new TasteSubmit(buf.readUtf(64), buf.readUtf(64));
+        }
+
+        public static void handle(TasteSubmit p, Supplier<NetworkEvent.Context> ctx) {
+            var sp = ctx.get().getSender();
+            ctx.get().enqueueWork(() -> {
+                if (sp != null) ProfileServer.onSubmitTaste(sp, p.favourite, p.disliked);
+            });
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
     private static final class Client {
+        static void onTaste(faygolover.rpcore.api.FoodTaste taste) {
+            var player = Minecraft.getInstance().player;
+            ProfileServer.onClientTaste(player != null ? player.getUUID() : Minecraft.getInstance().getUser().getProfileId(), taste);
+        }
+
         static void onSync(BodyProfile profile) {
             // Игрок мог ещё не появиться в мире — берём UUID учётной записи.
             var player = Minecraft.getInstance().player;
