@@ -55,6 +55,11 @@ public final class GmRegistry {
             () -> new BlockItem(WALL_HOLDER.get(), new Item.Properties()));
     public static final RegistryObject<Item> VACUUM_HOLDER_ITEM = ITEMS.register("vacuum_holder",
             () -> new BlockItem(VACUUM_HOLDER.get(), new Item.Properties()));
+    /** Бирки (метки на предметах, {@link ItemMarks}): выдаёт ГМ, без рецептов. */
+    public static final RegistryObject<Item> OWNER_TAG = ITEMS.register("owner_tag",
+            () -> new ItemMarks.TagItem(new Item.Properties().stacksTo(64), true));
+    public static final RegistryObject<Item> NUMBER_TAG = ITEMS.register("number_tag",
+            () -> new ItemMarks.TagItem(new Item.Properties().stacksTo(64), false));
 
     @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<HiddenPlateBlockEntity>> HIDDEN_PLATE_BE = BLOCK_ENTITIES.register("hidden_plate",
@@ -71,6 +76,8 @@ public final class GmRegistry {
                 out.accept(HIDDEN_PLATE_ITEM.get());
                 out.accept(WALL_HOLDER_ITEM.get());
                 out.accept(VACUUM_HOLDER_ITEM.get());
+                out.accept(OWNER_TAG.get());
+                out.accept(NUMBER_TAG.get());
             })
             .build());
 

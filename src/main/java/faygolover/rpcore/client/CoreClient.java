@@ -22,6 +22,10 @@ public final class CoreClient {
         faygolover.rpcore.client.gm.GmClient.init(modBus);
         faygolover.rpcore.client.effect.ClientEffects.init(modBus);
         modBus.addListener(EmptyHand::onKeys);
+        modBus.addListener(ShowLogins::onKeys);
+        MinecraftForge.EVENT_BUS.addListener(ShowLogins::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(ShowLogins::onNameTag);
+        MinecraftForge.EVENT_BUS.addListener(ShowLogins::onChat);
         MinecraftForge.EVENT_BUS.addListener(EmptyHand::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(EmptyHand::onRenderHand);
     }

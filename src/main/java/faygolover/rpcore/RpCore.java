@@ -34,6 +34,9 @@ public class RpCore {
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(CoreCommand::register);
         bus.addListener(TimeCommand::register);
+        // Метки на предметах: /mark и строки в описании.
+        bus.addListener(faygolover.rpcore.gm.ItemMarks::onCommands);
+        bus.addListener(faygolover.rpcore.gm.ItemMarks::onTooltip);
         bus.addListener(faygolover.rpcore.command.PointCommand::register);
         bus.addListener(RpTime::onServerStarting);
         // Общая база напитков, еды и курева (вода, кофеин, алкоголь, никотин).
@@ -74,6 +77,7 @@ public class RpCore {
             RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore point set|remove|tp <имя>, /rpcore point list", "rpcore.help.point", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore taste <игрок> [<любимое> <нелюбимое>|reset]", "rpcore.help.taste", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/mark id [<текст>|auto|clear], /mark owner <игрок>|clear", "rpcore.help.mark", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rphud", "rpcore.help.rphud", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime", "rpcore.help.rptime", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rptime start|stop", "rpcore.help.rptime_start", 2, false);
