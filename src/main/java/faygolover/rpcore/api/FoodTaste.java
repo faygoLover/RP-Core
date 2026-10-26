@@ -16,12 +16,12 @@ import java.util.List;
  * @since 0.10.0
  */
 public record FoodTaste(String favourite, String disliked, boolean chosen) {
-    public static final FoodTaste NONE = new FoodTaste("", "", false);
-
     /** Виды еды «из чего» (RP Culinary). */
     public static final List<String> KINDS = List.of("meat", "fish", "grain", "vegetables", "fruit", "sweet", "dairy", "mushrooms", "eggs");
     /** Способы «как приготовлено» (RP Culinary). */
     public static final List<String> METHODS = List.of("soup", "fried", "sandwich", "baked", "porridge", "fresh", "canned", "dessert");
+    /** Ничего не выбрано (объявлено после списков: конструктор их проверяет). */
+    public static final FoodTaste NONE = new FoodTaste("", "", false);
 
     public FoodTaste {
         favourite = valid(favourite) ? favourite : "";
