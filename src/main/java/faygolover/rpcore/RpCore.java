@@ -41,6 +41,12 @@ public class RpCore {
         bus.addListener(RpTime::onServerStarting);
         // Общая база напитков, еды и курева (вода, кофеин, алкоголь, никотин).
         bus.addListener((net.minecraftforge.event.AddReloadListenerEvent e) -> e.addListener(faygolover.rpcore.api.Consumables.LOADER));
+        // «Съел или выпил долю»: без мода питания, который ведёт укусы и глотки, — целым предметом, когда доеден.
+        bus.addListener((net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Finish e) -> {
+            if (e.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp
+                    && !RpCoreAPI.nutritionHandles(faygolover.rpcore.api.RpIds.FOOD_PORTIONS))
+                MinecraftForge.EVENT_BUS.post(new faygolover.rpcore.api.event.RpConsumeEvent(sp, e.getItem().copy(), 1));
+        });
         // Фото игроков (медкарта, КПК).
         bus.addListener(PhotoServer::onLogin);
         bus.addListener(PhotoServer::onLogout);

@@ -35,14 +35,15 @@ import java.util.Map;
  *  "caffeine": "strong",                             // trace | weak | strong или число (strong = 1)
  *  "alcohol": "medium",                              // weak | medium | strong или число (weak = 1, как пиво)
  *  "nicotine": 1.0,
- *  "cooldown_seconds": 30}                           // повтор раньше — без доз веществ</pre>
+ *  "cooldown_seconds": 30,                           // повтор раньше — без доз веществ
+ *  "sips": 2}                                        // пьётся глотками (вода и вещества делятся поровну)</pre>
  * Свойство, которого нет в файле, — «не задано» (у воды и веществ — 0, у калорий — есть).
  */
 public final class Consumables {
     private Consumables() {}
 
     /** Свойства предмета. {@code water} — NaN, если файл про воду молчит. */
-    public record Entry(double water, boolean calories, double caffeine, double alcohol, double nicotine, double cooldownSeconds) {
+    public record Entry(double water, boolean calories, double caffeine, double alcohol, double nicotine, double cooldownSeconds, int sips) {
         public boolean hasWater() {
             return !Double.isNaN(water);
         }
@@ -73,7 +74,8 @@ public final class Consumables {
                             amount(o, "caffeine", CAFFEINE),
                             amount(o, "alcohol", ALCOHOL),
                             amount(o, "nicotine", Map.of()),
-                            GsonHelper.getAsDouble(o, "cooldown_seconds", 0));
+                            GsonHelper.getAsDouble(o, "cooldown_seconds", 0),
+                            Math.max(1, GsonHelper.getAsInt(o, "sips", 1)));
                     ResourceLocation potion = o.has("potion") ? ResourceLocation.tryParse(GsonHelper.getAsString(o, "potion")) : null;
                     for (ResourceLocation id : ids(o, "items")) items.computeIfAbsent(id, k -> new ArrayList<>()).add(new Rule(potion, e));
                     for (ResourceLocation id : ids(o, "right_click")) clicks.put(id, e);
@@ -125,6 +127,24 @@ public final class Consumables {
             if (potion == null) potion = ForgeRegistries.POTIONS.getKey(PotionUtils.getPotion(stack));
             if (r.potion.equals(potion)) return r.entry;
         }
+        return null;
+    }
+
+    /** Все записи по предметам (без отбора по зелью) — для таблицы клиенту. */
+    public static Map<ResourceLocation, Entry> snapshot() {
+        Map<ResourceLocation, Entry> out = new HashMap<>();
+        byItem.forEach((id, rules) -> {
+            for (Rule r : rules) if (r.potion == null) out.put(id, r.entry);
+        });
+        return out;
+    }
+
+    /** Запись зелья воды (для таблицы клиенту): ванильная бутылка воды. */
+    @Nullable
+    public static Entry waterPotion() {
+        List<Rule> rules = byItem.get(new ResourceLocation("minecraft", "potion"));
+        if (rules == null) return null;
+        for (Rule r : rules) if (r.potion != null && r.potion.getPath().equals("water")) return r.entry;
         return null;
     }
 

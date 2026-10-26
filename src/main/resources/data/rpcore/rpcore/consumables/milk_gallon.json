@@ -2,5 +2,6 @@
   "items": [
     "survival_instinct:gallon_of_milk"
   ],
-  "water": 50
+  "water": 60,
+  "sips": 6
 }

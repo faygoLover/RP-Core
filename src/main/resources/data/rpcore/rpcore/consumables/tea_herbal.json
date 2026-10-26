@@ -10,5 +10,6 @@
     "farm_and_charm:ribwort_tea",
     "farm_and_charm:ribwort_tea_cup"
   ],
-  "water": 25
+  "water": 20,
+  "sips": 1
 }

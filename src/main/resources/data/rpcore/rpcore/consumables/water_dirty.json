@@ -2,6 +2,7 @@
   "items": [
     "sa_core:dirty_water_bottle"
   ],
-  "water": 30,
+  "water": 40,
+  "sips": 2,
   "calories": false
 }

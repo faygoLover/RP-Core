@@ -4,6 +4,7 @@
     "sa_combat:coffee",
     "scpo:papercup_coffee"
   ],
-  "water": 20,
+  "water": 15,
+  "sips": 1,
   "caffeine": "strong"
 }

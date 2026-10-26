@@ -3,6 +3,7 @@
     "minecraft:potion"
   ],
   "potion": "minecraft:water",
-  "water": 35,
+  "water": 40,
+  "sips": 2,
   "calories": false
 }

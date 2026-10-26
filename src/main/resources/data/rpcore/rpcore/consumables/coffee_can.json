@@ -3,5 +3,6 @@
     "scpo:coffee_can"
   ],
   "water": 20,
+  "sips": 2,
   "caffeine": 0.8
 }

@@ -3,6 +3,7 @@
     "farmersdelight:hot_cocoa",
     "alexscaves:hot_chocolate_bottle"
   ],
-  "water": 20,
+  "water": 15,
+  "sips": 1,
   "caffeine": "trace"
 }

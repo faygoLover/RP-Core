@@ -3,5 +3,6 @@
     "sa_combat:cola"
   ],
   "water": 20,
+  "sips": 2,
   "caffeine": "trace"
 }

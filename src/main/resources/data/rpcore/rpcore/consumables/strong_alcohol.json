@@ -16,6 +16,7 @@
     "zombie_extreme:vodka",
     "zombie_extreme:whiskey"
   ],
-  "water": -5,
+  "water": -6,
+  "sips": 3,
   "alcohol": "strong"
 }

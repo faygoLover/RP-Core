@@ -23,6 +23,7 @@
     "sa_combat:wine",
     "survival_instinct:wine"
   ],
-  "water": 5,
+  "water": 12,
+  "sips": 4,
   "alcohol": "medium"
 }

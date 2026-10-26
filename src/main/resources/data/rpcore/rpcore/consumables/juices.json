@@ -21,15 +21,12 @@
     "legendarysurvivaloverhaul:melon_juice",
     "legendarysurvivaloverhaul:pumpkin_juice",
     "legendarysurvivaloverhaul:sweet_berries_juice",
-    "sa_combat:apple_juice_box",
-    "sa_combat:berry_juice_box",
-    "sa_combat:grape_juice_box",
-    "sa_combat:orange_juice_box",
     "sa_combat:peach_juice_bottle",
     "sa_combat:pineapple_juice_bottle",
     "survival_instinct:apple_juice",
     "survival_instinct:orange_juice",
     "farmersdelight:melon_juice"
   ],
-  "water": 25
+  "water": 30,
+  "sips": 2
 }

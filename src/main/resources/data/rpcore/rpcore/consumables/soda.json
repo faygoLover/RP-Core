@@ -14,5 +14,6 @@
     "cybernetic_system:soda_haste",
     "cybernetic_system:soda_strenght"
   ],
-  "water": 20
+  "water": 20,
+  "sips": 2
 }

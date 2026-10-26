@@ -2,5 +2,6 @@
   "items": [
     "sa_combat:canned_evaporated_milk"
   ],
-  "water": 10
+  "water": 10,
+  "sips": 1
 }

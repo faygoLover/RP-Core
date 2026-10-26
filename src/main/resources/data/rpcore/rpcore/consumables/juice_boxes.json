@@ -1,0 +1,10 @@
+{
+  "items": [
+    "sa_combat:apple_juice_box",
+    "sa_combat:berry_juice_box",
+    "sa_combat:grape_juice_box",
+    "sa_combat:orange_juice_box"
+  ],
+  "water": 15,
+  "sips": 1
+}

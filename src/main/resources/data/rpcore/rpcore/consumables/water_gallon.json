@@ -2,6 +2,7 @@
   "items": [
     "survival_instinct:gallon_of_water"
   ],
-  "water": 70,
+  "water": 200,
+  "sips": 10,
   "calories": false
 }

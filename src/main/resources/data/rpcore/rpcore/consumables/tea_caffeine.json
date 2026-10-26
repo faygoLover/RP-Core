@@ -5,6 +5,7 @@
     "herbalbrews:oolong_tea",
     "herbalbrews:yerba_mate_tea"
   ],
-  "water": 25,
+  "water": 20,
+  "sips": 1,
   "caffeine": "weak"
 }

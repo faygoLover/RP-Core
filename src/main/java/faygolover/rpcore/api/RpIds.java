@@ -212,4 +212,9 @@ public final class RpIds {
     public static final ResourceLocation FOOD_THIRST = id("food/thirst");
     /** Вес и жир меняются от калорий. */
     public static final ResourceLocation FOOD_WEIGHT = id("food/weight");
+    /**
+     * Укусы и глотки: мод питания сам шлёт {@link faygolover.rpcore.api.event.RpConsumeEvent} с долями (иначе — RP Core,
+     * целым предметом, когда доеден). @since 0.10.0
+     */
+    public static final ResourceLocation FOOD_PORTIONS = id("food/portions");
 }

@@ -5,6 +5,7 @@
     "vinery:mead",
     "farmersdelight:apple_cider"
   ],
-  "water": 15,
+  "water": 20,
+  "sips": 2,
   "alcohol": "weak"
 }

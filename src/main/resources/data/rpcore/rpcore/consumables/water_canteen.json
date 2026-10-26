@@ -1,0 +1,9 @@
+{
+  "items": [
+    "legendarysurvivaloverhaul:canteen",
+    "legendarysurvivaloverhaul:canteen_purified"
+  ],
+  "water": 80,
+  "sips": 4,
+  "calories": false
+}

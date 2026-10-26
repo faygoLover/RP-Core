@@ -3,5 +3,6 @@
     "survival_instinct:monster_can"
   ],
   "water": 20,
+  "sips": 2,
   "caffeine": 1.3
 }

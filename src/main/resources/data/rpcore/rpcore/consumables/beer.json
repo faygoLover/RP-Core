@@ -10,6 +10,7 @@
     "sa_combat:duff_beer",
     "survival_instinct:beer"
   ],
-  "water": 15,
+  "water": 20,
+  "sips": 2,
   "alcohol": "weak"
 }
