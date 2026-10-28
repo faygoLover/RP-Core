@@ -23,7 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** JEI для замка семейства: без доступа прячет предметы RP-модов и рецепты с ними, с доступом возвращает. */
+/**
+ * JEI для замка семейства: без доступа прячет предметы RP-модов и рецепты с ними, с доступом возвращает.
+ * Плюс всегда прячет предметы из тега {@code rpcore:jei_hidden} — дубли чужих модов, выведенные из игры датапаком
+ * (например, RP Culinary: окорок FD, баранья нога Butchery).
+ */
 @JeiPlugin
 public class CoreJeiPlugin implements IModPlugin {
     private static final List<RecipeType<? extends Recipe<?>>> RECIPE_TYPES = List.of(RecipeTypes.CRAFTING, RecipeTypes.SMELTING,
@@ -46,7 +50,22 @@ public class CoreJeiPlugin implements IModPlugin {
         HIDDEN_STACKS.clear();
         HIDDEN_RECIPES.clear();
         ClientAccess.setJeiRefresh(CoreJeiPlugin::refresh);
+        hideTagged();
         refresh();
+    }
+
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.item.Item> JEI_HIDDEN =
+            net.minecraft.tags.ItemTags.create(new ResourceLocation(RpCore.MODID, "jei_hidden"));
+
+    /** Навсегда убрать из JEI предметы тега {@code rpcore:jei_hidden}. */
+    private static void hideTagged() {
+        try {
+            var im = runtime.getIngredientManager();
+            List<ItemStack> stacks = im.getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(s -> s.is(JEI_HIDDEN)).toList();
+            if (!stacks.isEmpty()) im.removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, stacks);
+        } catch (Exception e) {
+            RpCore.LOGGER.error("RP Core: не спрятаны предметы rpcore:jei_hidden", e);
+        }
     }
 
     @Override
