@@ -133,6 +133,25 @@ public final class Postures {
 
     // ------------------------------------------------------------------ встать, проснуться
 
+    /** Разбудить спящего сидя или лёжа (выспался): поза остаётся. */
+    public static void wakeUp(ServerPlayer sp) {
+        State s = STATES.get(sp.getUUID());
+        if (s != null && s.sleeping) wake(sp, s);
+    }
+
+    /** Свалиться и уснуть где стоит (недосып): лечь на спину и уснуть, без проверок «можно ли уснуть». */
+    public static boolean collapse(ServerPlayer sp) {
+        if (sleeping(sp) || sp.isSleeping() || sp.isPassenger() || !sp.onGround() || sp.isInWater()) return false;
+        State s = STATES.get(sp.getUUID());
+        if (s == null || s.kind != Posture.LAY) toggle(sp, Posture.LAY);
+        s = STATES.get(sp.getUUID());
+        if (s == null) return false;
+        STATES.put(sp.getUUID(), s.asleep(true));
+        CoreNetwork.send(sp, new PosturePackets.Sleep(true));
+        return true;
+    }
+
+
     /** Встать (и проснуться). */
     public static void stand(ServerPlayer sp) {
         State s = STATES.remove(sp.getUUID());

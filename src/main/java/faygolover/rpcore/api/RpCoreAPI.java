@@ -325,6 +325,16 @@ public final class RpCoreAPI {
         return faygolover.rpcore.pose.Postures.sleeping(player);
     }
 
+    /** Разбудить спящего сидя или лёжа (RP Needs: выспался). Сервер. @since 0.11.0 */
+    public static void wakeFromPosture(net.minecraft.server.level.ServerPlayer player) {
+        faygolover.rpcore.pose.Postures.wakeUp(player);
+    }
+
+    /** Игрок валится с ног и засыпает где стоит: ложится на спину и спит (RP Needs, недосып). Сервер. @since 0.11.0 */
+    public static boolean collapseAsleep(net.minecraft.server.level.ServerPlayer player) {
+        return faygolover.rpcore.pose.Postures.collapse(player);
+    }
+
     // ------------------------------------------------------------------ нагрузка
 
     /** Физическая нагрузка (сервер): потраченная выносливость RP Stamina. Слушать — {@link ExertionEvent}. */
