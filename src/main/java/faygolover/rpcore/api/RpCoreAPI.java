@@ -285,6 +285,46 @@ public final class RpCoreAPI {
         return true;
     }
 
+    /**
+     * Длина RP-суток в реальных секундах: у RP Time — его день + ночь (без временного {@code /time speed}), без него —
+     * {@code [time] day_length_minutes} Core. От неё считают медленные механики (голод, жажда, бодрость). Сервер. @since 0.11.0
+     */
+    public static double dayLengthSeconds() {
+        return faygolover.rpcore.time.RpTime.dayLengthSeconds();
+    }
+
+    /**
+     * RP Time сообщает себя источником времени: пауза и длина суток дальше берутся у него, {@link #timeRunning} и
+     * {@link #setTimeRunning} работают через него (своя механика Core {@code [rptime]} не нужна). @since 0.11.0
+     */
+    public static void registerTimeSource(java.util.function.BooleanSupplier running, java.util.function.Consumer<Boolean> setRunning,
+                                          java.util.function.DoubleSupplier dayLengthSeconds) {
+        faygolover.rpcore.time.RpTime.setSource(running, setRunning, dayLengthSeconds);
+    }
+
+    /**
+     * Ниже какой доли шкалы прокрутка времени (и время вне сети) не опускает еду и воду ({@code [time] skip_floor},
+     * по умолчанию 0.2). Сервер. @since 0.11.0
+     */
+    public static double skipFloor() {
+        return CoreConfig.SPEC.isLoaded() ? CoreConfig.SKIP_FLOOR.get() : 0.2;
+    }
+
+    // ------------------------------------------------------------------ позы и сон сидя/лёжа
+
+    /** Поза игрока: сидит на земле ({@code /sit}), лежит на спине ({@code /lay}), сидит на сиденье мода или стоит. @since 0.11.0 */
+    public enum Posture { NONE, SIT, LAY, SEAT }
+
+    /** Поза игрока сейчас (сервер). {@link Posture#SEAT} — едет на сиденье мода (стул, скамья). @since 0.11.0 */
+    public static Posture posture(Player player) {
+        return faygolover.rpcore.pose.Postures.posture(player);
+    }
+
+    /** Спит ли игрок сидя или лёжа ({@code /sleep}); кровати — ванильный {@code isSleeping()}. Сервер. @since 0.11.0 */
+    public static boolean postureSleeping(Player player) {
+        return faygolover.rpcore.pose.Postures.sleeping(player);
+    }
+
     // ------------------------------------------------------------------ нагрузка
 
     /** Физическая нагрузка (сервер): потраченная выносливость RP Stamina. Слушать — {@link ExertionEvent}. */

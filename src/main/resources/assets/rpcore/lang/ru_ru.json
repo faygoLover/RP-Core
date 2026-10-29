@@ -178,5 +178,13 @@
   "rpcore.mark.number_set_to": "Номер: %s",
   "rpcore.mark.cleared": "Метка снята",
   "rpcore.mark.owner_line": "Владелец: %s",
-  "rpcore.help.mark": "метки на вещи в руке: номер (auto — следующий номер мира) и владелец; clear — снять"
+  "rpcore.help.mark": "метки на вещи в руке: номер (auto — следующий номер мира) и владелец; clear — снять",
+  "rpcore.posture.sat": "Вы сели. Встать — Shift или прыжок; уснуть — /sleep",
+  "rpcore.posture.lay": "Вы легли. Встать — Shift или прыжок; уснуть — /sleep",
+  "rpcore.posture.busy": "Сначала встаньте",
+  "rpcore.posture.ground": "Здесь не сесть и не лечь — нужна твёрдая земля",
+  "rpcore.posture.sleep_where": "Уснуть можно сидя или лёжа: /sit, /lay или на сиденье",
+  "rpcore.posture.cant_sleep": "Не спится",
+  "rpcore.posture.asleep": "Вы задремали",
+  "rpcore.posture.wake_hint": "Вы спите. Проснуться — Shift или /sleep"
 }

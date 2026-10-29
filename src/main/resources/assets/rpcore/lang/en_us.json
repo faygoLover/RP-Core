@@ -178,5 +178,13 @@
   "rpcore.mark.number_set_to": "Number: %s",
   "rpcore.mark.cleared": "Mark removed",
   "rpcore.mark.owner_line": "Owner: %s",
-  "rpcore.help.mark": "marks on the held item: number (auto — the next world number) and owner; clear — remove"
+  "rpcore.help.mark": "marks on the held item: number (auto — the next world number) and owner; clear — remove",
+  "rpcore.posture.sat": "You sit down. Stand up — Shift or jump; sleep — /sleep",
+  "rpcore.posture.lay": "You lie down. Stand up — Shift or jump; sleep — /sleep",
+  "rpcore.posture.busy": "Stand up first",
+  "rpcore.posture.ground": "You can't sit or lie here — solid ground needed",
+  "rpcore.posture.sleep_where": "You can sleep sitting or lying: /sit, /lay or on a seat",
+  "rpcore.posture.cant_sleep": "You can't fall asleep",
+  "rpcore.posture.asleep": "You doze off",
+  "rpcore.posture.wake_hint": "You are asleep. Wake up — Shift or /sleep"
 }

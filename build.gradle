@@ -69,6 +69,8 @@ dependencies {
     implementation fg.deobf("blank:flrender:${flrender_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    // Позы /sit и /lay — эмоции Emotecraft (необязателен: без него позы без анимации). jar-ы в libs/.
+    compileOnly files('libs/emotecraft-for-MC1.20.1-2.2.7-b.build.50-forge.jar', 'libs/player-animation-lib-forge-1.0.2-rc1+1.20.jar')
 }
 
 // Замок семейства (только локальная сборка). Если рядом лежит lock.local.properties (он в .gitignore), в jar кладётся

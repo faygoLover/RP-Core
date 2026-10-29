@@ -41,6 +41,14 @@ public class RpCore {
         bus.addListener(RpTime::onServerStarting);
         // Секунда неуязвимости игрока после пластины или портала.
         bus.addListener(faygolover.rpcore.gm.GmTeleport::onAttack);
+        // Позы /sit, /lay и сон сидя или лёжа /sleep (0.11.0).
+        bus.addListener(faygolover.rpcore.pose.Postures::register);
+        bus.addListener(faygolover.rpcore.pose.Postures::onServerTick);
+        bus.addListener(faygolover.rpcore.pose.Postures::onHurt);
+        bus.addListener(faygolover.rpcore.pose.Postures::onLogout);
+        bus.addListener(faygolover.rpcore.pose.Postures::onDimension);
+        bus.addListener(faygolover.rpcore.pose.Postures::onRespawn);
+        bus.addListener(faygolover.rpcore.pose.Postures::onSleepCount);
         // Общая база напитков, еды и курева (вода, кофеин, алкоголь, никотин).
         bus.addListener((net.minecraftforge.event.AddReloadListenerEvent e) -> e.addListener(faygolover.rpcore.api.Consumables.LOADER));
         // «Съел или выпил долю»: без мода питания, который ведёт укусы и глотки, — целым предметом, когда доеден.

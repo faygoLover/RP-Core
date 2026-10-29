@@ -13,6 +13,10 @@ public final class CoreConfig {
     public static final ForgeConfigSpec.IntValue PHOTO_INTERVAL;
     public static final ForgeConfigSpec.BooleanValue RPTIME_ENABLED;
     public static final ForgeConfigSpec.IntValue ACCESS_PERMISSION_LEVEL;
+    public static final ForgeConfigSpec.DoubleValue DAY_LENGTH_MINUTES;
+    public static final ForgeConfigSpec.DoubleValue SKIP_FLOOR;
+    public static final ForgeConfigSpec.BooleanValue POSTURES_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue POSTURE_STAND_DISTANCE;
 
     static {
         B.push("commands");
@@ -31,6 +35,23 @@ public final class CoreConfig {
                         "не скажет /rptime start: голод не тратится, раны не заживают, таймеры тела стоят.",
                         "Выключено — время идёт всегда, как без этой механики. /rptime sleep и skip работают в обоих случаях.")
                 .define("enabled", false);
+        B.pop();
+
+        B.push("time");
+        DAY_LENGTH_MINUTES = B.comment("Длина RP-суток в реальных минутах, если RP Time нет. С ним — его день + ночь.",
+                        "От суток считаются голод, жажда, бодрость и другие медленные механики семейства.")
+                .defineInRange("day_length_minutes", 180.0, 1.0, 100000.0);
+        SKIP_FLOOR = B.comment("Прокрутка времени (/rptime skip|sleep, ускоренная ночь) и время вне сети тратят еду и воду",
+                        "не ниже этой доли шкалы. 0.2 — до 1/5. В живом времени шкалы падают как обычно.")
+                .defineInRange("skip_floor", 0.2, 0.0, 1.0);
+        B.pop();
+
+        B.push("postures");
+        POSTURES_ENABLED = B.comment("Команды /sit (сесть), /lay (лечь на спину) и /sleep (уснуть сидя или лёжа).",
+                        "Позы — эмоции Emotecraft, их видят все. Встать — Shift или прыжок.")
+                .define("enabled", true);
+        POSTURE_STAND_DISTANCE = B.comment("Игрок сдвинулся дальше этого (блоки) от места, где сел или лёг, — встаёт.")
+                .defineInRange("stand_distance", 0.6, 0.1, 5.0);
         B.pop();
 
         B.push("access");

@@ -35,9 +35,11 @@ public final class CoreClient {
         faygolover.rpcore.client.photo.ClientPictures.clear();
         faygolover.rpcore.profile.ProfileServer.clearClient();
         faygolover.rpcore.client.access.ClientAccess.onLogout();
+        PostureOverlay.clear();
     }
 
     private static void onOverlays(RegisterGuiOverlaysEvent e) {
+        e.registerAboveAll("posture_sleep", PostureOverlay::render);
         e.registerAboveAll("hud", HudRegistry::render);
     }
 
