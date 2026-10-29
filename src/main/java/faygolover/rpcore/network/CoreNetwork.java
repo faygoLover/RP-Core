@@ -14,7 +14,7 @@ import java.util.Optional;
 public final class CoreNetwork {
     private CoreNetwork() {}
 
-    private static final String VERSION = "7";
+    private static final String VERSION = "8";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RpCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -59,6 +59,11 @@ public final class CoreNetwork {
         // Эффекты на сущностях — видящим (0.8.1).
         CHANNEL.registerMessage(id++, EffectPackets.State.class, EffectPackets.State::encode, EffectPackets.State::decode,
                 EffectPackets.State::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        // Позы и сон сидя или лёжа (0.11.0): затемнение экрана, хитбокс у клиентов.
+        CHANNEL.registerMessage(id++, PosturePackets.Sleep.class, PosturePackets.Sleep::encode, PosturePackets.Sleep::decode,
+                PosturePackets.Sleep::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, PosturePackets.Pose.class, PosturePackets.Pose::encode, PosturePackets.Pose::decode,
+                PosturePackets.Pose::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     public static void send(ServerPlayer player, Object msg) {

@@ -98,4 +98,26 @@ public interface BodyProvider {
     default boolean sensation(Player player, String key) {
         return false;
     }
+
+    /**
+     * Снотворное в крови: 0 — нет; больше 0 — действует (сила, 1 — одна доза). RP Needs: уснуть можно при любой
+     * бодрости, сон крепкий. @since 0.11.0
+     */
+    default double sleepAid(Player player) {
+        return 0;
+    }
+
+    /** Лежит на больничной койке (RP Medicine): для сна — как кровать, засыпать через {@code /sleep}. @since 0.11.0 */
+    default boolean inHospitalBed(Player player) {
+        return false;
+    }
+
+    /** Боль 0–100 (что чувствует, с обезболиванием) и седация 0–100 (сила успокоительного). @since 0.11.0 */
+    default double pain(Player player) {
+        return 0;
+    }
+
+    default double sedation(Player player) {
+        return 0;
+    }
 }

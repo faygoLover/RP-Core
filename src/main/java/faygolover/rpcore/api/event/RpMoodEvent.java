@@ -14,7 +14,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
  * {@code strength} — доля силы события (1 — полная порция; укус большого блюда — меньше).
  */
 public class RpMoodEvent extends PlayerEvent {
-    public enum Kind { MESSAGE_SENT, FED_CONTENT, FAVOURITE_FOOD, DISLIKED_FOOD }
+    /** NIGHTMARE — приснился кошмар (RP Needs), RESTED — выспался в нормальном месте (RP Needs). @since 0.11.0 */
+    public enum Kind { MESSAGE_SENT, FED_CONTENT, FAVOURITE_FOOD, DISLIKED_FOOD, NIGHTMARE, RESTED }
 
     private final Kind kind;
     private final double strength;

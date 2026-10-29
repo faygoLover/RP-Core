@@ -61,8 +61,21 @@ public final class Postures {
 
     public static Posture posture(Player p) {
         State s = STATES.get(p.getUUID());
-        if (s != null && s.kind != Posture.SEAT) return s.kind;
+        if (s != null && s.kind != Posture.SEAT && s.kind != Posture.HOSPITAL_BED) return s.kind;
+        if (hospitalBed(p)) return Posture.HOSPITAL_BED;
         return onSeat(p) ? Posture.SEAT : Posture.NONE;
+    }
+
+    private static boolean hospitalBed(Player p) {
+        var b = RpCoreAPI.body();
+        return b != null && b.inHospitalBed(p);
+    }
+
+    /** Поза, которую видят клиенты (хитбокс): только своя сидячая или лежачая. */
+    public static Posture shownPosture(Player p) {
+        if (p.level().isClientSide) return PostureView.get(p.getId());
+        State s = STATES.get(p.getUUID());
+        return s != null && (s.kind == Posture.SIT || s.kind == Posture.LAY) ? s.kind : Posture.NONE;
     }
 
     public static boolean sleeping(Player p) {
@@ -101,6 +114,7 @@ public final class Postures {
         Vec3 pos = s != null && s.kind != Posture.SEAT ? s.pos : sp.position();
         STATES.put(sp.getUUID(), new State(kind, pos, s != null && s.sleeping, s != null ? s.sleepStartMs : 0));
         still(sp, true);
+        shape(sp);
         if (emotecraft()) EmoteImpl.play(sp.getUUID(), kind);
         sp.displayClientMessage(Component.translatable(kind == Posture.SIT ? "rpcore.posture.sat" : "rpcore.posture.lay"), true);
         return 1;
@@ -112,14 +126,14 @@ public final class Postures {
             wake(sp, s);
             return 1;
         }
-        Posture kind = s != null ? s.kind : onSeat(sp) ? Posture.SEAT : Posture.NONE;
+        Posture kind = s != null ? s.kind : hospitalBed(sp) ? Posture.HOSPITAL_BED : onSeat(sp) ? Posture.SEAT : Posture.NONE;
         if (kind == Posture.NONE) return fail(sp, "rpcore.posture.sleep_where");
         RpPostureSleepEvent ev = new RpPostureSleepEvent(sp, kind);
         if (MinecraftForge.EVENT_BUS.post(ev)) {
             sp.displayClientMessage(ev.reason() != null ? ev.reason() : Component.translatable("rpcore.posture.cant_sleep"), true);
             return 0;
         }
-        State base = s != null ? s : new State(Posture.SEAT, sp.position(), false, 0);
+        State base = s != null ? s : new State(kind, sp.position(), false, 0);
         STATES.put(sp.getUUID(), base.asleep(true));
         CoreNetwork.send(sp, new PosturePackets.Sleep(true));
         sp.displayClientMessage(Component.translatable("rpcore.posture.asleep"), true);
@@ -158,12 +172,13 @@ public final class Postures {
         if (s == null) return;
         if (s.sleeping) wakeEvent(sp, s);
         still(sp, false);
+        shape(sp);
         if (s.kind != Posture.SEAT && emotecraft()) EmoteImpl.stop(sp.getUUID());
     }
 
     private static void wake(ServerPlayer sp, State s) {
         wakeEvent(sp, s);
-        if (s.kind == Posture.SEAT) STATES.remove(sp.getUUID());
+        if (s.kind == Posture.SEAT || s.kind == Posture.HOSPITAL_BED) STATES.remove(sp.getUUID());
         else STATES.put(sp.getUUID(), s.asleep(false));
     }
 
@@ -198,6 +213,10 @@ public final class Postures {
                 if (!onSeat(sp)) stand(sp);
                 continue;
             }
+            if (s.kind == Posture.HOSPITAL_BED) {
+                if (!hospitalBed(sp)) stand(sp);
+                continue;
+            }
             double dx = sp.getX() - s.pos.x, dz = sp.getZ() - s.pos.z;
             boolean moved = dx * dx + dz * dz > far * far || sp.getY() > s.pos.y + 0.4;
             if (sp.isShiftKeyDown() || moved || sp.isPassenger() || sp.isInWater() || !sp.isAlive() || sp.isSleeping()) stand(sp);
@@ -221,6 +240,42 @@ public final class Postures {
 
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent e) {
         if (e.getEntity() instanceof ServerPlayer sp) stand(sp);
+    }
+
+    // ------------------------------------------------------------------ хитбокс
+
+    /** Сидит — ниже (около блока), лежит — как при плавании. Клиентам — какая поза, они меняют размер у себя. */
+    private static void shape(ServerPlayer sp) {
+        Posture shown = shownPosture(sp);
+        sp.refreshDimensions();
+        CoreNetwork.CHANNEL.send(net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> sp),
+                new PosturePackets.Pose(sp.getId(), shown.ordinal()));
+    }
+
+    public static void onStartTracking(PlayerEvent.StartTracking e) {
+        if (e.getTarget() instanceof ServerPlayer target && e.getEntity() instanceof ServerPlayer viewer) {
+            Posture shown = shownPosture(target);
+            if (shown != Posture.NONE) CoreNetwork.send(viewer, new PosturePackets.Pose(target.getId(), shown.ordinal()));
+        }
+    }
+
+    /** Размер сидящего и лежащего: и на сервере, и у клиентов. */
+    public static void onSize(net.minecraftforge.event.entity.EntityEvent.Size e) {
+        if (!(e.getEntity() instanceof Player p)) return;
+        if (e.getPose() != net.minecraft.world.entity.Pose.STANDING && e.getPose() != net.minecraft.world.entity.Pose.CROUCHING) return;
+        Posture shown;
+        try {
+            shown = shownPosture(p);
+        } catch (RuntimeException ex) {
+            return; // сущность ещё строится
+        }
+        if (shown == Posture.SIT) {
+            e.setNewSize(net.minecraft.world.entity.EntityDimensions.scalable(0.6f, 1.0f));
+            e.setNewEyeHeight(0.8f);
+        } else if (shown == Posture.LAY) {
+            e.setNewSize(net.minecraft.world.entity.EntityDimensions.scalable(0.6f, 0.6f));
+            e.setNewEyeHeight(0.4f);
+        }
     }
 
     /** Спящий сидя или лёжа спит и для ускорения ночи RP Time. */

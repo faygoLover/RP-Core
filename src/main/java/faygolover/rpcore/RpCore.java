@@ -49,6 +49,8 @@ public class RpCore {
         bus.addListener(faygolover.rpcore.pose.Postures::onDimension);
         bus.addListener(faygolover.rpcore.pose.Postures::onRespawn);
         bus.addListener(faygolover.rpcore.pose.Postures::onSleepCount);
+        bus.addListener(faygolover.rpcore.pose.Postures::onStartTracking);
+        bus.addListener(faygolover.rpcore.pose.Postures::onSize);
         // Общая база напитков, еды и курева (вода, кофеин, алкоголь, никотин).
         bus.addListener((net.minecraftforge.event.AddReloadListenerEvent e) -> e.addListener(faygolover.rpcore.api.Consumables.LOADER));
         // «Съел или выпил долю»: без мода питания, который ведёт укусы и глотки, — целым предметом, когда доеден.

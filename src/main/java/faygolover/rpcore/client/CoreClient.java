@@ -36,6 +36,7 @@ public final class CoreClient {
         faygolover.rpcore.profile.ProfileServer.clearClient();
         faygolover.rpcore.client.access.ClientAccess.onLogout();
         PostureOverlay.clear();
+        faygolover.rpcore.pose.PostureView.clear();
     }
 
     private static void onOverlays(RegisterGuiOverlaysEvent e) {

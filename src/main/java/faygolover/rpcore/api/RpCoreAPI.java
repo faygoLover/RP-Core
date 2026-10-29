@@ -313,9 +313,12 @@ public final class RpCoreAPI {
     // ------------------------------------------------------------------ позы и сон сидя/лёжа
 
     /** Поза игрока: сидит на земле ({@code /sit}), лежит на спине ({@code /lay}), сидит на сиденье мода или стоит. @since 0.11.0 */
-    public enum Posture { NONE, SIT, LAY, SEAT }
+    public enum Posture { NONE, SIT, LAY, SEAT, HOSPITAL_BED }
 
-    /** Поза игрока сейчас (сервер). {@link Posture#SEAT} — едет на сиденье мода (стул, скамья). @since 0.11.0 */
+    /**
+     * Поза игрока сейчас (сервер). {@link Posture#SEAT} — едет на сиденье мода (стул, скамья),
+     * {@link Posture#HOSPITAL_BED} — лежит на больничной койке (RP Medicine). @since 0.11.0
+     */
     public static Posture posture(Player player) {
         return faygolover.rpcore.pose.Postures.posture(player);
     }
@@ -323,6 +326,24 @@ public final class RpCoreAPI {
     /** Спит ли игрок сидя или лёжа ({@code /sleep}); кровати — ванильный {@code isSleeping()}. Сервер. @since 0.11.0 */
     public static boolean postureSleeping(Player player) {
         return faygolover.rpcore.pose.Postures.sleeping(player);
+    }
+
+    /** Будильник или другой громкий сигнал: моды сна будят спящих в радиусе ({@link faygolover.rpcore.api.event.RpAlarmEvent}). @since 0.11.0 */
+    public static void alarm(net.minecraft.server.level.ServerLevel level, net.minecraft.world.phys.Vec3 pos, double radius) {
+        MinecraftForge.EVENT_BUS.post(new faygolover.rpcore.api.event.RpAlarmEvent(level, pos, radius));
+    }
+
+    private static volatile java.util.function.ToDoubleFunction<Player> sanity;
+
+    /** RP Psyche сообщает, как читать рассудок (0–100). @since 0.11.0 */
+    public static void registerSanity(java.util.function.ToDoubleFunction<Player> source) {
+        sanity = source;
+    }
+
+    /** Рассудок 0–100; без мода психики — 100. Сервер. @since 0.11.0 */
+    public static double sanity(Player player) {
+        var s = sanity;
+        return s == null ? 100 : s.applyAsDouble(player);
     }
 
     /** Разбудить спящего сидя или лёжа (RP Needs: выспался). Сервер. @since 0.11.0 */
