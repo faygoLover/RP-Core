@@ -153,6 +153,12 @@ public final class Postures {
         if (s != null && s.sleeping) wake(sp, s);
     }
 
+    /** Усадить на землю ({@code /rptime sleep}: стоял — садится и засыпает). */
+    public static void sitDown(ServerPlayer sp) {
+        State s = STATES.get(sp.getUUID());
+        if (s == null || s.kind != Posture.SIT) toggle(sp, Posture.SIT);
+    }
+
     /** Свалиться и уснуть где стоит (недосып): лечь на спину и уснуть, без проверок «можно ли уснуть». */
     public static boolean collapse(ServerPlayer sp) {
         if (sleeping(sp) || sp.isSleeping() || sp.isPassenger() || !sp.onGround() || sp.isInWater()) return false;
