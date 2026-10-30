@@ -34,6 +34,8 @@
   "rpcore.help.rptime_skip": "прокрутить время бодрствуя; мир не меняется. В конце — кого: online, all или offline, как у sleep",
   "rpcore.time.disabled": "Время RP выключено: нет RP Time, а в конфиге Core rptime.enabled = false — время идёт всегда.",
   "rpcore.time.running": "Время RP идёт.",
+  "rpcore.time.already_running": "Время RP уже идёт.",
+  "rpcore.time.already_paused": "Время RP уже на паузе.",
   "rpcore.time.started": "Время RP пошло.",
   "rpcore.time.stopped": "Время RP на паузе: солнце стоит, голод не тратится, раны не заживают.",
   "rpcore.time.bad_time": "Длительность RP: 30m, 2h, 1h30m, 1d или число часов (от минуты до 30 суток)",

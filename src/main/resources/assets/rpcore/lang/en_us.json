@@ -34,6 +34,8 @@
   "rpcore.help.rptime_skip": "skip time awake; the world does not change. Last word — who: online, all or offline, as for sleep",
   "rpcore.time.disabled": "RP time is off: no RP Time and rptime.enabled = false in the Core config — time always runs.",
   "rpcore.time.running": "RP time is running.",
+  "rpcore.time.already_running": "RP time is already running.",
+  "rpcore.time.already_paused": "RP time is already paused.",
   "rpcore.time.started": "RP time runs.",
   "rpcore.time.stopped": "RP time is paused: the sun stands, hunger and wounds wait.",
   "rpcore.time.bad_time": "RP duration: 30m, 2h, 1h30m, 1d or a number of hours (a minute to 30 days)",

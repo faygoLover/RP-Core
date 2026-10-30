@@ -103,6 +103,10 @@ public final class TimeCommand {
             c.getSource().sendFailure(Component.translatable("rpcore.time.disabled"));
             return 0;
         }
+        if (RpTime.running() == value) {
+            c.getSource().sendFailure(Component.translatable(value ? "rpcore.time.already_running" : "rpcore.time.already_paused"));
+            return 0;
+        }
         RpTime.setStarted(value);
         c.getSource().sendSuccess(() -> Component.translatable(value ? "rpcore.time.started" : "rpcore.time.stopped")
                 .withStyle(ChatFormatting.GOLD), true);
