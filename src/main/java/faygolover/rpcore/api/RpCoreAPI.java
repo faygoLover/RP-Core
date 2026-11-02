@@ -460,10 +460,26 @@ public final class RpCoreAPI {
         return OptionalInt.empty();
     }
 
-    /** Выставить уровень навыка; false — никто не ведёт этот навык. */
+    /** Выставить уровень навыка (наработанный, дальше растёт сам); false — никто не ведёт этот навык. */
     public static boolean setSkill(Player player, ResourceLocation skill, int level) {
         for (TraitProvider p : PROVIDERS) {
             if (p.managesSkill(skill) && p.setSkill(player, skill, level)) return true;
+        }
+        return false;
+    }
+
+    /** Точный прогресс навыка: уровень + доля до следующего (3,4567); NaN — никто не ведёт или не умеет. @since 0.12.0 */
+    public static double skillProgress(Player player, ResourceLocation skill) {
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill)) return p.skillProgress(player, skill);
+        }
+        return Double.NaN;
+    }
+
+    /** ГМ: прибавить или отнять уровни (дробно: 0,1 — 10 % уровня); false — никто не ведёт этот навык. @since 0.12.0 */
+    public static boolean addSkill(Player player, ResourceLocation skill, double levels) {
+        for (TraitProvider p : PROVIDERS) {
+            if (p.managesSkill(skill) && p.addSkill(player, skill, levels)) return true;
         }
         return false;
     }

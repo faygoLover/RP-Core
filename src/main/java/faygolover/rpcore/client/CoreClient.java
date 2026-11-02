@@ -15,6 +15,8 @@ public final class CoreClient {
 
     public static void init(IEventBus modBus) {
         modBus.addListener(CoreClient::onOverlays);
+        MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.client.hud.VanillaArmor::onOverlay);
+        HudRegistry.register(new faygolover.rpcore.client.hud.VanillaArmor());
         MinecraftForge.EVENT_BUS.addListener(CoreClient::onClientCommands);
         MinecraftForge.EVENT_BUS.addListener(faygolover.rpcore.client.photo.SkinCapture::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(CoreClient::onLogout);

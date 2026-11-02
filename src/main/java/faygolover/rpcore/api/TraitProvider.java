@@ -19,8 +19,27 @@ public interface TraitProvider {
         return 0;
     }
 
-    /** Выставить уровень (команда ГМа); {@code level < 0} — сбросить к значению по умолчанию. false — не умеет. */
+    /**
+     * Выставить уровень (команда ГМа): меняется наработанный уровень, дальше навык растёт и падает сам;
+     * {@code level < 0} — вернуть к стартовому. false — не умеет.
+     */
     default boolean setSkill(Player player, ResourceLocation skill, int level) {
+        return false;
+    }
+
+    /**
+     * Точный прогресс: уровень + доля опыта до следующего (3,4567 — третий уровень и 45,67 %); NaN — не умеет.
+     * @since 0.12.0
+     */
+    default double skillProgress(Player player, ResourceLocation skill) {
+        return Double.NaN;
+    }
+
+    /**
+     * ГМ: прибавить или отнять уровни поверх наработанного, можно дробно (0,1 — 10 % уровня). false — не умеет.
+     * @since 0.12.0
+     */
+    default boolean addSkill(Player player, ResourceLocation skill, double levels) {
         return false;
     }
 

@@ -91,7 +91,7 @@ public class RpCore {
             RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, анкета тела, HUD, время RP, фото");
             RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
-            RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|reset]", "rpcore.help.skill", 2, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|add <±уровни>]", "rpcore.help.skill", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore point set|remove|tp <имя>, /rpcore point list", "rpcore.help.point", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore taste <игрок> [<любимое> <нелюбимое>|reset]", "rpcore.help.taste", 2, false);

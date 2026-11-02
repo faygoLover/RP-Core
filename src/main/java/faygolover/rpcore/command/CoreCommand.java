@@ -1,5 +1,6 @@
 package faygolover.rpcore.command;
 
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,7 +24,8 @@ import java.util.OptionalInt;
 
 /**
  * {@code /rpcore} — что из семейства установлено и кто ведёт навыки; {@code /rpcore commands [мод]} — общий список
- * команд семейства; {@code /rpcore skill} — уровень навыка (если навык кто-то ведёт, например RP Perks);
+ * команд семейства; {@code /rpcore skill} — уровень и прогресс навыка, ГМ ставит уровень или прибавляет {@code add 1 | add 0.1}
+ * поверх наработанного (если навык кто-то ведёт, например RP Perks);
  * {@code /rpcore profile} — анкета тела (пол, возраст, рост); {@code reset} — игрок сможет заполнить её заново.
  */
 public final class CoreCommand {
@@ -43,7 +45,9 @@ public final class CoreCommand {
                                         .executes(c -> showSkill(c))
                                         .then(Commands.argument("level", IntegerArgumentType.integer(0, 10))
                                                 .executes(c -> setSkill(c, IntegerArgumentType.getInteger(c, "level"))))
-                                        .then(Commands.literal("reset").executes(c -> setSkill(c, -1))))))
+                                        .then(Commands.literal("add")
+                                                .then(Commands.argument("levels", DoubleArgumentType.doubleArg(-10, 10))
+                                                        .executes(c -> addSkill(c, DoubleArgumentType.getDouble(c, "levels"))))))))
                 .then(Commands.literal("profile").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(CoreCommand::showProfile)
@@ -156,20 +160,45 @@ public final class CoreCommand {
         return n;
     }
 
+    /** Уровень и точный прогресс до следующего уровня (до сотых процента). */
     private static int showSkill(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer p = EntityArgument.getPlayer(c, "player");
         ResourceLocation skill = skillArg(c);
         OptionalInt lvl = RpCoreAPI.skill(p, skill);
-        c.getSource().sendSuccess(() -> lvl.isPresent()
-                ? Component.translatable("rpcore.cmd.skill_level", p.getDisplayName(), skill.toString(), lvl.getAsInt())
-                : Component.translatable("rpcore.cmd.skill_unmanaged", skill.toString()), false);
-        return lvl.orElse(0);
+        if (lvl.isEmpty()) {
+            c.getSource().sendFailure(Component.translatable("rpcore.cmd.skill_unmanaged", skill.toString()));
+            return 0;
+        }
+        double progress = RpCoreAPI.skillProgress(p, skill);
+        Component line;
+        if (!Double.isFinite(progress)) {
+            line = Component.translatable("rpcore.cmd.skill_level", p.getDisplayName(), skill.toString(), lvl.getAsInt());
+        } else if (progress >= 10) {
+            line = Component.translatable("rpcore.cmd.skill_max", p.getDisplayName(), skill.toString(), lvl.getAsInt());
+        } else {
+            int base = (int) Math.floor(progress);
+            String pct = String.format(java.util.Locale.ROOT, "%.2f", (progress - base) * 100);
+            line = Component.translatable("rpcore.cmd.skill_progress", p.getDisplayName(), skill.toString(), lvl.getAsInt(), base, pct);
+        }
+        c.getSource().sendSuccess(() -> line, false);
+        return lvl.getAsInt();
     }
 
     private static int setSkill(CommandContext<CommandSourceStack> c, int level) throws CommandSyntaxException {
         ServerPlayer p = EntityArgument.getPlayer(c, "player");
         ResourceLocation skill = skillArg(c);
         if (!RpCoreAPI.setSkill(p, skill, level)) {
+            c.getSource().sendFailure(Component.translatable("rpcore.cmd.skill_unmanaged", skill.toString()));
+            return 0;
+        }
+        return showSkill(c);
+    }
+
+    /** Прибавить или отнять уровни: 1 — уровень, 0.1 — 10 % уровня. */
+    private static int addSkill(CommandContext<CommandSourceStack> c, double levels) throws CommandSyntaxException {
+        ServerPlayer p = EntityArgument.getPlayer(c, "player");
+        ResourceLocation skill = skillArg(c);
+        if (!RpCoreAPI.addSkill(p, skill, levels)) {
             c.getSource().sendFailure(Component.translatable("rpcore.cmd.skill_unmanaged", skill.toString()));
             return 0;
         }
