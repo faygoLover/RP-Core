@@ -70,7 +70,12 @@ public final class GmTeleport {
         Vec3 motion = e.getDeltaMovement();
         if (e instanceof ServerPlayer sp) {
             pos = safeSpot(sp, to, pos);
+            boolean sameLevel = sp.level() == to;
             sp.teleportTo(to, pos.x, pos.y, pos.z, y, p);
+            // G2 (02.11): проверка скорости считает сдвиг от firstGood*, а их ставит только resetPosition() в начале
+            // тика — без этого шаг клиента сразу после переноса давал «moved too quickly» и откат. Другое измерение
+            // сервер и так не проверяет.
+            if (sameLevel) sp.connection.resetPosition();
         } else {
             if (e.level() != to) return false;
             pos = safeSpot(e, to, pos);
