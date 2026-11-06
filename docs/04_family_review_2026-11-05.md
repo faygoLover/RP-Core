@@ -1,6 +1,6 @@
 # Ревью семейства модов, 05.11.2026
 
-Что смотрел: 22 мода (RP ×15, FL ×5, S5 ×3; без SovietEra, DeusEx, probe-проектов). Источники: `mods.toml`,
+Что смотрел: 23 мода (RP ×15, FL ×5, S5 ×3; без SovietEra, DeusEx, probe-проектов). Источники: `mods.toml`,
 `build.gradle`, `gradle.properties`, импорты между пакетами `faygolover.*`, `ModList.isLoaded` и
 `Class.forName`, цели миксинов. В игре ничего не запускал, код не менял.
 
@@ -64,7 +64,7 @@ FL Render ◄── RP Core ◄── Medicine ◄── Psyche
 
 ### 3.1 Core обязательно тянет FL Render
 Core использует FL Render только в 4 клиентских файлах: `client/effect/CoreTechniques`, `Interference`,
-`RedEyesLayer`, `client/gm/GmOverlay`, то есть только для эффектов GM. Из-за этого **каждому** RP-моду
+`RedEyesLayer` (эффекты GM) и `client/gm/GmOverlay` (`CameraPose`, камера для оверлея GM). Из-за этого **каждому** RP-моду
 нужен FL Render с его миксинами на Embeddium и светом. Решение: сделать flrender мягкой зависимостью
 Core (эффекты включать по `isLoaded`) или вынести GM-инструменты (п. 4.1) — тогда зависимость уйдёт
 вместе с ними.
@@ -96,8 +96,8 @@ Medicine ради `CarryService`/`MedCartEntity`. Состояние «лежа�
 | Цель | Кто | Риск |
 |---|---|---|
 | `ServerGamePacketListenerImpl` | RP Fixes (debug кликов), RP Inventory (`handleSetCarriedItem`), flnettweaks (`tick` ModifyConstant, disconnect), flperf (`tick` WrapOperation) | `tick` трогают двое; сейчас совместимо, но любое изменение в одном нужно проверять с другим |
-| `ServerAdvancementManager.apply` | flperf (`@ModifyVariable`, фильтр), s5adv (`@Inject`, своя вкладка) | проверить, что фильтр flperf не выкидывает «Департамент» |
-| MCreator | RP Fixes `mixin/mcreator` (sync переменных Mek/SCPO), flperf `mcreator/MCreatorTransformer` | фиксы одного мода в двух местах |
+| `ServerAdvancementManager.apply` | flperf (`@ModifyVariable`, фильтр), s5adv (`@Inject`, своя вкладка) | по коду конфликта нет: flperf фильтрует JSON в начале `apply`, s5adv добавляет своё в конце; в игре не проверено |
+| MCreator | RP Fixes `mixin/mcreator` (sync переменных Mek/SCPO), flperf `mcreator/MCreatorTransformer` | задачи разные (трафик и процедуры), объединять не обязательно |
 | `ClientLevel`, `ServerLevel` | FL Render + RP Time, RP Time + flperf | низкий |
 
 ### 3.5 RP Fixes превратился в «всё подряд»
@@ -108,7 +108,7 @@ ZeroContact, FarmCharm…) по смыслу пересекаются с flnettw
 Предложение по границам:
 - **RP Fixes** — только чинит чужие моды;
 - **flnettweaks** — транспорт и ванильная сеть; синхронизация конкретных модов остаётся в RP Fixes;
-- **flperf** — производительность, сюда же все MCreator-фиксы;
+- **flperf** — производительность;
 - правила сервера S5 (картины только GM, вступление Terralith, термометр LSO) — в отдельный маленький
   `s5tweaks` или в s5adv, раз он уже серверный мод S5;
 - отладочные миксины — за флагом в конфиге или только в dev-сборке.
@@ -125,10 +125,11 @@ Medicine (1 765 строк), Culinary, PDA, Inventory, Needs, Perks, Portals: т
 готовые jar. Из-за тестов Needs и Portals вынуждены компилироваться против Medicine/Culinary.
 Перенос в отдельный source set `gametest` уберёт и то и другое.
 
-### 3.8 Время считается в трёх местах
-Core `time/`, RP Time и `RpClock` + `RpTimeService` в Medicine (часы годности органов/крови).
-Culinary для порчи берёт просто `getGameTime()` (`CookingService.java:372`), то есть при паузе RP-времени
-еда портится, а органы — нет. `RpClock` стоит перенести в Core API и использовать в обоих модах.
+### 3.8 Время (исправлено 06.11)
+Раньше здесь было сказано, что Culinary считает порчу еды по `getGameTime()`. Это **неверно**:
+`CookingService.java:372` — счётчик повторов блюд для опыта повара, порчи еды по времени в Culinary я не нашёл.
+Остаётся мелочь: `RpClock` + `RpTimeService` живут в Medicine, а время — в Core `time/` и RP Time. Перенести
+`RpClock` в Core имеет смысл, только когда часы понадобятся второму моду.
 
 ## 4. Что можно вынести в отдельные моды
 
@@ -136,15 +137,18 @@ Culinary для порчи берёт просто `getGameTime()` (`CookingServ
 `gm/` (15 файлов, 1 580 строк: держатели, скрытые таблички, маркеры, телепорт, якоря),
 `client/gm`, эффекты red_eyes/interference. Это контент для ведущих, а не API. Core станет чистой
 библиотекой (API + HUD + время + фото), перестанет требовать FL Render, а GM-мод можно не ставить
-на серверах без ивентов. Portals, скорее всего, переедет в зависимость от GM Tools (проверить).
+на серверах без ивентов. Portals использует `rpcore.gm` в 6 файлах и будет зависеть от GM Tools; кроме Core и Portals этот пакет никто не использует.
 
 ### 4.2 Из Medicine (самый большой, 37,5 тыс. строк)
-- **Больница** → «RP Hospital»: `hospital/` (12 файлов, 2 000 строк: капельница, лампа, кровати,
-  хранилище) + `client/geo`. Это блоки и модели, механике лечения они не нужны.
+- **Больница — вынести не так просто (исправлено 06.11).** `hospital/` используют 28 файлов вне пакета, в том
+  числе `BloodService`, `ExamService`, `SurgeryService`, `PatientTicker`. Раньше здесь было сказано, что механике
+  лечения она не нужна, — это неверно. `client/geo` тоже не больничный, а общий рендер предметов. Для выноса
+  сначала нужен слой абстракции, отложить.
 - **Лежачий/переноска** (`DownedService`, `CarryService`, `MedCartEntity`) — в розетку Core (п. 3.2),
   сама логика остаётся в Medicine.
-- **Шутки и мелочи**: головокружение от вращения, `VanillaEffects` с достижением s5adv — отключаемые,
-  хорошие кандидаты в аддон или хотя бы за флаги конфига.
+- **Шутки и мелочи**: головокружение от вращения вплетено глубже, чем казалось (упоминания в 17 файлах, включая
+  `Physiology` и `MedicalState`), поэтому реалистичнее выключатель в конфиге, чем аддон. Как часто что отключают,
+  данных нет.
 - Интеграции (`integration/tacz`, `zc`, `lso`, `voice`) уже аккуратно изолированы, их трогать не надо.
 
 ### 4.3 Из Perks — фигура (H1, грудь на модели)
@@ -166,6 +170,6 @@ Culinary для порчи берёт просто `getGameTime()` (`CookingServ
 1. Общий файл версий + сборка всех против текущих jar (п. 3.3) — дёшево, снимает главный риск.
 2. Розетка «лежачий» в Core → Psyche без обязательной Medicine (п. 3.2); Culinary без `Class.forName` (п. 2).
 3. GM Tools из Core (п. 4.1) → Core без FL Render (п. 3.1).
-4. Разбор RP Fixes по границам (п. 3.5), MCreator — в flperf.
-5. GameTest-ы в отдельный source set (п. 3.7), `RpClock` в Core (п. 3.8).
-6. По желанию: RP Hospital, фигура из Perks.
+4. Разбор RP Fixes по границам (п. 3.5).
+5. GameTest-ы в отдельный source set (п. 3.7).
+6. По желанию: фигура из Perks. RP Hospital отложить (п. 4.2).
