@@ -20,12 +20,20 @@ public final class RpTime {
     private static volatile BooleanSupplier sourceRunning;
     private static volatile Consumer<Boolean> sourceSet;
     private static volatile DoubleSupplier sourceDay;
+    private static volatile DoubleSupplier sourceSpeed;
 
     /** RP Time сообщает себя источником времени (сервер, при загрузке мода). */
     public static void setSource(BooleanSupplier running, Consumer<Boolean> setRunning, DoubleSupplier dayLengthSeconds) {
         sourceRunning = running;
         sourceSet = setRunning;
         sourceDay = dayLengthSeconds;
+    }
+
+    /** То же и скорость хода ({@code /time speed}): тело идёт как часы. */
+    public static void setSource(BooleanSupplier running, Consumer<Boolean> setRunning, DoubleSupplier dayLengthSeconds,
+                                 DoubleSupplier speed) {
+        setSource(running, setRunning, dayLengthSeconds);
+        sourceSpeed = speed;
     }
 
     public static boolean external() {
@@ -54,6 +62,23 @@ public final class RpTime {
         double v = s != null ? s.getAsDouble() : 0;
         if (v > 0) return v;
         return (CoreConfig.SPEC.isLoaded() ? CoreConfig.DAY_LENGTH_MINUTES.get() : 180.0) * 60.0;
+    }
+
+    /** Множитель хода часов ({@code /time speed} RP Time), без паузы. Без RP Time или у старого — 1. */
+    public static double speed() {
+        DoubleSupplier s = sourceSpeed;
+        double v = s != null ? s.getAsDouble() : 1;
+        return v >= 0 && Double.isFinite(v) ? v : 1;
+    }
+
+    /** Сколько RP-секунд проходит за реальную секунду при идущем времени: сутки (86400) за длину суток, умножить на скорость. */
+    public static double rpPerReal() {
+        return 86400.0 / dayLengthSeconds() * speed();
+    }
+
+    /** То же, но 0 на паузе — множитель для долгих процессов тела. */
+    public static double bodyScale() {
+        return running() ? rpPerReal() : 0;
     }
 
     public static void onServerStarting(ServerStartingEvent e) {

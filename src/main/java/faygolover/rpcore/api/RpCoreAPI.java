@@ -303,6 +303,41 @@ public final class RpCoreAPI {
     }
 
     /**
+     * То же, что {@link #registerTimeSource(java.util.function.BooleanSupplier, java.util.function.Consumer, java.util.function.DoubleSupplier)},
+     * и скорость хода ({@code /time speed}, без паузы): от неё зависит {@link #bodyScale}. @since 0.13.0
+     */
+    public static void registerTimeSource(java.util.function.BooleanSupplier running, java.util.function.Consumer<Boolean> setRunning,
+                                          java.util.function.DoubleSupplier dayLengthSeconds, java.util.function.DoubleSupplier speed) {
+        faygolover.rpcore.time.RpTime.setSource(running, setRunning, dayLengthSeconds, speed);
+    }
+
+    /**
+     * Время тела: сколько RP-секунд проходит за реальную секунду сейчас. Сутки ({@link #dayLengthSeconds}) с учётом
+     * {@code /time speed} RP Time, на паузе — 0. При 3-часовых сутках — 8. Долгие процессы (вещества, заживление,
+     * рассудок, мышцы, голод) идут по нему, быстрые (кровь, боль, действие лекарства) — по реальному времени. Вне сети
+     * время тела не идёт. Сервер. @since 0.13.0
+     */
+    public static double bodyScale() {
+        return faygolover.rpcore.time.RpTime.bodyScale();
+    }
+
+    /** {@link #bodyScale}, но без паузы: для пересчёта настроек и подсказок («через сколько реальных минут»). Сервер. @since 0.13.0 */
+    public static double rpPerReal() {
+        return faygolover.rpcore.time.RpTime.rpPerReal();
+    }
+
+    /** Реальные секунды в RP-часы по {@link #bodyScale} (на паузе — 0). Сервер. @since 0.13.0 */
+    public static double rpHours(double realSeconds) {
+        return realSeconds * bodyScale() / 3600.0;
+    }
+
+    /** RP-часы в реальные секунды при идущем времени ({@link #rpPerReal}). Сервер. @since 0.13.0 */
+    public static double realSeconds(double rpHours) {
+        double r = rpPerReal();
+        return r > 0 ? rpHours * 3600.0 / r : Double.POSITIVE_INFINITY;
+    }
+
+    /**
      * Ниже какой доли шкалы прокрутка времени (и время вне сети) не опускает еду и воду ({@code [time] skip_floor},
      * по умолчанию 0.2). Сервер. @since 0.11.0
      */

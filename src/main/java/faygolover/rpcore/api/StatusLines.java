@@ -31,6 +31,14 @@ public final class StatusLines {
 
     public interface Source {
         void lines(Player target, Viewer viewer, List<Line> out);
+
+        /**
+         * То же с уровнем медицины смотрящего (0–5; для SELF — уже урезанный, как свои строки мода тела): врач видит
+         * больше признаков. По умолчанию — старый метод. @since 0.13.0
+         */
+        default void lines(Player target, Viewer viewer, int medicineLevel, List<Line> out) {
+            lines(target, viewer, out);
+        }
     }
 
     private static final List<Source> SOURCES = new CopyOnWriteArrayList<>();
@@ -39,12 +47,17 @@ public final class StatusLines {
         if (source != null && !SOURCES.contains(source)) SOURCES.add(source);
     }
 
-    /** Все строки о {@code target} для {@code viewer}. */
+    /** Все строки о {@code target} для {@code viewer}, уровень медицины смотрящего 0. */
     public static List<Line> collect(Player target, Viewer viewer) {
+        return collect(target, viewer, 0);
+    }
+
+    /** Все строки о {@code target} для {@code viewer} с уровнем медицины смотрящего. @since 0.13.0 */
+    public static List<Line> collect(Player target, Viewer viewer, int medicineLevel) {
         List<Line> out = new ArrayList<>();
         for (Source s : SOURCES) {
             try {
-                s.lines(target, viewer, out);
+                s.lines(target, viewer, medicineLevel, out);
             } catch (RuntimeException e) {
                 faygolover.rpcore.RpCore.LOGGER.warn("RP Core: строки состояния не собраны: {}", e.toString());
             }

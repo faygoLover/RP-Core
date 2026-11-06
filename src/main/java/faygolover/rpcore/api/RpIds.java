@@ -56,7 +56,7 @@ public final class RpIds {
     public static final ResourceLocation WEAK_IMMUNITY = id("weak_immunity");
     public static final ResourceLocation DIABETIC = id("diabetic");
     public static final ResourceLocation SMOKER = id("smoker");
-    /** Закалённый алкоголик: легко переносит алкоголь. */
+    /** Стойкий организм (бывш. «Закалённый алкоголик»): все вещества и лекарства действуют слабее (Medicine). Id прежний. */
     public static final ResourceLocation ALCOHOLIC = id("alcoholic");
     public static final ResourceLocation TEETOTALER = id("teetotaler");
     public static final ResourceLocation CAFFEINE_ADDICT = id("caffeine_addict");
@@ -133,13 +133,19 @@ public final class RpIds {
     public static final ResourceLocation CLUMSY_RUNNER = id("clumsy_runner");
     /** Неудачливый: неприятности случаются с ним (Sports — плохие события раньше). @since 0.5.0 */
     public static final ResourceLocation UNLUCKY = id("unlucky");
+    /** Удачливый: зеркало {@link #UNLUCKY} — беды обходят его (Perks, Sports, Medicine). @since 0.13.0 */
+    public static final ResourceLocation LUCKY = id("lucky");
+    /** Взлом: отмычки КПК, замки SA и Cuffed (PDA, RP Fixes). @since 0.13.0 */
+    public static final ResourceLocation HACKER = id("hacker");
+    /** Технофоб: не взламывает и не шифрует, не перестраивает рацию (PDA, RP Fixes). @since 0.13.0 */
+    public static final ResourceLocation TECHNOPHOBE = id("technophobe");
     /** Боец ближнего боя: удары и груша тратят меньше выносливости (Sports). @since 0.5.0 */
     public static final ResourceLocation MELEE_FIGHTER = id("melee_fighter");
     /** Расторопный: медицина и готовка быстрее (Medicine, Culinary). @since 0.5.0 */
     public static final ResourceLocation QUICK_WORKER = id("quick_worker");
     /** Медлительный: медицина и готовка медленнее (Medicine, Culinary). @since 0.5.0 */
     public static final ResourceLocation SLOW_WORKER = id("slow_worker");
-    /** Алкоголик: зависимость, без алкоголя — стресс и ломка (Medicine). Не путать с {@link #ALCOHOLIC} — «легко переносит». @since 0.5.0 */
+    /** Алкоголик: зависимость, без алкоголя — стресс и ломка (Medicine). Не путать с {@link #ALCOHOLIC} — «Стойкий организм». @since 0.5.0 */
     public static final ResourceLocation ALCOHOL_ADDICT = id("alcohol_addict");
     /** Неграмотный: не читает тексты (PDA). @since 0.5.0 */
     public static final ResourceLocation ILLITERATE = id("illiterate");
