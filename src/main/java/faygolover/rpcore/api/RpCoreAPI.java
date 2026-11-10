@@ -84,6 +84,12 @@ public final class RpCoreAPI {
         return b != null && b.unconscious(player);
     }
 
+    /** Руки работают (по моду тела; без него — всегда). КПК, еда, готовка, тренировки. @since 0.14.0 */
+    public static boolean handsFree(Player player) {
+        BodyProvider b = body;
+        return b == null || b.handsFree(player);
+    }
+
     // ------------------------------------------------------------------ питание
 
     private static volatile NutritionProvider nutrition;
@@ -379,6 +385,43 @@ public final class RpCoreAPI {
     public static double sanity(Player player) {
         var s = sanity;
         return s == null ? 100 : s.applyAsDouble(player);
+    }
+
+    private static volatile java.util.function.ToDoubleFunction<Player> stress;
+
+    /** RP Psyche сообщает, как читать стресс (0–100). @since 0.14.0 */
+    public static void registerStress(java.util.function.ToDoubleFunction<Player> source) {
+        stress = source;
+    }
+
+    /** Стресс 0–100; без мода психики — 0. Сервер. @since 0.14.0 */
+    public static double stress(Player player) {
+        var s = stress;
+        return s == null ? 0 : s.applyAsDouble(player);
+    }
+
+    private static volatile SleepProvider sleep;
+
+    /** Мод сна (RP Needs). @since 0.14.0 */
+    public static void registerSleep(SleepProvider provider) {
+        sleep = provider;
+    }
+
+    /** Спит ли по-настоящему; без мода сна — в кровати или в позе {@code /sleep}. Сервер. @since 0.14.0 */
+    public static boolean asleep(Player player) {
+        var s = sleep;
+        return s != null ? s.asleep(player) : player.isSleeping() || postureSleeping(player);
+    }
+
+    /** Стадия недосыпа ({@link SleepProvider#stage}); без мода сна — 0. Сервер. @since 0.14.0 */
+    public static int sleepStage(Player player) {
+        var s = sleep;
+        return s == null ? 0 : s.stage(player);
+    }
+
+    /** Вайп персонажа: сейчас или при входе. true — уже сделано. Сервер. @since 0.14.0 */
+    public static boolean wipeCharacter(net.minecraft.server.MinecraftServer server, java.util.UUID id, String name, String by) {
+        return faygolover.rpcore.profile.CharacterWipe.wipe(server, id, name, by);
     }
 
     /** Разбудить спящего сидя или лёжа (RP Needs: выспался). Сервер. @since 0.11.0 */

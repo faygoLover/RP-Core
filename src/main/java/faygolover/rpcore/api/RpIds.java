@@ -46,6 +46,9 @@ public final class RpIds {
     public static final ResourceLocation BRAVE = id("brave");
     /** Трусливый: болевой шок сильнее. */
     public static final ResourceLocation COWARD = id("coward");
+    /** Подготовленный солдат и Пацифист: как человек переносит, что ранил другого (RP Psyche). @since 0.14.0 */
+    public static final ResourceLocation SOLDIER = id("soldier");
+    public static final ResourceLocation PACIFIST = id("pacifist");
     /** Раны и переломы заживают быстрее. */
     public static final ResourceLocation FAST_HEALING = id("fast_healing");
     /** Раны и переломы заживают медленнее. */

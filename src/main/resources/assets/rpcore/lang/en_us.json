@@ -194,5 +194,11 @@
   "rpcore.time.already": "It is already that time.",
   "rpcore.time.passed": "%s RP passed (≈%s real). It is %s, day %s. Players online: %s, offline: %s.",
   "rpcore.time.player_passed": "Players: %s — %s RP passed (≈%s real), the sun stays.",
-  "rpcore.time.player_slept": "Players: %s — slept %s RP (≈%s real), the sun stays."
+  "rpcore.time.player_slept": "Players: %s — slept %s RP (≈%s real), the sun stays.",
+  "rpcore.msg.no_hands": "Your hands will not obey",
+  "rpcore.msg.character_wiped": "Your character has been reset. Fill in the form and choose perks again.",
+  "rpcore.help.wipe": "Reset a character: all mod data; items and PDA stay. If the player is offline, it happens on login.",
+  "rpcore.cmd.wipe_confirm": "Character %s will be fully reset. To confirm, add confirm at the end of the command.",
+  "rpcore.cmd.wiped": "Character %s has been reset",
+  "rpcore.cmd.wipe_pending": "Character %s will be reset on login"
 }

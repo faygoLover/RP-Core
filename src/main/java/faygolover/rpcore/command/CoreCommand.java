@@ -62,6 +62,10 @@ public final class CoreCommand {
                                         .then(Commands.argument("cm", IntegerArgumentType.integer((int) BodyProfile.MIN_HEIGHT, (int) BodyProfile.MAX_HEIGHT))
                                                 .executes(c -> editProfile(c, p -> p.withHeight(IntegerArgumentType.getInteger(c, "cm"))))))
                                 .then(Commands.literal("reset").executes(c -> editProfile(c, p -> p.withFilled(false))))))
+                .then(Commands.literal("wipe").requires(s -> s.hasPermission(2))
+                        .then(Commands.argument("player", net.minecraft.commands.arguments.GameProfileArgument.gameProfile())
+                                .executes(c -> wipe(c, false))
+                                .then(Commands.literal("confirm").executes(c -> wipe(c, true)))))
                 .then(Commands.literal("taste").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(CoreCommand::showTaste)
@@ -75,6 +79,22 @@ public final class CoreCommand {
     /** Варианты вкусов: kind:… и method:…. */
     private static final SuggestionProvider<CommandSourceStack> TASTES =
             (c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(faygolover.rpcore.api.FoodTaste.options(), b);
+
+    /** Вайп персонажа: без {@code confirm} только предупреждает. Игрока нет в сети — сработает при входе. */
+    private static int wipe(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> c, boolean confirmed)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var src = c.getSource();
+        var profiles = net.minecraft.commands.arguments.GameProfileArgument.getGameProfiles(c, "player");
+        for (var p : profiles) {
+            if (!confirmed) {
+                src.sendSuccess(() -> Component.translatable("rpcore.cmd.wipe_confirm", p.getName()), false);
+                continue;
+            }
+            boolean now = faygolover.rpcore.api.RpCoreAPI.wipeCharacter(src.getServer(), p.getId(), p.getName(), src.getTextName());
+            src.sendSuccess(() -> Component.translatable(now ? "rpcore.cmd.wiped" : "rpcore.cmd.wipe_pending", p.getName()), true);
+        }
+        return profiles.size();
+    }
 
     private static int showTaste(com.mojang.brigadier.context.CommandContext<CommandSourceStack> c)
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {

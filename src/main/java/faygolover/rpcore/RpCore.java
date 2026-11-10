@@ -67,6 +67,7 @@ public class RpCore {
         bus.addListener(faygolover.rpcore.photo.PictureServer::onServerStopped);
         // Анкета тела.
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onLogin);
+        bus.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, faygolover.rpcore.profile.CharacterWipe::onLogin);
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onRespawn);
         bus.addListener(faygolover.rpcore.profile.ProfileServer::onDimension);
         // Замок семейства: доступ ведущего с выделенного сервера.
@@ -91,6 +92,7 @@ public class RpCore {
             RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, анкета тела, HUD, время RP, фото");
             RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore wipe <игрок> confirm", "rpcore.help.wipe", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|add <±уровни>]", "rpcore.help.skill", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore point set|remove|tp <имя>, /rpcore point list", "rpcore.help.point", 2, false);

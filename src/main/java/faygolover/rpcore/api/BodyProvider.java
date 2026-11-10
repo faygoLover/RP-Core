@@ -120,4 +120,30 @@ public interface BodyProvider {
     default double sedation(Player player) {
         return 0;
     }
+
+    /** Руки работают: не связан, не зафиксирован, не лежит, есть хотя бы одна рабочая. @since 0.14.0 */
+    default boolean handsFree(Player player) {
+        return true;
+    }
+
+    /** Опьянение 0–100. @since 0.14.0 */
+    default double intoxication(Player player) {
+        return 0;
+    }
+
+    /** Действует стимулятор: уснуть нельзя, как при кофеине. @since 0.14.0 */
+    default boolean stimulated(Player player) {
+        return false;
+    }
+
+    /** Температура среды за пределами нормы (минус — холод, 0 — норма или не ведётся). @since 0.14.0 */
+    default double temperatureOffset(Player player) {
+        return 0;
+    }
+
+    /** Чьё это тело вышедшего игрока, или null — это не тело. @since 0.14.0 */
+    @org.jetbrains.annotations.Nullable
+    default java.util.UUID bodyOwner(net.minecraft.world.entity.Entity entity) {
+        return null;
+    }
 }
