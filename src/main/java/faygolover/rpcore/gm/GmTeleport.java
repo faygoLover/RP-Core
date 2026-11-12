@@ -25,8 +25,11 @@ public final class GmTeleport {
     private static final String SAFE_KEY = "rpcore_tp_safe_until";
     /** Неуязвимость игрока после переноса, тиков. */
     public static final int ARRIVAL_SAFE_TICKS = 20;
-    /** Насколько высоко можно поднять точку прибытия (ковёр, плита, снег, ступень). */
-    private static final double MAX_LIFT = 1.0;
+    /**
+     * Насколько высоко можно поднять точку прибытия: ковёр, плита, ступень — и целый блок пола с ковром сверху
+     * (координаты, взятые с блока пола, а не с ног, давали перенос на блок ниже).
+     */
+    private static final double MAX_LIFT = 1.5;
 
     /** Сущность недавно перенесли — пластины и порталы её пока не трогают. */
     public static boolean onCooldown(Entity e) {
@@ -53,12 +56,17 @@ public final class GmTeleport {
      */
     public static Vec3 safeSpot(Entity e, Level level, Vec3 pos) {
         AABB box = e.getDimensions(e.getPose()).makeBoundingBox(pos).deflate(1.0E-7);
-        double top = Double.NEGATIVE_INFINITY;
-        for (VoxelShape s : level.getBlockCollisions(e, box)) top = Math.max(top, s.max(Direction.Axis.Y));
-        if (top == Double.NEGATIVE_INFINITY || top <= pos.y || top - pos.y > MAX_LIFT) return pos;
-        Vec3 up = new Vec3(pos.x, top, pos.z);
-        AABB moved = box.move(0, top - pos.y, 0);
-        return level.getBlockCollisions(e, moved).iterator().hasNext() ? pos : up;
+        if (!level.getBlockCollisions(e, box).iterator().hasNext()) return pos;
+        // Опора — только то, что у ног (до MAX_LIFT): перемычка двери над головой не в счёт.
+        AABB feet = new AABB(box.minX, pos.y, box.minZ, box.maxX, Math.min(box.maxY, pos.y + MAX_LIFT), box.maxZ);
+        java.util.TreeSet<Double> tops = new java.util.TreeSet<>();
+        for (VoxelShape s : level.getBlockCollisions(e, feet)) {
+            double top = s.max(Direction.Axis.Y);
+            if (top > pos.y && top - pos.y <= MAX_LIFT) tops.add(top);
+        }
+        for (double top : tops)
+            if (!level.getBlockCollisions(e, box.move(0, top - pos.y, 0)).iterator().hasNext()) return new Vec3(pos.x, top, pos.z);
+        return pos;
     }
 
     /**
@@ -69,6 +77,22 @@ public final class GmTeleport {
         float y = keepView ? e.getYRot() : yaw, p = keepView ? e.getXRot() : pitch;
         Vec3 motion = e.getDeltaMovement();
         if (e instanceof ServerPlayer sp) {
+            // С кресла, лошади и т. п. — сначала слезть (место считаем уже для стоящего).
+            sp.stopRiding();
+            Entity root = sp.getRootVehicle();
+            if (root != sp && sp.level() == to) {
+                // Мод не отпустил (лежачего с кресла и каталки снимают только волоком) — переносим вместе с транспортом.
+                Vec3 at = safeSpot(root, to, pos);
+                root.teleportTo(to, at.x, at.y, at.z, java.util.Set.of(), keepView ? root.getYRot() : yaw, root.getXRot());
+                root.resetFallDistance();
+                setCooldown(root, cooldown);
+                for (Entity r : root.getIndirectPassengers()) {
+                    setCooldown(r, cooldown);
+                    r.resetFallDistance();
+                    if (r instanceof ServerPlayer rp) rp.connection.resetPosition();
+                }
+                return true;
+            }
             pos = safeSpot(sp, to, pos);
             boolean sameLevel = sp.level() == to;
             sp.teleportTo(to, pos.x, pos.y, pos.z, y, p);
