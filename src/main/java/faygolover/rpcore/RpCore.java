@@ -32,6 +32,9 @@ public class RpCore {
         faygolover.rpcore.effect.RpEffects.register(modBus);
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, CoreConfig.SPEC);
         var bus = MinecraftForge.EVENT_BUS;
+        // Данные игрока семейства: общий жизненный цикл (PlayerStore, PersistentTag).
+        faygolover.rpcore.data.PlayerStores.init(modBus, bus);
+        registerTestData();
         bus.addListener(CoreCommand::register);
         bus.addListener(TimeCommand::register);
         // Метки на предметах: /mark и строки в описании.
@@ -83,6 +86,21 @@ public class RpCore {
         bus.addListener(faygolover.rpcore.effect.EffectSync::onStartTracking);
         bus.addListener(faygolover.rpcore.effect.EffectSync::onServerTick);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> faygolover.rpcore.client.CoreClient.init(modBus));
+    }
+
+    /**
+     * Тестовые хранилища для игровых тестов самого Core (запуск runGameTestServer этого мода). Класса в релизном
+     * jar нет, поэтому по имени и только когда тесты Core включены.
+     */
+    private static void registerTestData() {
+        if (!System.getProperty("forge.enabledGameTestNamespaces", "").contains(MODID)) return;
+        try {
+            Class.forName("faygolover.rpcore.gametest.CoreTestData").getMethod("register").invoke(null);
+        } catch (ClassNotFoundException ignored) {
+            // Релизная сборка: тестов в ней нет.
+        } catch (ReflectiveOperationException ex) {
+            LOGGER.error("RP Core: тестовые данные не зарегистрированы", ex);
+        }
     }
 
     private void commonSetup(FMLCommonSetupEvent e) {

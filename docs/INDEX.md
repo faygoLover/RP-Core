@@ -1,18 +1,19 @@
 # RP Core — указатель кода
 
-Создано `python _family/tools/mapgen.py` 15.11.2026, версия 0.14.1-1.20.1-forge, коммит `51e2423`.
+Создано `python _family/tools/mapgen.py`, версия мода 0.14.1-1.20.1-forge.
 **Руками не править**: пересоздаётся скриптом. Смысл, потоки работы и рецепты — в `docs/MAP.md`.
 Разбор по шаблонам, без компиляции: необычно оформленная регистрация может отсутствовать в списках.
 
-Всего: 100 файлов, 9135 строк Java.
+Всего: 105 файлов, 10047 строк Java.
 
 ## 1. Пакеты
 
 | Пакет | Файлов | Строк |
 |---|---:|---:|
-| `faygolover.rpcore` | 2 | 174 |
+| `faygolover.rpcore` | 2 | 192 |
 | `faygolover.rpcore.access` | 2 | 151 |
 | `faygolover.rpcore.api` | 16 | 1898 |
+| `faygolover.rpcore.api.data` | 2 | 387 |
 | `faygolover.rpcore.api.event` | 17 | 622 |
 | `faygolover.rpcore.client` | 5 | 340 |
 | `faygolover.rpcore.client.access` | 2 | 216 |
@@ -21,7 +22,9 @@
 | `faygolover.rpcore.client.hud` | 6 | 493 |
 | `faygolover.rpcore.client.photo` | 3 | 289 |
 | `faygolover.rpcore.command` | 3 | 570 |
+| `faygolover.rpcore.data` | 1 | 202 |
 | `faygolover.rpcore.effect` | 2 | 187 |
+| `faygolover.rpcore.gametest` | 2 | 305 |
 | `faygolover.rpcore.gm` | 15 | 1621 |
 | `faygolover.rpcore.network` | 8 | 553 |
 | `faygolover.rpcore.photo` | 2 | 386 |
@@ -33,7 +36,7 @@
 
 ### `faygolover.rpcore`
 - `CoreConfig`, 65 — Общий конфиг RP Core: config/rpcore-common.toml.
-- `RpCore`, 109 — RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine, RP Culinary, RP PDA).
+- `RpCore`, 127 — RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine, RP Culinary, RP PDA).
 
 ### `faygolover.rpcore.access`
 - `AccessServer`, 51 — Выдача доступа к скрытым предметам с сервера: ведущим (уровень прав из [access] конфига Core) на выделенном сервере.
@@ -56,6 +59,10 @@
 - `StaminaProvider` (interface), 66 — Мод выносливости (RP Stamina).
 - `StatusLines`, 68 — Строки состояния от модов семейства для мода тела (RP Medicine): что чувствует сам игрок, что видно при осмотре другим и что видит ГМ сканером и в панели.
 - `TraitProvider` (interface), 64 — Источник навыков и черт игрока.
+
+### `faygolover.rpcore.api.data`
+- `PersistentTag`, 102 — Простые данные игрока в виде тега: раздел в getPersistentData() игрока (ForgeData в его файле).
+- `PlayerStore`, 285 — Данные игрока с общим жизненным циклом: хранение вместе с игроком, копия при смерти и возврате из Края, отправка клиенту при входе, возрождении и смене измерения, уборка при выходе.
 
 ### `faygolover.rpcore.api.event`
 - `BodyProfileChangedEvent`, 31 — Анкета тела игрока изменилась (игрок заполнил её или ГМ поправил).
@@ -120,9 +127,16 @@
 - `PointCommand`, 84 — /rpcore point — именованные точки прибытия без блока: ведущий встаёт туда, куда переносить, смотрит, куда должны смотреть прибывшие, и пишет /rpcore point set .
 - `TimeCommand`, 235 — /rptime — время RP (решения 30.10).
 
+### `faygolover.rpcore.data`
+- `PlayerStores`, 202 — Общий жизненный цикл данных игрока: все PlayerStore и PersistentTag семейства.
+
 ### `faygolover.rpcore.effect`
 - `EffectSync`, 99 — Сервер: кто под «Красными глазами» и «Помехами» — рассылается всем, кто видит сущность (ванилла сообщает эффекты только самому игроку).
 - `RpEffects`, 88 — Эффекты RP Core (0.8.1) и зелья к ним.
+
+### `faygolover.rpcore.gametest`
+- `CoreTestData`, 85 — Тестовые данные игрока для игровых тестов RP Core.
+- `PlayerStoreTests`, 220 — Данные игрока с общим жизненным циклом (PlayerStore, PersistentTag): имя ветки в сохранении, копия при смерти и возврате из Края, повторная отправка клиенту, уборка при выходе, версия формата.
 
 ### `faygolover.rpcore.gm`
 - `GmBlock` (interface), 13 — Блок «ГМской штуки» (пластина, держатели, порталы RP Portals): игрокам без метки в руке не рисуется рамка выделения, ведущему с меткой — рисуется контур (подсветка).
@@ -167,12 +181,13 @@
 ### `faygolover.rpcore.time`
 - `RpTime`, 88 — Время RP (/rptime, итоговый дизайн Medicine §6.2).
 
-Классов без описания: 0 из 100.
+Классов без описания: 0 из 105.
 
 ## 3. Подписки на события
 
 | Событие | Кто слушает |
 |---|---|
+| `AttachCapabilitiesEvent` | `PlayerStores.onAttach` |
 | `BuildCreativeModeTabContentsEvent` | `ClientAccess.onBuildTab` |
 | `ClientChatReceivedEvent` | `ShowLogins.onChat` |
 | `EntityJoinLevelEvent` | `EffectSync.onJoin` |
@@ -188,11 +203,13 @@
 | `MobEffectEvent.Remove` | `EffectSync.onRemove` |
 | `ModConfigEvent.Loading` | `ClientAccess.onConfig` |
 | `ModConfigEvent.Reloading` | `ClientAccess.onConfigReload` |
-| `PlayerEvent.PlayerChangedDimensionEvent` | `Postures.onDimension`, `ProfileServer.onDimension` |
-| `PlayerEvent.PlayerLoggedInEvent` | `AccessServer.onLogin`, `CharacterWipe.onLogin`, `PhotoServer.onLogin`, `ProfileServer.onLogin` |
-| `PlayerEvent.PlayerLoggedOutEvent` | `AccessServer.onLogout`, `PhotoServer.onLogout`, `PictureServer.onLogout`, `Postures.onLogout` |
-| `PlayerEvent.PlayerRespawnEvent` | `Postures.onRespawn`, `ProfileServer.onRespawn` |
+| `PlayerEvent.Clone` | `PlayerStores.onClone` |
+| `PlayerEvent.PlayerChangedDimensionEvent` | `PlayerStores.onDimension`, `Postures.onDimension`, `ProfileServer.onDimension` |
+| `PlayerEvent.PlayerLoggedInEvent` | `AccessServer.onLogin`, `CharacterWipe.onLogin`, `PhotoServer.onLogin`, `PlayerStores.onLogin`, `ProfileServer.onLogin` |
+| `PlayerEvent.PlayerLoggedOutEvent` | `AccessServer.onLogout`, `PhotoServer.onLogout`, `PictureServer.onLogout`, `PlayerStores.onLogout`, `Postures.onLogout` |
+| `PlayerEvent.PlayerRespawnEvent` | `PlayerStores.onRespawn`, `Postures.onRespawn`, `ProfileServer.onRespawn` |
 | `PlayerEvent.StartTracking` | `EffectSync.onStartTracking`, `Postures.onStartTracking` |
+| `RegisterCapabilitiesEvent` | `PlayerStores.onRegisterCaps` |
 | `RegisterClientCommandsEvent` | `CoreClient.onClientCommands` |
 | `RegisterCommandsEvent` | `CoreCommand.register`, `ItemMarks.onCommands`, `PointCommand.register`, `Postures.register`, `TimeCommand.register` |
 | `RegisterGuiOverlaysEvent` | `CoreClient.onOverlays` |
@@ -246,7 +263,10 @@
 
 ## 6. Данные
 
+- getPersistentData: `PersistentTag` ×5
+- capability: `PlayerStore` (ключ задан в другом классе)
 - свои файлы на диске: `HudLayout`
+- capability: `CoreTestData`, ключ `rpcore:test_store`
 - getPersistentData: `GmTeleport` ×4, теги: `rpcore_tp_until`, `rpcore_tp_safe_until`
 - SavedData: `ItemMarks`, файл "rpcore_marks"
 - SavedData: `RpAnchors`, файл "rpcore_anchors"
@@ -268,6 +288,9 @@
 ## 9. Связи с другими модами
 
 Проверки `isLoaded`: `emotecraft` (Postures).
+
+Отражение (`Class.forName`):
+- `RpCore` → `faygolover.rpcore.gametest.CoreTestData`
 
 Пакеты других модов семейства в коде: `flrender` — 4 файлов.
 
