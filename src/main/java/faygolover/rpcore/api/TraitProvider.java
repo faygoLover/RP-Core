@@ -60,4 +60,12 @@ public interface TraitProvider {
     default boolean hasTrait(Player player, ResourceLocation trait) {
         return false;
     }
+
+    /**
+     * Выдать знание — служебную черту, которую игрок получает в игре (прочитал записи, прошёл обучение).
+     * 1 — выдано, 0 — уже было, −1 — этот мод такого знания не ведёт. @since 0.15.0
+     */
+    default int grantKnowledge(net.minecraft.server.level.ServerPlayer player, ResourceLocation trait) {
+        return -1;
+    }
 }

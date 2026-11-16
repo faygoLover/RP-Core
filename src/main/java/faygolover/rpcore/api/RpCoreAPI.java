@@ -327,6 +327,21 @@ public final class RpCoreAPI {
         return faygolover.rpcore.time.RpTime.bodyScale();
     }
 
+    /**
+     * Эталонный ход времени тела: сутки RP за 3 реальных часа ({@link #bodyScale} = 8). Под него подобраны числа долгих
+     * механик семейства (рассудок, восстановление мышц, рост навыков, заживление). Одно число на все моды — своё «8»
+     * в коде мода не писать. @since 0.15.0
+     */
+    public static final double BODY_REFERENCE = 8.0;
+
+    /**
+     * Во сколько раз долгие процессы тела идут сейчас быстрее эталона ({@link #BODY_REFERENCE}): 1 — при 3-часовых
+     * сутках, 0 — на паузе RP-времени. Умножай на это «секунду в сети» в долгой механике. Сервер. @since 0.15.0
+     */
+    public static double bodyRate() {
+        return bodyScale() / BODY_REFERENCE;
+    }
+
     /** {@link #bodyScale}, но без паузы: для пересчёта настроек и подсказок («через сколько реальных минут»). Сервер. @since 0.13.0 */
     public static double rpPerReal() {
         return faygolover.rpcore.time.RpTime.rpPerReal();
@@ -398,6 +413,52 @@ public final class RpCoreAPI {
     public static double stress(Player player) {
         var s = stress;
         return s == null ? 0 : s.applyAsDouble(player);
+    }
+
+    private static volatile MindProvider mind;
+
+    /** Мод психики (RP Psyche): через него давят на стресс и рассудок. @since 0.15.0 */
+    public static void registerMind(MindProvider provider) {
+        mind = provider;
+    }
+
+    /** Разовый толчок стресса (шкала 0–100). false — мода психики нет, ничего не сделано. Сервер. @since 0.15.0 */
+    public static boolean stressImpulse(net.minecraft.server.level.ServerPlayer player, double amount) {
+        MindProvider m = mind;
+        if (m == null) return false;
+        if (amount > 0) m.stressImpulse(player, amount);
+        return true;
+    }
+
+    /** Разовый удар по рассудку: минус {@code amount} (шкала 0–100). false — мода психики нет. Сервер. @since 0.15.0 */
+    public static boolean sanityHit(net.minecraft.server.level.ServerPlayer player, double amount) {
+        MindProvider m = mind;
+        if (m == null) return false;
+        if (amount > 0) m.sanityHit(player, amount);
+        return true;
+    }
+
+    private static final Map<ResourceLocation, LightProvider> LIGHTS = new LinkedHashMap<>();
+    private static volatile LightProvider[] lights = new LightProvider[0];
+
+    /**
+     * Мод сообщает, как узнать, что сущность несёт включённый свет. Тот же id второй раз — заменяет прежнего.
+     * Регистрировать на обеих сторонах (конструктор мода или FMLCommonSetupEvent). @since 0.15.0
+     */
+    public static void registerLight(ResourceLocation id, LightProvider provider) {
+        synchronized (LIGHTS) {
+            LIGHTS.put(id, provider);
+            lights = LIGHTS.values().toArray(new LightProvider[0]);
+        }
+    }
+
+    /**
+     * Несёт ли сущность включённый свет — так сказал хотя бы один поставщик ({@link LightProvider}). Без поставщиков
+     * — false. Обе стороны. @since 0.15.0
+     */
+    public static boolean carriesLight(net.minecraft.world.entity.LivingEntity entity) {
+        for (LightProvider p : lights) if (p.carriesLight(entity)) return true;
+        return false;
     }
 
     private static volatile SleepProvider sleep;
@@ -582,6 +643,39 @@ public final class RpCoreAPI {
                 return;
             }
         }
+    }
+
+    /**
+     * Выдать знание — служебную черту, которую игрок получает в игре (прочитал записи). 1 — выдано, 0 — уже было,
+     * −1 — некому выдать (нет мода черт или нет такого знания). Сервер. @since 0.15.0
+     */
+    public static int grantKnowledge(net.minecraft.server.level.ServerPlayer player, ResourceLocation trait) {
+        for (TraitProvider p : PROVIDERS) {
+            int r = p.grantKnowledge(player, trait);
+            if (r >= 0) return r;
+        }
+        return -1;
+    }
+
+    private static final java.util.Set<ResourceLocation> UNKNOWN_ADVANCEMENTS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
+     * Выдать игроку достижение по id — ванильным способом, все его критерии. Так моды семейства выдают достижения
+     * любого мода или датапака, не зная о нём. true — достижение есть (выдано сейчас или уже было); false — такого
+     * достижения на сервере нет (одна строка в лог на id). Сервер. @since 0.15.0
+     */
+    public static boolean grantAdvancement(net.minecraft.server.level.ServerPlayer player, ResourceLocation id) {
+        net.minecraft.advancements.Advancement adv = player.server.getAdvancements().getAdvancement(id);
+        if (adv == null) {
+            if (UNKNOWN_ADVANCEMENTS.add(id)) RpCore.LOGGER.warn("RP Core: достижения {} на сервере нет — не выдано", id);
+            return false;
+        }
+        net.minecraft.advancements.AdvancementProgress progress = player.getAdvancements().getOrStartProgress(adv);
+        if (progress.isDone()) return true;
+        List<String> remaining = new ArrayList<>();
+        for (String criterion : progress.getRemainingCriteria()) remaining.add(criterion);
+        for (String criterion : remaining) player.getAdvancements().award(adv, criterion);
+        return true;
     }
 
     public static boolean hasTrait(Player player, ResourceLocation trait) {

@@ -146,4 +146,53 @@ public interface BodyProvider {
     default java.util.UUID bodyOwner(net.minecraft.world.entity.Entity entity) {
         return null;
     }
+
+    /**
+     * Насколько сущность «лежит». Отвечает и за игрока, и за тело вышедшего игрока (оно лежит как мёртвое —
+     * {@link DownState#CLINICAL}). По умолчанию — на ногах. @since 0.15.0
+     */
+    default DownState down(net.minecraft.world.entity.Entity entity) {
+        return DownState.NONE;
+    }
+
+    /** Состояние «лежит»: порядок — по тяжести. @since 0.15.0 */
+    enum DownState {
+        /** На ногах. */
+        NONE,
+        /** Обморок. */
+        FAINT,
+        /** Нокдаун. */
+        KNOCKDOWN,
+        /** Клиническая смерть (и тело вышедшего игрока). */
+        CLINICAL
+    }
+
+    /** Идёт ломка по любому веществу. @since 0.15.0 */
+    default boolean withdrawal(Player player) {
+        return false;
+    }
+
+    /** Зависим, ломки сейчас нет, но тянет (скоро начнётся или острая фаза прошла). @since 0.15.0 */
+    default boolean craving(Player player) {
+        return false;
+    }
+
+    /** Id вещества, к которому бывшего зависимого тянет под стрессом, или null. @since 0.15.0 */
+    @org.jetbrains.annotations.Nullable
+    default String formerAddiction(Player player) {
+        return null;
+    }
+
+    /** Сила антипсихотика в крови (0 — нет). @since 0.15.0 */
+    default double antipsychotic(Player player) {
+        return 0;
+    }
+
+    /**
+     * Заражение крови (испорченная еда, грязная вода): сепсис не ниже {@code sepsis} (0–100) и его рост ещё
+     * {@code hours} часов. true — мод тела это ведёт; иначе вызывающий обходится простой версией. @since 0.15.0
+     */
+    default boolean infect(Player player, double sepsis, double hours) {
+        return false;
+    }
 }

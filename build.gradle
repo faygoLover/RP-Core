@@ -63,6 +63,12 @@ repositories {
         url = 'https://maven.blamejared.com'
         content { includeGroup 'mezz.jei' }
     }
+    // Curios — только API для компиляции (api/Worn: надетое в слотах); в игре необязателен.
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content { includeGroup 'top.theillusivec4.curios' }
+    }
     // FL Render — общая графика (обязательна у игроков); jar в libs/ (в git не идёт).
     flatDir { dir 'libs' }
 }
@@ -72,6 +78,7 @@ dependencies {
     implementation fg.deobf("blank:flrender:${flrender_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // Позы /sit и /lay — эмоции Emotecraft (необязателен: без него позы без анимации). jar-ы в libs/.
     compileOnly files('libs/emotecraft-for-MC1.20.1-2.2.7-b.build.50-forge.jar', 'libs/player-animation-lib-forge-1.0.2-rc1+1.20.jar')
 }
