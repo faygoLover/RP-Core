@@ -36,6 +36,7 @@ public class RpCore {
         faygolover.rpcore.data.PlayerStores.init(modBus, bus);
         registerTestData();
         bus.addListener(CoreCommand::register);
+        bus.addListener(CoreCommand::logCompat);
         bus.addListener(TimeCommand::register);
         // Метки на предметах: /mark и строки в описании.
         bus.addListener(faygolover.rpcore.gm.ItemMarks::onCommands);
@@ -105,11 +106,16 @@ public class RpCore {
 
     private void commonSetup(FMLCommonSetupEvent e) {
         CoreNetwork.register();
+        // Свои необязательные интеграции — в общий отчёт (/rpcore compat).
+        RpCoreAPI.reportCompat(MODID, "curios");
+        RpCoreAPI.reportCompat(MODID, "emotecraft");
+        RpCoreAPI.reportCompat(MODID, "jei");
         e.enqueueWork(() -> {
             faygolover.rpcore.effect.RpEffects.registerBrewing();
             RpCoreAPI.registerModule(MODID, "общая библиотека: навыки и черты, анкета тела, HUD, время RP, фото");
             RpCoreAPI.registerCommand(MODID, "/rpcore", "rpcore.help.rpcore", 0, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore commands [мод]", "rpcore.help.commands", 0, false);
+            RpCoreAPI.registerCommand(MODID, "/rpcore compat", "rpcore.help.compat", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore wipe <игрок> confirm", "rpcore.help.wipe", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore skill <игрок> <навык> [уровень|add <±уровни>]", "rpcore.help.skill", 2, false);
             RpCoreAPI.registerCommand(MODID, "/rpcore profile <игрок> [sex|age|height <значение>|reset]", "rpcore.help.profile", 2, false);

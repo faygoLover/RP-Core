@@ -176,4 +176,20 @@ public final class CoreBricksTests {
         }
         h.succeed();
     }
+
+    /** Отчёт совместимости: строка мода видна, повтор заменяет прежнюю, короткая форма смотрит на список модов. */
+    @GameTest(template = T, batch = "core_bricks_7")
+    public static void compatReport(GameTestHelper h) {
+        RpCoreAPI.reportCompat("rpcore_test", "some_mod", RpCoreAPI.CompatState.BROKEN, "нет класса");
+        RpCoreAPI.reportCompat("rpcore_test", "some_mod", RpCoreAPI.CompatState.ON, "");
+        long mine = RpCoreAPI.compat().stream().filter(i -> i.modId().equals("rpcore_test")).count();
+        if (mine != 1) h.fail("Повторное сообщение не заменило прежнее: строк " + mine);
+        if (RpCoreAPI.compat().stream().noneMatch(i -> i.modId().equals("rpcore_test") && i.state() == RpCoreAPI.CompatState.ON))
+            h.fail("В отчёте не то состояние");
+        if (RpCoreAPI.reportCompat("rpcore_test", "no_such_mod_installed")) h.fail("Несуществующий мод «стоит»");
+        if (!RpCoreAPI.reportCompat("rpcore_test", "rpcore")) h.fail("RP Core «не стоит»");
+        if (RpCoreAPI.compat().stream().noneMatch(i -> i.modId().equals(RpCore.MODID) && i.integration().equals("curios")
+                && i.state() == RpCoreAPI.CompatState.ABSENT)) h.fail("RP Core не сообщил о своей интеграции с Curios");
+        h.succeed();
+    }
 }

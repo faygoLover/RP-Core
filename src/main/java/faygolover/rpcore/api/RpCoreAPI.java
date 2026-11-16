@@ -245,6 +245,55 @@ public final class RpCoreAPI {
      * @param permission     уровень прав (0 — все, 2 — ГМ)
      * @param debug          отладочная: видна и работает, только если в конфиге Core включены отладочные команды
      */
+    // ------------------------------------------------------------------ отчёт совместимости
+
+    /** Состояние необязательной интеграции с чужим модом или соседом. @since 0.15.0 */
+    public enum CompatState {
+        /** Мод стоит, интеграция работает. */
+        ON,
+        /** Мода нет — интеграция выключена, это нормально. */
+        ABSENT,
+        /** Мод стоит, но интеграция не завелась (нет класса, сменился метод): её надо чинить. */
+        BROKEN
+    }
+
+    /** Одна строка отчёта: какой мод семейства, с чем интеграция, что с ней. @since 0.15.0 */
+    public record CompatInfo(String modId, String integration, CompatState state, String reason) {}
+
+    private static final Map<String, CompatInfo> COMPAT = Collections.synchronizedMap(new LinkedHashMap<>());
+
+    /**
+     * Сообщить, что стало с необязательной интеграцией: мод семейства зовёт это один раз при старте на каждую
+     * свою мягкую связь (чужой мод, миксин в него, поиск класса по имени). Так после обновления сборки видно
+     * сразу, что отвалилось: {@code /rpcore compat} и одна сводная строка в логе при старте сервера.
+     * Повторный вызов с теми же модом и именем заменяет прежнюю строку. Любая сторона, любой поток.
+     *
+     * @param modId       мод семейства, который сообщает ({@code "rpmedicine"})
+     * @param integration с чем интеграция, коротко ({@code "tacz"}, {@code "curios: слот КПК"})
+     * @param reason      почему так (для {@link CompatState#BROKEN} — что именно не нашлось); можно пустую строку
+     * @since 0.15.0
+     */
+    public static void reportCompat(String modId, String integration, CompatState state, String reason) {
+        COMPAT.put(modId + "|" + integration, new CompatInfo(modId, integration, state, reason == null ? "" : reason));
+    }
+
+    /**
+     * Короткая форма для обычного случая «интеграция включается, если мод стоит»: {@code ON} или {@code ABSENT}
+     * по {@code ModList}. Возвращает, стоит ли мод. @since 0.15.0
+     */
+    public static boolean reportCompat(String modId, String otherModId) {
+        boolean loaded = net.minecraftforge.fml.ModList.get().isLoaded(otherModId);
+        reportCompat(modId, otherModId, loaded ? CompatState.ON : CompatState.ABSENT, "");
+        return loaded;
+    }
+
+    /** Все строки отчёта в порядке поступления. @since 0.15.0 */
+    public static List<CompatInfo> compat() {
+        synchronized (COMPAT) {
+            return List.copyOf(COMPAT.values());
+        }
+    }
+
     public record CommandInfo(String modId, String syntax, String descriptionKey, int permission, boolean debug) {}
 
     private static final List<CommandInfo> COMMANDS = new CopyOnWriteArrayList<>();

@@ -34,6 +34,8 @@ public final class CoreCommand {
     public static void register(RegisterCommandsEvent e) {
         e.getDispatcher().register(Commands.literal("rpcore")
                 .executes(CoreCommand::info)
+                .then(Commands.literal("compat").requires(s -> s.hasPermission(2))
+                        .executes(CoreCommand::compat))
                 .then(Commands.literal("commands")
                         .executes(c -> commands(c, null))
                         .then(Commands.argument("mod", StringArgumentType.word())
@@ -246,5 +248,44 @@ public final class CoreCommand {
         ServerPlayer p = EntityArgument.getPlayer(c, "player");
         RpCoreAPI.setProfile(p, edit.apply(RpCoreAPI.profile(p)));
         return showProfile(c);
+    }
+
+    /** /rpcore compat — что стало с необязательными интеграциями модов семейства: сначала сломанные. */
+    private static int compat(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> c) {
+        java.util.List<RpCoreAPI.CompatInfo> all = new java.util.ArrayList<>(RpCoreAPI.compat());
+        all.sort(java.util.Comparator.comparing((RpCoreAPI.CompatInfo i) -> i.state() == RpCoreAPI.CompatState.BROKEN ? 0
+                : i.state() == RpCoreAPI.CompatState.ON ? 1 : 2).thenComparing(RpCoreAPI.CompatInfo::modId));
+        if (all.isEmpty()) {
+            c.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("rpcore.compat.empty"), false);
+            return 0;
+        }
+        for (RpCoreAPI.CompatInfo i : all) {
+            net.minecraft.ChatFormatting color = switch (i.state()) {
+                case ON -> net.minecraft.ChatFormatting.GREEN;
+                case ABSENT -> net.minecraft.ChatFormatting.GRAY;
+                case BROKEN -> net.minecraft.ChatFormatting.RED;
+            };
+            String line = i.modId() + " → " + i.integration() + (i.reason().isEmpty() ? "" : " — " + i.reason());
+            c.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.translatable("rpcore.compat." + i.state().name().toLowerCase(java.util.Locale.ROOT))
+                    .withStyle(color).append(net.minecraft.network.chat.Component.literal(" " + line).withStyle(net.minecraft.ChatFormatting.WHITE)), false);
+        }
+        return all.size();
+    }
+
+    /** Старт сервера: одна сводная строка в лог — сколько интеграций включено, скольких модов нет, что сломано. */
+    public static void logCompat(net.minecraftforge.event.server.ServerStartedEvent e) {
+        int on = 0, absent = 0;
+        StringBuilder broken = new StringBuilder();
+        for (RpCoreAPI.CompatInfo i : RpCoreAPI.compat()) {
+            switch (i.state()) {
+                case ON -> on++;
+                case ABSENT -> absent++;
+                case BROKEN -> broken.append(broken.length() == 0 ? "" : "; ").append(i.modId()).append(" → ").append(i.integration())
+                        .append(i.reason().isEmpty() ? "" : " (" + i.reason() + ")");
+            }
+        }
+        if (on + absent == 0 && broken.length() == 0) return;
+        if (broken.length() == 0) faygolover.rpcore.RpCore.LOGGER.info("RP Core: интеграции семейства — включено {}, модов нет {}, сломанных нет", on, absent);
+        else faygolover.rpcore.RpCore.LOGGER.warn("RP Core: интеграции семейства — включено {}, модов нет {}, СЛОМАНО: {}", on, absent, broken);
     }
 }

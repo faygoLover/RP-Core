@@ -4,15 +4,15 @@
 **Руками не править**: пересоздаётся скриптом. Смысл, потоки работы и рецепты — в `docs/MAP.md`.
 Разбор по шаблонам, без компиляции: необычно оформленная регистрация может отсутствовать в списках.
 
-Всего: 112 файлов, 11328 строк Java.
+Всего: 112 файлов, 11440 строк Java.
 
 ## 1. Пакеты
 
 | Пакет | Файлов | Строк |
 |---|---:|---:|
-| `faygolover.rpcore` | 2 | 192 |
+| `faygolover.rpcore` | 2 | 198 |
 | `faygolover.rpcore.access` | 2 | 151 |
-| `faygolover.rpcore.api` | 19 | 2269 |
+| `faygolover.rpcore.api` | 19 | 2318 |
 | `faygolover.rpcore.api.config` | 1 | 352 |
 | `faygolover.rpcore.api.data` | 3 | 461 |
 | `faygolover.rpcore.api.event` | 17 | 622 |
@@ -22,10 +22,10 @@
 | `faygolover.rpcore.client.gm` | 5 | 551 |
 | `faygolover.rpcore.client.hud` | 6 | 493 |
 | `faygolover.rpcore.client.photo` | 3 | 289 |
-| `faygolover.rpcore.command` | 3 | 570 |
+| `faygolover.rpcore.command` | 3 | 611 |
 | `faygolover.rpcore.data` | 1 | 202 |
 | `faygolover.rpcore.effect` | 2 | 187 |
-| `faygolover.rpcore.gametest` | 4 | 789 |
+| `faygolover.rpcore.gametest` | 4 | 805 |
 | `faygolover.rpcore.gm` | 15 | 1621 |
 | `faygolover.rpcore.network` | 8 | 553 |
 | `faygolover.rpcore.photo` | 2 | 386 |
@@ -37,7 +37,7 @@
 
 ### `faygolover.rpcore`
 - `CoreConfig`, 65 — Общий конфиг RP Core: config/rpcore-common.toml.
-- `RpCore`, 127 — RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine, RP Culinary, RP PDA).
+- `RpCore`, 133 — RP Core — общая библиотека семейства RP-модов (RP Perks, RP Stamina, RP Medicine, RP Culinary, RP PDA).
 
 ### `faygolover.rpcore.access`
 - `AccessServer`, 51 — Выдача доступа к скрытым предметам с сервера: ведущим (уровень прав из [access] конфига Core) на выделенном сервере.
@@ -56,7 +56,7 @@
 - `NutritionProvider` (interface), 84 — Мод питания (RP Culinary): сытость в калориях, вода, нутриенты, вес и жир.
 - `Photos`, 39 — Фото игроков — сервер (медкарта RP Medicine, аватарки RP PDA).
 - `Pictures`, 48 — Картинки по ключу — сервер (свои аватарки RP PDA, в том числе у NPC).
-- `RpCoreAPI`, 697 — Точка встречи модов семейства RP.
+- `RpCoreAPI`, 746 — Точка встречи модов семейства RP.
 - `RpIds`, 230 — Общие названия навыков и черт.
 - `SleepProvider` (interface), 17 — Мод, который ведёт сон (RP Needs).
 - `StaminaProvider` (interface), 66 — Мод выносливости (RP Stamina).
@@ -131,7 +131,7 @@
 - `SkinCapture`, 68 — Снимок своего скина по запросу сервера (как фото медкарты RP Medicine): ждём, пока скин догрузится (с Ely.by он приходит не сразу), снимаем текстуру с видеокарты в PNG и отправляем.
 
 ### `faygolover.rpcore.command`
-- `CoreCommand`, 251 — /rpcore — что из семейства установлено и кто ведёт навыки; /rpcore commands [мод] — общий список команд семейства; /rpcore skill — уровень и прогресс навыка, ГМ ставит уровень или прибавляет add 1 | add 0.1 поверх наработанного (е…
+- `CoreCommand`, 292 — /rpcore — что из семейства установлено и кто ведёт навыки; /rpcore commands [мод] — общий список команд семейства; /rpcore skill — уровень и прогресс навыка, ГМ ставит уровень или прибавляет add 1 | add 0.1 поверх наработанного (е…
 - `PointCommand`, 84 — /rpcore point — именованные точки прибытия без блока: ведущий встаёт туда, куда переносить, смотрит, куда должны смотреть прибывшие, и пишет /rpcore point set .
 - `TimeCommand`, 235 — /rptime — время RP (решения 30.10).
 
@@ -143,7 +143,7 @@
 - `RpEffects`, 88 — Эффекты RP Core (0.8.1) и зелья к ним.
 
 ### `faygolover.rpcore.gametest`
-- `CoreBricksTests`, 180 — Малые общие механизмы RP Core 0.15: надетое (Worn) без Curios, эталон времени тела, Matcher, розетки с ответами по умолчанию (тело, психика, знания, свет), выдача достижения по id.
+- `CoreBricksTests`, 196 — Малые общие механизмы RP Core 0.15: надетое (Worn) без Curios, эталон времени тела, Matcher, розетки с ответами по умолчанию (тело, психика, знания, свет), выдача достижения по id.
 - `CoreTestData`, 85 — Тестовые данные игрока для игровых тестов RP Core.
 - `PlayerStoreTests`, 220 — Данные игрока с общим жизненным циклом (PlayerStore, PersistentTag): имя ветки в сохранении, копия при смерти и возврате из Края, повторная отправка клиенту, уборка при выходе, версия формата.
 - `SettingsBinderTests`, 304 — Привязка настроек к конфигу (SettingsBinder).
@@ -236,6 +236,7 @@
 | `TickEvent.ServerTickEvent` | `AccessServer.onServerTick`, `EffectSync.onServerTick`, `Postures.onServerTick` |
 | `net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut` | `CoreClient.onLogout` |
 | `net.minecraftforge.event.entity.EntityEvent.Size` | `Postures.onSize` |
+| `net.minecraftforge.event.server.ServerStartedEvent` | `CoreCommand.logCompat` |
 
 ## 4. Сеть
 
@@ -265,7 +266,7 @@
 ## 5. Команды
 
 - `faygolover/rpcore/client/CoreClient.java`: `rphud`
-- `faygolover/rpcore/command/CoreCommand.java`: `rpcore` `commands` `skill` `add` `profile` `sex` `male` `female` `none` `age` `height` `reset` `wipe` `confirm` `taste`
+- `faygolover/rpcore/command/CoreCommand.java`: `rpcore` `compat` `commands` `skill` `add` `profile` `sex` `male` `female` `none` `age` `height` `reset` `wipe` `confirm` `taste`
 - `faygolover/rpcore/command/PointCommand.java`: `rpcore` `point` `set` `remove` `tp` `list`
 - `faygolover/rpcore/command/TimeCommand.java`: `rptime` `pause` `resume` `add` `set` `sleep` `player`
 - `faygolover/rpcore/gm/ItemMarks.java`: `mark` `id` `clear` `owner`
@@ -291,7 +292,7 @@
 
 ## 8. Что берёт из RP Core и что ему даёт
 
-Методы `RpCoreAPI` (сколько вызовов): `CommandInfo` 2, `Posture` 15, `addSkill` 1, `body` 1, `bodyFatPercent` 1, `bodyState` 1, `commands` 1, `dayLengthSeconds` 1, `debugCommands` 1, `isSkillManaged` 1, `modules` 2, `nutrition` 1, `nutritionHandles` 1, `profile` 2, `registerCommand` 13, `registerModule` 1, `setProfile` 1, `setSkill` 1, `setTaste` 2, `skill` 1, `skillProgress` 1, `taste` 1, `weightKg` 1, `wipeCharacter` 1.
+Методы `RpCoreAPI` (сколько вызовов): `CommandInfo` 2, `CompatInfo` 5, `CompatState` 2, `Posture` 15, `addSkill` 1, `body` 1, `bodyFatPercent` 1, `bodyState` 1, `commands` 1, `compat` 2, `dayLengthSeconds` 1, `debugCommands` 1, `isSkillManaged` 1, `modules` 2, `nutrition` 1, `nutritionHandles` 1, `profile` 2, `registerCommand` 14, `registerModule` 1, `reportCompat` 3, `setProfile` 1, `setSkill` 1, `setTaste` 2, `skill` 1, `skillProgress` 1, `taste` 1, `weightKg` 1, `wipeCharacter` 1.
 
 События Core: `BodyProfileChangedEvent`, `ExertionEvent`, `PhotoChangedEvent`, `PictureChangedEvent`, `RpAlarmEvent`, `RpCharacterWipeEvent`, `RpConsumeEvent`, `RpPostureSleepEvent`, `RpPostureWakeEvent`, `RpSleepCountEvent`, `RpTimeSkipEvent`, `RpTimeSkipOfflineEvent`, `StaminaRestoredEvent`.
 

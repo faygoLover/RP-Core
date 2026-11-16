@@ -14,3 +14,5 @@
   (`RpCoreAPI.registerMind`, `stressImpulse`, `sanityHit`), `TraitProvider.teach`
   (`RpCoreAPI.grantKnowledge`), `RpCoreAPI.grantAdvancement`.
 - `api/LightProvider` (`RpCoreAPI.registerLight`, `carriesLight`) — «несёт включённый свет».
+- `RpCoreAPI.reportCompat`, `compat()`, команда `/rpcore compat` — отчёт о необязательных интеграциях модов семейства.
+- `Worn.find` — первый надетый предмет без создания списков.
