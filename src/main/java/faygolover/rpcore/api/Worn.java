@@ -51,8 +51,13 @@ public final class Worn {
     }
 
     /** Надет ли предмет, подходящий под {@code test}, в одном из слотов {@code slots} (имена слотов Curios). */
-    public static boolean anyIn(LivingEntity e, Collection<String> slots, Predicate<ItemStack> test) {
+    public static boolean anyIn(LivingEntity e, Collection<? extends String> slots, Predicate<ItemStack> test) {
         return LOADED && Impl.any(e, slots, test);
+    }
+
+    /** Первый надетый предмет, подходящий под {@code test}, или {@link ItemStack#EMPTY}. Списков не создаёт — годится для отрисовки. */
+    public static ItemStack find(LivingEntity e, Predicate<ItemStack> test) {
+        return LOADED ? Impl.find(e, test) : ItemStack.EMPTY;
     }
 
     /** Все надетые предметы, подходящие под {@code test}, в порядке слотов Curios. */
@@ -82,7 +87,7 @@ public final class Worn {
 
     /** Классы Curios — только здесь: этот класс грузится, лишь когда Curios стоит. */
     private static final class Impl {
-        static boolean any(LivingEntity e, Collection<String> slots, Predicate<ItemStack> test) {
+        static boolean any(LivingEntity e, Collection<? extends String> slots, Predicate<ItemStack> test) {
             ICuriosItemHandler h = CuriosApi.getCuriosInventory(e).resolve().orElse(null);
             if (h == null) return false;
             if (slots == null) {
@@ -104,6 +109,19 @@ public final class Worn {
                 if (!s.isEmpty() && test.test(s)) return true;
             }
             return false;
+        }
+
+        static ItemStack find(LivingEntity e, Predicate<ItemStack> test) {
+            ICuriosItemHandler h = CuriosApi.getCuriosInventory(e).resolve().orElse(null);
+            if (h == null) return ItemStack.EMPTY;
+            for (ICurioStacksHandler sh : h.getCurios().values()) {
+                IDynamicStackHandler stacks = sh.getStacks();
+                for (int i = 0; i < stacks.getSlots(); i++) {
+                    ItemStack s = stacks.getStackInSlot(i);
+                    if (!s.isEmpty() && test.test(s)) return s;
+                }
+            }
+            return ItemStack.EMPTY;
         }
 
         static List<ItemStack> all(LivingEntity e, Predicate<ItemStack> test, String firstSlot) {

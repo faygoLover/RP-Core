@@ -42,6 +42,7 @@ public final class CoreBricksTests {
             if (Worn.any(p, s -> true) || Worn.anyIn(p, List.of("head"), s -> true)) h.fail("Без Curios что-то «надето»");
             if (!Worn.all(p, s -> true).isEmpty() || !Worn.all(p, s -> true, "pda").isEmpty()) h.fail("Без Curios список надетого не пуст");
             if (!Worn.first(p, "head").isEmpty() || !Worn.inSlot(p, "head").isEmpty()) h.fail("Без Curios в слоте что-то есть");
+            if (!Worn.find(p, s -> true).isEmpty()) h.fail("Без Curios find что-то нашёл");
             Worn.touched(p, "head");
         } finally {
             PlayerStoreTests.remove(h, p);
