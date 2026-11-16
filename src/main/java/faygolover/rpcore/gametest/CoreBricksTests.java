@@ -102,12 +102,12 @@ public final class CoreBricksTests {
             if (BodyProvider.DownState.CLINICAL.ordinal() != 3 || BodyProvider.DownState.FAINT.ordinal() != 1)
                 h.fail("Порядок DownState изменился: на него опирается перевод с числового уровня");
             ResourceLocation know = new ResourceLocation(RpCore.MODID, "test_knowledge");
-            if (new TraitProvider() {}.grantKnowledge(p, know) != -1) h.fail("grantKnowledge по умолчанию не −1");
+            if (new TraitProvider() {}.teach(p, know) != -1) h.fail("teach по умолчанию не −1");
             if (RpCoreAPI.grantKnowledge(p, know) != -1) h.fail("Без мода черт знание «выдано»");
             int[] calls = {0};
             RpCoreAPI.registerProvider(new TraitProvider() {
                 @Override
-                public int grantKnowledge(ServerPlayer player, ResourceLocation trait) {
+                public int teach(ServerPlayer player, ResourceLocation trait) {
                     if (!trait.equals(know)) return -1;
                     return calls[0]++ == 0 ? 1 : 0;
                 }

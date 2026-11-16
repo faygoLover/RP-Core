@@ -11,6 +11,6 @@
 - `RpCoreAPI.BODY_REFERENCE`, `RpCoreAPI.bodyRate()` — один эталон времени тела.
 - `api/data/Matcher` — список id и тегов из датапака.
 - Розетки: `BodyProvider.down/withdrawal/craving/formerAddiction/antipsychotic/infect`, `MindProvider`
-  (`RpCoreAPI.registerMind`, `stressImpulse`, `sanityHit`), `TraitProvider.grantKnowledge`
+  (`RpCoreAPI.registerMind`, `stressImpulse`, `sanityHit`), `TraitProvider.teach`
   (`RpCoreAPI.grantKnowledge`), `RpCoreAPI.grantAdvancement`.
 - `api/LightProvider` (`RpCoreAPI.registerLight`, `carriesLight`) — «несёт включённый свет».

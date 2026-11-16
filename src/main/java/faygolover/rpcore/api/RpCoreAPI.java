@@ -651,7 +651,7 @@ public final class RpCoreAPI {
      */
     public static int grantKnowledge(net.minecraft.server.level.ServerPlayer player, ResourceLocation trait) {
         for (TraitProvider p : PROVIDERS) {
-            int r = p.grantKnowledge(player, trait);
+            int r = p.teach(player, trait);
             if (r >= 0) return r;
         }
         return -1;

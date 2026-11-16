@@ -63,9 +63,10 @@ public interface TraitProvider {
 
     /**
      * Выдать знание — служебную черту, которую игрок получает в игре (прочитал записи, прошёл обучение).
-     * 1 — выдано, 0 — уже было, −1 — этот мод такого знания не ведёт. @since 0.15.0
+     * 1 — выдано, 0 — уже было, −1 — этот мод такого знания не ведёт. Зовут через {@link RpCoreAPI#grantKnowledge}.
+     * Имя не «grantKnowledge» нарочно: у RP Perks до 2.11 есть свой статический метод с таким именем. @since 0.15.0
      */
-    default int grantKnowledge(net.minecraft.server.level.ServerPlayer player, ResourceLocation trait) {
+    default int teach(net.minecraft.server.level.ServerPlayer player, ResourceLocation trait) {
         return -1;
     }
 }
