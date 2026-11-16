@@ -1,10 +1,10 @@
 # RP Core — указатель кода
 
-Создано `python _family/tools/mapgen.py`, версия мода 0.14.1-1.20.1-forge.
+Создано `python _family/tools/mapgen.py`, версия мода 0.15.0-1.20.1-forge.
 **Руками не править**: пересоздаётся скриптом. Смысл, потоки работы и рецепты — в `docs/MAP.md`.
 Разбор по шаблонам, без компиляции: необычно оформленная регистрация может отсутствовать в списках.
 
-Всего: 107 файлов, 10703 строк Java.
+Всего: 112 файлов, 11328 строк Java.
 
 ## 1. Пакеты
 
@@ -12,9 +12,9 @@
 |---|---:|---:|
 | `faygolover.rpcore` | 2 | 192 |
 | `faygolover.rpcore.access` | 2 | 151 |
-| `faygolover.rpcore.api` | 16 | 1898 |
+| `faygolover.rpcore.api` | 19 | 2269 |
 | `faygolover.rpcore.api.config` | 1 | 352 |
-| `faygolover.rpcore.api.data` | 2 | 387 |
+| `faygolover.rpcore.api.data` | 3 | 461 |
 | `faygolover.rpcore.api.event` | 17 | 622 |
 | `faygolover.rpcore.client` | 5 | 340 |
 | `faygolover.rpcore.client.access` | 2 | 216 |
@@ -25,7 +25,7 @@
 | `faygolover.rpcore.command` | 3 | 570 |
 | `faygolover.rpcore.data` | 1 | 202 |
 | `faygolover.rpcore.effect` | 2 | 187 |
-| `faygolover.rpcore.gametest` | 3 | 609 |
+| `faygolover.rpcore.gametest` | 4 | 789 |
 | `faygolover.rpcore.gm` | 15 | 1621 |
 | `faygolover.rpcore.network` | 8 | 553 |
 | `faygolover.rpcore.photo` | 2 | 386 |
@@ -46,25 +46,29 @@
 ### `faygolover.rpcore.api`
 - `BodyNorms`, 99 — Общие формулы тела, чтобы все моды семейства считали одинаково (дизайн — RP Stamina Sports, docs/06 п.
 - `BodyProfile` (record), 75 — Анкета тела: пол, возраст, рост.
-- `BodyProvider` (interface), 150 — Мод, который ведёт тело игрока (сейчас — RP Medicine).
+- `BodyProvider` (interface), 199 — Мод, который ведёт тело игрока (сейчас — RP Medicine).
 - `Consumables`, 163 — Общая база того, что пьют, едят и курят (датапак rpcore/consumables): вода, кофеин, алкоголь, никотин.
 - `FoodTaste` (record), 68 — Вкусы персонажа (часть анкеты): любимое и нелюбимое — вид еды («из чего») или способ («как приготовлено»).
 - `InventoryModifier` (interface), 42 — Источник поправок к инвентарю: особенности (RP Perks), тело (RP Medicine) и т.п.
 - `InventoryProvider` (interface), 82 — Мод ограничения инвентаря (RP Inventory).
+- `LightProvider` (interface), 19 — Мод, который знает, что сущность несёт включённый свет: фонарь в руке, налобный, лампа на поясе.
+- `MindProvider` (interface), 21 — Мод, который ведёт психику игрока (сейчас — RP Psyche): через него другие моды семейства давят на стресс и рассудок, не зная о нём.
 - `NutritionProvider` (interface), 84 — Мод питания (RP Culinary): сытость в калориях, вода, нутриенты, вес и жир.
 - `Photos`, 39 — Фото игроков — сервер (медкарта RP Medicine, аватарки RP PDA).
 - `Pictures`, 48 — Картинки по ключу — сервер (свои аватарки RP PDA, в том числе у NPC).
-- `RpCoreAPI`, 603 — Точка встречи модов семейства RP.
+- `RpCoreAPI`, 697 — Точка встречи модов семейства RP.
 - `RpIds`, 230 — Общие названия навыков и черт.
 - `SleepProvider` (interface), 17 — Мод, который ведёт сон (RP Needs).
 - `StaminaProvider` (interface), 66 — Мод выносливости (RP Stamina).
 - `StatusLines`, 68 — Строки состояния от модов семейства для мода тела (RP Medicine): что чувствует сам игрок, что видно при осмотре другим и что видит ГМ сканером и в панели.
-- `TraitProvider` (interface), 64 — Источник навыков и черт игрока.
+- `TraitProvider` (interface), 73 — Источник навыков и черт игрока.
+- `Worn`, 179 — Надетое в слотах Curios: один способ на всё семейство спросить «что надето».
 
 ### `faygolover.rpcore.api.config`
 - `SettingsBinder`, 352 — Привязка полей класса настроек к конфигу Forge: одно поле — один ключ в toml.
 
 ### `faygolover.rpcore.api.data`
+- `Matcher`, 74 — Список id и тегов (#namespace:path) для сопоставления с объектом реестра: предметом, блоком, сущностью, видом урона.
 - `PersistentTag`, 102 — Простые данные игрока в виде тега: раздел в getPersistentData() игрока (ForgeData в его файле).
 - `PlayerStore`, 285 — Данные игрока с общим жизненным циклом: хранение вместе с игроком, копия при смерти и возврате из Края, отправка клиенту при входе, возрождении и смене измерения, уборка при выходе.
 
@@ -139,6 +143,7 @@
 - `RpEffects`, 88 — Эффекты RP Core (0.8.1) и зелья к ним.
 
 ### `faygolover.rpcore.gametest`
+- `CoreBricksTests`, 180 — Малые общие механизмы RP Core 0.15: надетое (Worn) без Curios, эталон времени тела, Matcher, розетки с ответами по умолчанию (тело, психика, знания, свет), выдача достижения по id.
 - `CoreTestData`, 85 — Тестовые данные игрока для игровых тестов RP Core.
 - `PlayerStoreTests`, 220 — Данные игрока с общим жизненным циклом (PlayerStore, PersistentTag): имя ветки в сохранении, копия при смерти и возврате из Края, повторная отправка клиенту, уборка при выходе, версия формата.
 - `SettingsBinderTests`, 304 — Привязка настроек к конфигу (SettingsBinder).
@@ -186,7 +191,7 @@
 ### `faygolover.rpcore.time`
 - `RpTime`, 88 — Время RP (/rptime, итоговый дизайн Medicine §6.2).
 
-Классов без описания: 0 из 107.
+Классов без описания: 0 из 112.
 
 ## 3. Подписки на события
 
@@ -292,7 +297,7 @@
 
 ## 9. Связи с другими модами
 
-Проверки `isLoaded`: `emotecraft` (Postures).
+Проверки `isLoaded`: `curios` (Worn); `emotecraft` (Postures).
 
 Отражение (`Class.forName`):
 - `RpCore` → `faygolover.rpcore.gametest.CoreTestData`
